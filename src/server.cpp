@@ -25,6 +25,8 @@
 #include <netinet/in.h>
 #include <syslog.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <string>
 
@@ -791,7 +793,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data)
 			switch(data[1])
 			{
 			case 'n':
-				pNew = newPlayer(socket, data.substr(2));
+				pNew = newPlayer(socket, data.substr(2, 16));
 				sendXMLUpdates();
 				sendXMLUpdate(pNew, true, true); // give new player a full update (excluding self) so it knows who's in the lounge
 				return;
@@ -832,13 +834,13 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 	switch(data[0])
 	{
 	case 'n':
-		setPlayerName(pInput, std::string(data+1));
+		setPlayerName(pInput, data2.substr(1, 16));
 		return;
 	case 'p':
 		switch(data[1])
 		{
 			case 'i':
-				pInput->setProperty("image", data+2, this);
+				pInput->setProperty("image", data2.substr(2, 32), this);
 				return;
 		}
 		break;
@@ -1132,7 +1134,7 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 			switch(data[1])
 			{
 				case 'd':
-					setGameDescription(pInput, data2.substr(2));
+					setGameDescription(pInput, data2.substr(2, 64));
 					return;
 				case 'c':
 					game->editConfiguration( pInput, data+2 );

@@ -20,7 +20,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>
-#include <algo.h> // libstdc++ from the gcc 2.95 has no #include <algo> yet :(
+#include <string.h>
+#include <algorithm> // libstdc++ from the gcc 2.95 has no #include <algo> yet :(
 
 #include <map>
 #include <string>

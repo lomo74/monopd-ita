@@ -18,6 +18,7 @@
 #include <signal.h>
 #include <syslog.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <iostream>
 #include <string>
