@@ -1,4 +1,4 @@
-CPPFLAGS= -DMONOPD_DATADIR=\"$(pkgdatadir)\" -DMONOPD_CONFIGDIR=\"$(sysconfdir)\"
+AM_CPPFLAGS= -DMONOPD_DATADIR=\"$(pkgdatadir)\" -DMONOPD_CONFIGDIR=\"$(sysconfdir)\"
 
 bin_PROGRAMS = monopd
 
@@ -13,4 +13,4 @@ noinst_HEADERS = auction.h card.h cardgroup.h debt.h display.h estate.h \
 	gameproperty.h io.h main.h player.h server.h trade.h \
 	tradecomponent.h const.h socket.h listener.h listenport.h
 
-monopd_LDADD = -lcapsinetwork -lmath++
+monopd_LDADD = -lmath++
