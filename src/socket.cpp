@@ -25,6 +25,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "socket.h"
 
@@ -49,7 +50,7 @@ int Socket::ioWrite(const std::string data)
 const bool Socket::hasReadLine()
 {
 	static std::string newLine = "\r\n";
-	unsigned int pos = m_ioBuf.find_first_of(newLine);
+	std::string::size_type pos = m_ioBuf.find_first_of(newLine);
 
 	return (!(pos == std::string::npos));
 }
@@ -57,7 +58,7 @@ const bool Socket::hasReadLine()
 const std::string Socket::readLine()
 {
 	static std::string newLine = "\r\n";
-	unsigned int pos = m_ioBuf.find_first_of(newLine);
+	std::string::size_type pos = m_ioBuf.find_first_of(newLine);
 
 	if (pos != std::string::npos)
 	{

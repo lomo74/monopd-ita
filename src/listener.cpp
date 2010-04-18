@@ -31,6 +31,7 @@
 
 #include <netdb.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "listener.h"
 #include "listenport.h"

@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "listenport.h"
 
