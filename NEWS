@@ -1,0 +1,991 @@
+0.9.3
+-----
+
+- bugfix: try and resolve all debts for a player on income (#83274)
+- require libCapsiNetwork 0.3.0 which solves an issue with unlocatable
+  symbols
+- Valgrind inspired bugfixes
+- improved syslog notifications
+
+0.9.2
+-----
+
+- Valgrind inspired bugfixes improving stability.
+- Switch to unixcode.org domain so some future day I can ditch the
+  monopd.net proliferation.
+- Properly transfer estates of players bankrupted after disconnect.
+- Once auction is in state Sold or above, don't allow any more bids.
+
+0.9.1
+-----
+
+- bugfix: properly reenable canbejoined attribute for games in progress
+  allowing spectators
+- bugfix: update turn for bankrupt players even if no debts were solved.
+- bugfix: properly clear player socket when players disconnect
+
+0.9.0
+-----
+
+- API: require .n as part of handshake
+- API: removed updateplayerlist, has been deprecated since 0.7.0
+- API: deprecated updategamelist for gameupdate
+- API: .gk command for master to kick/boot players from game back to lounge (#52631)
+- API: playerupdate master bool attribute moved to gameupdate master int
+  (playerid) attribute
+- API: configupdate has changed behavior using property system
+- API: support spectators watching games in progress
+- API: master can upgrade spectator to participating player (#54347)
+- client config option: automate taxes (#54538)
+- 30s timeout for clients not completing a handshake (requires libcapsinetwork 0.2.4)
+- bugfix: exit gracefully when listen port cannot be bound (requires libcapsinetwork 0.2.5)
+- bugfix: properly handle debts and estate transfers for auction
+- bugfix: games are properly removed from memory when all players are disconnected
+  during auction without bids, or tax dialog
+- bugfix: under some debt resolutions, player property hasdebt was not set
+  to false when it should have (#67594)
+- bugfix: don't escape XML characters for setDisplay, it escapes internally (#68931)
+- bugfix: clear buttons when ending turn manually
+
+0.8.3
+-----
+
+- bugfix: don't put money in freeparking-like estates when collectfines is
+  not enabled when resolving debts
+- use properties for location= and directmove=, synchronizes jailed= and
+  location= xml (#65830)
+- ignore client in setTokenLocation when the token is already at the
+  specified location
+- added debug info
+- valgrind fixes
+- fixed possible race condition in setPlayerToken
+
+0.8.2
+-----
+
+- bugfix: don't create debts for total amount on payeach card (#60986)
+- bugfix: don't end turn on trade resolvement when clients are moving, during auction or tax dialog
+- bugfix/API: included revision for trades to avoid accidental accept of changed trade
+- bugfix: communicate player token in sendClientList (when new player joins game)
+- bugfix: restore hasdebt to 0 when all debts are resolved
+- use property system to relay player's game attribute
+- inform about players on connect automatically, otherwise clients won't
+  know about other players while not in a game
+- some spectator fixes (spectator support still experimental, clients are
+  not recommended to build a GUI for this yet)
+
+0.8.1
+-----
+
+- compilation fixes for FreeBSD, Debian and gcc 3.3
+- bugfix/API: communicate player bool properties hasdebt,canauction
+- bugfix: remove tradeobject when targetplayer is null, not just when target
+  is current owner
+- bugfix: fixed crash when accepting a trade resulted in a debt
+- bugfix: don't pass go on "go back three spaces" card
+- bugfix: prevent duplicate player names
+- bugfix: don't create debt for bankrupt players on "payeach"
+- new config option/API: allow estate sales
+
+0.8.0
+-----
+
+- use UTF-8 for config files
+- gameproperty framework, with automatic wire updates, specific targets
+  supported
+- players with no game can now chat
+- bugfix: don't include bankrupt players in "payeach" transactions
+- bugfix: don't end turn when unmortaging unless there's a debt
+- bugfix: clear buttons after tax choice
+- bugfix: only register to meta server when identity is defined
+- bugfix: update turn when player leaves running game
+- bugfix: don't hold auctions when all players have 0 assets (improbable,
+  but not technically impossible)
+- bugfix: player's turn ends after auction completes just like it does when
+  buying the regular way
+- new config option: double pass money on exact landing
+- new config option: shuffle card decks before taking card
+- new config option: bank provides unlimited amount of houses/hotels
+- new config option: player in jail gets no rent
+- new config option: rentmath for cards
+
+0.7.0
+-----
+
+- API: updateplayerlist is now deprecated for playerupdate
+- API: add cleartext=bool and clearbuttons=bool to display
+- API: new playerupdate attributes: host=string, image=string, master=bool and game=int
+- API: support for choosable player images/tokens .pi
+- API: deleteplayer tag
+- CONFIG: icon support in config file, requires clients to have appropriate icons
+- CONFIG: startmoney is configurable
+- CONFIG: houses/hotels are configurable
+- show new game button after a game has ended
+- bugfix: load game templates even when config file isn't installed
+- bugfix: change master attribute before sending playerupdate when creating a game
+- bugfix: init Auction::m_highBidder in constructor
+- bugfix: proper check for housePrice in Player::buyHouse
+- bugfix: don't mess with auction events when on unsuccesful bid
+- bugfix: allow building *houses* when max hotels reached
+- bugfix: change player name in game description
+- bugfix: only set edit=1 for master in configupdate
+- bugfix: unmortgage estates thatare sold to the bank on bankrupcy
+
+2002-12-24 (monopd-0.6.2)
+----------
+
+- SECURITY: use vsnprintf instead of vsprintf, fixes buffer overflow for .n
+  command and possibly other input as well
+- fixes in sending messages when deleting trade objects
+
+2002-11-09 (monopd-0.6.1)
+----------
+
+- send estateupdate money attribute in full update
+- added syslog support for info, warnings and errors
+- bankrupt disconnected players after a timeout
+- avoid dereference of 0 debt when bankrupting
+- don't have token timeout for disconnected players
+- CONFIG: add jailpayamount to config instead of hardcoded
+- clear display widgets when game ends
+- bugfixes against crash and possible infinite loop in setTokenLocation
+- more robust turn handling
+
+2002-10-24 (monopd-0.6.0)
+----------
+
+- code cleanups
+- trade gameplay behavior fixes
+- API: replaced joinedgame with correct use of <gameupdate> tag
+- avoid possible race condition for Game::sendFullUpdate() call
+- game now properly ends when only one player is left
+- give owned cards to creditor or bank when a player goes bankrupt
+- gcc 3.2 compilation fixes
+- updated DESIGN document
+- deleting tradecomponents in trade deconstructor no longer crashes
+- CONFIG: Card::jailcard is now seperated into Card::outofjail bool and
+  Card::canbeowned bool, to allow for different types of ownable cards in the
+  future
+- support for trading of jail cards
+  - API: cardupdate message to inform clients of text on cards they own,
+    plus owner= attribute to replace playerupdate's outofjailcards=
+  - API: new command .Tc to add cards to trade
+  - API: tradecard message in tradeupdate
+- inform trade players of new players getting involved
+- API: notify disability to join game when size == MAX in gameupdate (games
+  in updategamelist now have canbejoined boolean attribute)
+- API: clientid in client message is now playerid, playerid no longer reset
+  at game startup, so a game does not necessarily have players 0 through n.
+- API: clientid in updateplayerlist message is also merged into playerid
+- API: group attribute in estateupdate sends groupid now, not name, groupid
+  attribute added to estategroupupdate
+- API: merged estatedisplay with display
+- CONFIG: add passmoney to estate configs (for multiple go's)
+- CONFIG: move min/max players to config file
+- ported to libcapsinetwork 0.2.0
+- API: moved newturn message to playerupdate attribute hasturn
+- remove Cards+Estates from Trades when owner changes (bankrupcy/trade/card usage)
+- API: allow for reconnect with .R
+- handle passing of estates elegantly
+- CONFIG: remove nexutil and nextrr with advancetonextof=groupname,
+  estategroups must be defined before cards now
+
+2002-07-29 (monopd-0.5.0)
+----------
+
+- if you are insolvent on third roll of the dice in jail it doesn't end the turn right
+- correctly move player to destination on succesful jail roll
+- allow players to go "back" (leaving a game)
+- valgrind fixes, including huge memory leak in escapeXML
+- free parking target for estates (cards/jail/taxes)
+- game configuration
+  - free parking: collect fines
+  - auctionsEnabled
+
+2002-07-15 (monopd-0.4.3)
+----------
+
+- fixed negative payeach card actions
+- fixed tax choice breakage in commands
+- estate defaults in game init are now also set for last estate
+- fixed rentmath for utilities
+- cmdline arg for running on different port than config specifies (for debugging)
+- Game::findNext methods now include current estate in search
+- when player has to leave jail but has no money and owes bank, roll/jail
+  flags are not restored upon debt payment
+- chance 3 back -> tax -> turn ended?
+
+2002-07-11 (monopd-0.4.2)
+----------
+
+- client can choose between incremental and full updates
+- when player owes $50 to each other player, the debt collector is set to
+  NULL (Bank) and players never get their $50
+- when we collect $50 from all other players, their solvency is not checked at all!
+- 10%/200 ends turn
+- 10%/200 is not protected for hasTurn
+- 10%/200 buttons should only go to hasTurn
+- use ${HOUSES} in configuration, that's much nicer
+- ~Game crashes every now and then
+- many gcc 3.1 compile fixes
+- fixed many iterators that could've crashed
+
+2002-07-09 (cap)
+----------
+
+- libmath++ includes are now in math++, require 0.0.3 or later :/
+- gameboard .conf's rentmath now uses ${VAR} instead of plain VAR
+
+2002-07-07 (cap)
+----------
+
+- clients can request full update
+- payEach handles debts and solvency correctly
+
+2002-07-04 (cap) (monopd-0.4.1)
+----------
+
+- happy birthday, America!
+- fixed Makefile.am to include the READMEs at make dist, arghl
+- fixes more mem leaks
+- trades are now protected from non-participants
+- added <display/> to API so clients can reset certain widgets
+
+2002-07-03 (cap) (monopd-0.4.0)
+----------
+
+- fixed many memory leaks in Game class
+
+2002-06-30 (cap)
+----------
+
+- monopd automatically resolves debts when you are solvent again after
+  mortgaging, selling houses or trading.
+- removed duplicate auction status=0 message
+- finally support for 10%/200$ dialog!
+- more run-time variables can be used in dynamic rentmath expressions: DICe,
+  GROUPOWNED and HOUSES
+
+2002-06-29 (cap)
+----------
+
+- send display notification when player is sent to jail
+
+2002-06-28 (cap)
+----------
+
+- added usercount to monopigator
+- fixed memory leaks and other stuff valgrind noticed
+
+2002-06-27 (cap)
+----------
+
+- Bugfix: creating an invalid game with .gn and then starting it no longer
+  crashes the server
+- boardconfig API created
+- API: updategamelist now sends both name and gametype for gameconfigs
+
+2002-05-15 (cap)
+----------
+
+- added general game properties to the configuration, more verbose game
+  descriptions in protocol
+
+2002-05-01 (cap)
+----------
+
+- monopd now requires libCapsiNetwork 0.1.0 or later
+
+2002-04-30 (cap)
+----------
+
+- added support for dynamic rent calculation, railroads/airports have been
+  ported to it. we now require libmath++, so there will be no 0.3.1 as this is
+  definitely a new feature worth 0.4.0 in the future
+
+2002-04-29 (cap) (monopd-0.3.0.tar.gz)
+----------
+
+- load game configs from install data dir
+- make install completely works now, updated README
+- config file is now a -dist which doesn't overwrite, updated
+  README.monopigator
+- monopd port configurable from monopd.conf
+- removed stringstream stuff, older gcc's don't seem to like it
+
+2002-03-30 (cap)
+----------
+
+- API: introduced estategroupupdate
+- API: gameupdate status started is now start
+
+2002-03-22 (cap)
+----------
+
+- new config group EstateGroups active and used
+- parsing properties: price, housePrice, color, bgColor
+- API: groupid=<int> now replaced by group=<string> in estateupdate
+- API: chancejailcard=<bool>,ccjailcard=<bool> replaced by outofjailcards=<int> in playerupdate
+- API: removed type=<string> from estateupdate and config completely
+- cards are now dynamic
+- generic Board property for bgColor
+
+2002-02-28 (cap)
+----------
+
+- auctionupdate API change: type is deprecated, edit/new are implied.
+
+2002-02-01 (cap)
+----------
+
+- bugfix: don't allow unowned estates to be traded
+
+2001-12-19 (cap)
+----------
+
+- C++ has bools, so use them.
+- Player::canMaintain is deprecated, we've had Estate::canBeMortgaged and
+  friends for a while now
+- Replacing commandlist with:
+  - playerupdate can_roll can_buyestate
+
+2001-12-18 (cap)
+----------
+
+- Atlantic theme update, support for comments in config files.
+- Multi-player trade updates and bugfixes.
+
+2001-12-17 (cap)
+----------
+
+- Trades are no longer limited to two persons.
+
+2001-12-14 (cap)
+----------
+
+- Removed --theme argument, theme can now be given as argument for .gn,
+  allows clients to choose any game
+
+2001-11-15 (cap)
+----------
+
+- Moved a lot of responsibility to Game::addPlayer, makes rest of code
+  cleaner and more logical. Fixed updateplayerlist bug from TODO.
+- Go to jail no longer uses hardcoded estateId 10.
+
+2001-11-11 (cap)
+----------
+
+- Added color and bgColor to estates. Allows clients to build dynamic
+  gameboards.
+- Bugfix for chance/cc cards that give money.
+
+2001-10-17 (cap)
+----------
+
+- Completed isSolvent/pay merge into payMoney (has built in check, returns
+  true if payment succeeded or false if it doesn't) and addMoney (always
+  true).
+- Added compile date of server to version string. Have to figure out a way
+  to automatically do this in CVS but not for releases.
+
+2001-10-11 (cap)
+----------
+
+- More C code (read: chars) turned into C++ (read: strings), if there's
+  going to be both a C and C++ server why not make the C++ one real C++
+  instead of hybrid
+
+2001-10-10 (cap)
+----------
+
+- API change: can_be_unmortgaged and can_be_mortgaged in estateupdate are
+  replaced by can_toggle_mortgage, .m and .u commands have been replaced by
+  .em command (toggle estate mortgage)
+- Stringified some more stuff
+- Added Player::addMoney method for easier cash management, prepared
+  payMoney method which will eventually replace isSolvent() and pay()
+
+2001-09-08 (odinhuntr)
+----------
+
+- Added sellhouseprice to Estate/initial estateupdate/config file
+- Fixed up commandlist sending a little bit
+- seems like i did something else too; i forget :p
+
+2001-09-01 (odinhuntr)
+----------
+
+- Fixed a segfault bug with trading (forgot some parameters to ioInfo)
+- Added a Player::getStatus() method; Player::status() is kind of sloppily
+	encapsulated
+- Fixed a bunch of unnecessary messages
+- Fixed the oddities with passing-go money not being updated right off by
+	adding the playerupdate directly into Player::pay().
+- Encapsulated a bunch of other IO, too.
+- Fixed two jail-related bugs; rolling enabled when paying to leave jail
+	and ability to end turn while jailed removed.
+- Added some better checking for the commands in the beginning of
+	commands.cc.
+- Encapsulated EscapeXML() into Player::name() and Game::description().
+- Added type="foo" attribute to <estateupdate/>
+
+2001-08-31 (odinhuntr)
+----------
+
+- Became the autoconf ninja I so desperatly wanted last night.  conf/
+	directory is installed correctly now :p
+
+2001-08-30 (odinhuntr)
+----------
+
+- Fixed retarded behavior of escapeXML (strcatting to a newly allocated,
+	non-zero-terminated char * is bad)
+- Started with some autoconf stuff, but we need an autoconf ninja to get
+	the conf directory to $(prefix)/share/conf :p On the up note, one
+	can now use the MONOPD_DATA #define as the prefix directory when
+	haxoring on the monopd code.
+
+2001-08-29 (odinhuntr)
+----------
+
+- Fixed auction crash bug.  I officially hate vectors.
+
+2001-08-28 (odinhuntr)
+----------
+
+- Atlantic config file there, really rudimentary theme loading
+- Lots of little cleanups
+
+2001-08-17 (odinhuntr)
+----------
+
+- escapeXML(string) works
+
+2001-08-10 (odinhuntr)
+----------
+
+- Fixed small bug in Estate::canBuyHouses()
+
+2001-08-09 (odinhuntr)
+----------
+
+- Let clients know about estate prices and rents on initial estateupdate
+  flood
+- Fixed & --> | bug, games are playable again
+- Fixed Player::status() -> Player::clientStatus() bug, ditto
+
+2001-08-08 (odinhuntr)
+----------
+
+- Fixed the trade vector-deletion bug
+
+2001-08-07 (odinhuntr)
+----------
+
+- Squashed a bunch of miscellaneous annoying little bugs.
+
+2001-08-06 (cap)
+----------
+
+- implemented registerMonopigator()
+- many C to C++ changes (libCapsiNetwork CVS or upcoming 0.1.0 is now 
+	required!)
+- merged client and player classes
+
+2001-08-04 (cap)
+----------
+
+- Moved IO functions outside User class (User::io_writegame would now be
+  Game::ioWrite).
+- Moved User class to Client class
+
+2001-08-02 (cap) (monopd-0.2.0.tar.gz)
+----------
+
+- Disconnected players are _not_ deleted from the game anymore but simply
+  marked as bankrupt. This fixes some bugs and is a first step to add
+  support for clients to reconnect and continue.
+- Made many of the setBla() and bla() methods inlined.
+- Many, many if (player->user()) checks. Moved merging of player and user
+  class up to first TODO item for 0.3 (I will also redo IO stuff then by
+  taking it out of the User class).
+- Updated version to 0.2, prepping for release.
+
+2001-07-31 (cap)
+----------
+
+- Removed Auction::m_ready, it was not really necessary and broke token
+  movement timeouts since setReady was never set there. Instead, the event
+  is created upon the first bid instead of the creation of the auction.
+
+2001-07-31 (odinhuntr)
+----------
+
+- Added Game::estateUpdate(Estate *), sends a full estateupdate of
+  the given estate and all estates in the same group to all players.
+- Added <display/>, fixed bankruptcy thing (i hope).
+- Working on bug list.
+- AUCTIONS DONE.
+- Auction fixups, *JAIL BUG SQUASHED*, some other stuff that I forget :p
+
+2001-07-30 (odinhuntr)
+----------
+
+- Implemented most of auction system.  Still to do:  pause game during
+  auction, allow bidding, handle what happens when nobody bids.
+
+2001-07-30 (cap)
+----------
+
+- bugfix: "Advance to.." cards land player on estate
+- bugfix: Timeout events land player on estate, timeouts re-enabled
+- bugfix: Removing timeout event from vector when all token movements are
+  already confirmed.
+- bugfix: mortgaging/selling houses possible when there's a debt to settle
+- bugfix: turns ends after bankrupty, even when player had doubles
+
+2001-07-29 (odinhuntr)
+----------
+
+- API written.  God, I hate documentation.
+
+2001-07-28 (cap)
+----------
+
+- Disabled token movement timeout as long as it's broken
+
+2001-07-28 (odinhuntr)
+----------
+
+- XML fixes (tradeupdates not sending tradeids, reversed logic for deciding 
+  which playerid to send for a player element of a tradeupdate)
+
+2001-07-27 (odinhuntr)
+----------
+
+- Fixed annoying bug where tradeupdate accept toggles would lie about 
+  which playerid was toggling (three args given to four printf args
+  expected is Bad Juju (tm))
+  
+2001-07-26 (odinhuntr)
+----------
+
+- Changed to can_buy_houses and can_sell_houses.
+- Send house price on initial estatelist, <estateupdate houseprice="150"/>.
+
+2001-07-26 (odinhuntr)
+----------
+
+- Added a can_be_improved attribute to estateupdate, stuck it in where 
+  appropriate, added Estate::canBeImproved(player *).
+
+2001-07-24 (cap)
+----------
+
+- Keeping EstateVec pointer of Game in Estate class, moved estate related
+  methods (groupSize, min/maxHouses etc) to Estate class
+- Keeping User parent pointer in Player class
+- Attributes changes in estateupdate allowing more lazy client updates:
+  can_be_owned (replaces ownable)
+  can_be_mortgaged (new)
+  can_be_unmortgaged (new)
+- *Major* variable cleanup/naming conventions
+- updateplayerlist now supports type=del and has full support for attribute
+  master
+
+2001-07-19 (cap)
+----------
+
+- Updated trading XML as discussed on list.
+  <tradeupdate type="new|edit|accepted|completed" tradeid="tradeid" 
+	actor="playerid">
+  Types new and edit can contain:
+  <player playerid="playerid" accept="1|0" money="int"/>
+  <estate estateid="estateid" included="1|0"/>
+  When all accept, we send type accepted, the necessary estate/playerupdates
+  and then type completed.
+
+2001-07-18 (odinhuntr)
+----------
+
+- Added <tradeupdate type="completed"/> and deallocated trade upon success
+
+2001-07-15 (odinhuntr)
+----------
+
+- Changed .Tc$1 to .Tr$1 'cause that's what was in the TODO :p
+- Finished off player checks for trading
+
+2001-07-15 (odinhuntr)
+----------
+
+-Trading!
+
+ .Tn$1: trade with player $1
+ .Te$1/$2: add estate $2 to trade with id $1
+ .Tm$1/$2: offer $2 money to trade with id $1
+ .Tc$1: cancel trade $1
+ .Ta$1: accept trade $1
+
+<tradeupdate tradeid="0" playerid="1" type="add|del|money|new" estateid="2" 
+              value"3" accept="4"/>
+ tradeid is the trade's internal ID tag.
+ playerid is the player making the change.
+ estateid is the estate for trade.
+ accept is 1 or 0, depending on whether the player has accepted the 
+  most recent tradeupdate. (this is reset upon any change, the player 
+  must re-accept if anything is changed.)  .Ta$1 toggles this.
+ type:
+  add: add an estate.
+  del: delete and estate.
+  new: this is a new trade.
+  money: player is offering an amount of money specified by 'value.'
+ 
+- Jailcards not added yet.
+
+2001-07-13 (cap, Friday the 13th commits)
+----------
+
+- cloned maxHouses to minHouses, even build rule now effective for both
+  building and selling houses/hotels
+- various cleanups
+- encapsulated newTurn into Game class
+- token movement timeouts working, after timeout server sends playerupdate
+  towards final location with directmove=1. Clients should act upon this
+  immediately and should notice themselves and cancel whatever animation they
+  were displaying
+- added jailed, chancejailcard and chestjailcard attributes to 
+	<playerupdate>, values 1 and 0
+- cleaned up API, newClass/delClass create and delete instance,
+  addClass/removeClass only manipulate existing pointers
+
+2001-07-12 (cap)
+----------
+
+- updated documentation
+- event loop should be more stable now
+- added command .Te#:# to toggle estates within a trade
+- better implementation of vector deletes, other cleanups
+
+2001-07-11 (odinhuntr)
+----------
+
+- fixed tax bug (luxury tax taxed an uninitialized value)
+- added minimum house requirement on same-color estates
+
+2001-07-08 (cap, live from LinuxTag)
+----------
+
+- most commands disabled during token movement
+- tax $200 _or_ 10% preparations
+- prepared class and some commands for trades
+
+2001-07-06 (cap, live from LinuxTag)
+----------
+
+- Some bugfixes (checking for NULL u->game entries, moving generic checks
+  towards the command parser)
+- Implemented generic event system.
+- Min/max players configuration.
+
+2001-07-01 (cap)
+----------
+
+- Implemented generic event system.
+- Min/max players configuration.
+
+2001-07-01 (cap)
+----------
+
+- API changes: .c  -> .jc
+               .pj -> .jp
+               .r  -> .jr (normal roll can no longer be used to leave jail)
+               .bh -> .hb
+               .s  -> .hs
+- Completed bankrupty actions (selling houses, transferring properties, etc)
+
+2001-06-29 (cap)
+----------
+
+- Chance/CC out of jail cards are removed from pile when player receives
+  them and are returned to pile when player uses them.
+- Player no longer goes bankrupt automatically when unable to pay debt. 
+  Player has opportunity to settle debt first (mortgaging, selling houses)
+  and then pay off the debt collector with .po or to declare bankrupty
+  manually.
+- Leaving jail command change to .pj
+- Sending some more info on startgame which should clean up client displays
+  for property ownerships (they need to support it anyway, in case a
+  property get sold)
+- Tweaked many info messages.
+- Correct calculation of rent after chance/cc cards which say "pay double
+  rent / pay ten times rent".
+
+2001-06-26 (cap)
+----------
+
+- Bugfixes.
+- New command to declare bankrupty: .D, sends playerupdate with bankrupt="1"
+  attribute and is automatically called when player is in debt while not
+  solvent.
+
+2001-06-24 (cap)
+----------
+
+- All chance/cc cards are now supported except advance to next util/RR!
+- Houses/hotels can be sold back to the bank with command .s# (where # is 
+	estateid)
+
+2001-06-21 (cap)
+----------
+
+- Added mortgaged attribute to estateupdate. Clients can now actually parse
+  results of (un)mortgage commands .m and .u!
+
+2001-06-20 (cap)
+----------
+
+- Bugfix: unset PLAYER_CANROLL when sending to jail
+- Collected Player modifications for jailing into Player::toJail()
+- Buying houses is supported! Added atrribute houses to <estateupdate>,
+  changed .b to .be (buy estate) and added .bh (buy house, argument
+  estateid))
+- Rolling not possible when clients are still moving
+- No extra turn when leaving jail after doubles
+- Mortgaged estates no longer collect rent
+- Mortgaged estates do not counted as owned: no building or rent doubling
+  for groupmates.
+- Bugfix: buildings require all properties to be unmortaged, rent
+  calculation is _not_ affected (except for mortgaged estate itself).
+
+2001-06-19 (cap)
+----------
+
+- Changed game name into description (makes more sense) and issued seperate
+  command for it (.gd) so the master can change the description.
+- Prepared some stuff for Chance/CC jailcards.
+
+2001-06-19 (odinhuntr)
+----------
+
+- Fixed a segfault (checking u->game->status without checking u->game isn't 
+  null)
+- Added game names, use .gnGamename, returns <game id=moo name=Cool
+  players=moo/>
+  
+2001-06-19 (cap)
+----------
+
+- Some bugfixes regarding throwing doubles
+- Clients get a unique client ID in welcome message <client clientid="1"/>
+- <updateplayerlist> now sends full info (clientid, name, host)
+- Added destination enum (toUser, toGame, toAll) for User::io_info and
+  User::io_error
+- Even more messages turned into XML including playerupdate ((un)mortgages).
+- Chance and Community Chest cards that give or take static amounts of money
+  are working! And so are the pay per house/hotel ones!
+
+2001-06-18 (cap)
+----------
+
+- Bugfix: double count must be reset after being sent to jail.
+- Added Player::solvent() function to seperate money checking from
+  Player::pay()
+- B & O Railroad -> B &amp; O Railroad. Change is currently in config file,
+  I guess we should transform it ourselves before sending as XML?
+
+2001-06-17 (cap)
+----------
+
+- Set version to pre-0.2.0
+
+2001-06-17 (cap) (monopd-0.1.0.tar.gz)
+----------
+
+- Happy birthday Katy. Love, Rob.
+- Changed estateupdate: id is now estateid, new attribute name (for init).
+- Cleaned up code here and there.
+- Changed intro string into XML and prepared it for clientid/connection
+  cookie.
+- Playerid's are 0-indexed now (or should be).
+- Joinedgame no longer contains playerid attribute: client message can
+  contain playerid, so that clients know their own playerid.
+- When master leaves, next player becomes master.
+- Added type=edit for updategamelist to edit a current item.
+- Playerlist message is now updateplayerlist: types are "full", "add", "del"
+  and "edit", just like updategamelist. Final attribute no longer exists.
+- Set version to 0.1.0, packaged snapshot.
+
+2001-06-16 (cap)
+----------
+
+- Added group definition for estates and rent is doubled when all
+  properties of a group are owned but without houses.
+- player shuffle (temporarily) disabled.
+- Added directmove=1 for landing on 'to jail' message.
+- Added playerupdate after paying rent.
+- Bugfix: token movement confirmation is ignored when server doesn't expect
+  it.
+- Bugfix: passing Go gives 200 again (I pretended it did with the token
+  confirmation code, but never actually gave it!).
+
+2001-06-15 (odinhuntr)
+----------
+
+- Changed rest of messages to XML format
+- Added vsprintf functionality to User::io_*
+- Changed uses of said functions to use the new functionality when possible
+- Fixed some spelling :p
+- Added a User::io_info() (like io_error())
+
+2001-06-14 (odinhuntr, merged into HEAD branch by cap)
+----------
+
+- Added ".d" for disconnect client->server
+- Changed most barewords errors to XML messages. Gotta add vsprintf()
+  functionality to User::io_*.
+
+Note: I (cap) did not merge in the disconnect changes, I would like further
+discussion on implementation first. Furthermore, since you probably have
+files from both branches mixed out, please backup your changes and do a
+clean checkout so your next commits builds on current tree and goes into 1.x
+instead of 1.1.1.x ?
+
+2001-06-11
+----------
+
+- Imported monopd to Sourceforge CVS. Hurrah.
+- Added playerid attribute to <msg type="chat"/>, author attribute is kept
+  for backwards compatibility.
+
+2001-06-10
+----------
+
+- Only master can start game, master=1|0 attribute added to playerlist.
+- Correct rent on utilities (value of dice now stored in Game class).
+- Tax estates functional.
+- Player leaves jail on doubles.
+
+2001-06-10 (monopd-snapshot-2001-06-10-0251.tar.gz)
+----------
+
+- Bugfix: added missing newline after </monopd> when landing Free
+  Parking and Go To Jail.
+- Bugfix: passing Go should not mark clients as non-moving
+- Bugfix: removed protocol breaking newline after "thrown into jail".
+
+2001-06-05
+----------
+
+- Added reference to gtkmonop in README
+- directmove=1 added to ToJail estate playerupdate
+- playerlist final=1|0 instead of true|false
+
+2001-06-05 (monopd-snapshot-2001-06-05-0510.tar.gz)
+----------
+
+- Added chat function. Commands still all start with . so anything that
+  doesn't is a chat message. Server sends: <msg type="chat"
+  author="playername" value="chatmsg"/>
+- Removed "end of turn" non-XML message, it's no longer necessary because of
+  the <newturn> message.
+- Community chest and chance cards are read from config file and printed to
+  client. However, the cards do not actually work yet.
+- Players are shuffled upon game start.
+- Lots of internal changes for Estate. Should not affect behavior much
+- Playerupdate now uses playerid as attribute instead of id.
+
+
+2001-06-01 (monopd-snapshot-2001-06-01-0302.tar.gz)
+----------
+
+- Added <movetoken> XML message, which replaces playerupdate for
+  token movements. (but not for updates in money, name and other none
+  animated stuff)
+- Added .t command for clients to acknowledge token movements. Clients now
+  *must* confirm the new location of their token after each
+  animation/update, so that the server can send the appropriate messages
+  "Passed Go, +200" at the right time.
+- Added <msg type="standby"> message type, which is used to inform clients
+  that the server is waiting for other clients to finish display updates
+  before continuing to send info.
+
+2001-05-27 (monopd-snapshot-2001-05-27-0342.tar.gz)
+----------
+
+- Added joinedgame XML message, informs clients of playerid.
+- Added newturn XML message, informs clients of playerid with turn.
+
+2001-05-08 (monopd-snapshot-2001-05-09-0446.tar.gz)
+----------
+
+- Many more messages turned into XML.
+- Playerupdate sent after purchase as well.
+- Bugfix: moved user deletion away from cmd_outro and into socket_handler
+
+2001-05-08 (monopd-snapshot-2001-05-08-0317.tar.gz)
+----------
+
+- Confirmation for setting name is now XML.
+- Confirmation/denial for joining and creating game is now XML.
+- Bugfix for segmentation fault in .gs command while game pointer was NULL.
+- Upon starting a game, "playerupdate" commands are sent.
+- Players get unique id (valid within game).
+- Dice result message is now XML.
+
+2001-05-07 (monopd-snapshot-2001-05-07-0313.tar.gz)
+----------
+
+- Playerlist now includes final boolean ("true" or "false"). This aids
+  clients, because they might need to take different actions, for example
+  KMonop needs to update a Listview during config but create portfolio
+  widgets once the playerlist is final.
+- Playerlist (final) is automatically sent when game is started.
+
+2001-05-03 (monopd-snapshot-2001-05-03-0422.tar.gz)
+----------
+
+- Bugfix: segmentation fault when deleting a user with a NULL pointer as
+  game.
+
+2001-05-03 (monopd-snapshot-2001-05-03-0123.tar.gz)
+----------
+
+- Playerlist is now broadcasted to all players.
+- Added player hostname to playerlist.
+  (monopd now requires libcapsi_network-snapshot-2001-05-03-0123.tar.gz)
+
+2001-05-02 (monopd-snapshot-2001-05-02-0351.tar.gz)
+----------
+
+- Added command to list players in game, .gp
+- Bugfix: when user gets deleted, it also removes player from game and
+  deletes game is no more players are in it.
+
+2001-04-28
+----------
+
+- API decision: messages are seperated by newlines. Syntax within a message
+  is yet unspecified, although it will probably use a subset of XML.
+- gamelist is printed in tiny XML.
+
+2001-03-12
+----------
+
+- turn-based game, .r only allowed on players turn [Milestone I bugfix]
+- complete redesign of user, game, player and ownership relations
+- seperate class for estate entities, names and prices from file
+- to_jail property for estates
+- buying properties and collecting rent are supported in the game, however
+  there are no commands in the API yet to buy properties. unowned properties
+  are automatically bought at the moment.
+- game requires >=2 players
+
+2001-03-07
+----------
+
+- Simple server with very limited capabilities:
+- creating a game
+- joining a game not yet in progress
+- starting a game

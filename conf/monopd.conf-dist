@@ -1,0 +1,37 @@
+#
+# Monopd configuration file.
+#
+
+#
+# Port which monopd should be listening to.
+#
+port=1234
+
+#
+# Frequency of monopigator registrations in seconds. The monopigator XML
+# database only returns severs who have registered during the past 300
+# seconds, so make this value smaller than 300 if you want your server to
+# appear continously. The minimum value is 60.
+#
+gatorfrequency=180
+
+#
+# Host of the monopigator web interface.
+#
+gatorhost=monopd.unixcode.org
+
+#
+# Port of the monopigator web interface.
+#
+gatorport=80
+
+#
+# Our identity. Monopd will not register automatically unless this value is
+# set, so uncomment it if you want to run a public server. Make sure you can
+# be reached under the hostname you set here or else you will show up in
+# Monopigator without users being able to use your host! The web interface
+# might check availability of your monopd server before adding you to the
+# database to avoid localhost, masqueraded localnet and firewalled entries
+# to appear there.
+#
+#gatoridentity=monopd.yourdomain.net

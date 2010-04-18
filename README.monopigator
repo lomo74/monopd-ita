@@ -1,0 +1,53 @@
+Contents
+========
+
+	1. Introduction
+	2. Requesting the server list
+	3. Registering a server
+
+1. Introduction
+---------------
+
+In order to make it easier to find people to play against, monopd can be run
+as dedicated game server and clients can request a list of available servers
+on-line. This document describes the implementation of this technique and
+how to enable it in monopd.
+
+2. Requesting the server list
+-----------------------------
+ 
+http://monopd.unixcode.org/ returns a XML page like this:
+ 
+<monopigator>
+  <server ipaddr="1.2.3.4" host="monopd.unixcode.org" port="1234" version="0.10.0" users="1"/>
+</monopigator>
+ 
+Parse it and your client is good to go (a value of -1 for users indicates
+the server did not register with a user count). Future additions might
+include attributes like description, games (integer of available games) and
+perhaps even game lists and descriptions for faster connects through
+treeviews. _Future_ editions.
+
+3. Registering a server
+--------------------
+ 
+To register a server, send the following GET request (or POST if you prefer)
+to monopd.unixcode.org:
+ 
+http://monopd.unixcode.org/register.php?host=monopd.mydomain.net&port=1234&version=0.2.1-CVS
+
+This keeps a server in the database for three minutes. So you'll have to
+register continously. Fortunately monopd can do this for you, but it does
+_not_ register by default. It will only register automatically when you
+enable it in the configuration.
+
+To enable registration, move the installed monopd.conf-dist to monopd.conf
+(or edit your existing monopd.conf) and uncomment the gatoridentity entry.
+You can also control some other monopigator and monopd settings here.
+
+The hostname you enter as identity will be the one to appear in the
+database, so you can use nice aliases instead of your boring reverse lookup.
+
+Monopigator will ignore registrations if it cannot connect to the given host
+and port. This prevents masqueraded and firewalled hosts from appearing in
+Monopigator.

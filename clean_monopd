@@ -1,0 +1,34 @@
+rm -f aclocal.m4
+rm -f -r autom4te.cache
+rm -f config.guess
+rm -f config.h
+rm -f config.status
+rm -f config.h.in
+rm -f config.log
+rm -f config.sub
+rm -f configure
+rm -f depcomp
+rm -f install-sh
+rm -f Makefile
+rm -f Makefile.in
+rm -f missing
+rm -f mkinstalldirs
+rm -f stamp-h1
+rm -f stamp-h.in
+rm -f libtool
+rm -f ltmain.sh
+rm -f *~
+rm -f src/*.o
+rm -f src/monopd
+rm -f src/Makefile.in
+rm -f src/Makefile
+rm -f src/*~
+rm -f -r src/.deps
+rm -f -r src/.libs
+rm -f conf/Makefile.in
+rm -f api/Makefile.in
+rm -f doc/Makefile.in
+rm -f doc/api/Makefile.in
+rm -f games/Makefile.in
+find . -name "CVS" -type d -exec rm -f -rf {} \;
+find . -name ".svn" -type d -exec rm -f -rf {} \;

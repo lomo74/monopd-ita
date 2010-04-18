@@ -1,0 +1,54 @@
+- not implemented
+^ partially implemented
+v implemented
+
+For 0.10.0 and onwards
+----------
+
+- new config option: rentmath for street-alikes
+- new config option: free parking refill
+- make config options automated!
+^ use display messages instead of info messages
+- warn on token conflict
+- require token confirmation / timeout for directmoves as well
+- API: allow players to vote inactive or disconnected players away
+- API: merge auctionupdate into display
+- API: add explicit token confirmation request for estates
+- CLEANUP: let game/engine handle all the game commands, but keep some logic
+  in server for server-wide events
+^ game configuration
+  - free parking default value
+  - config type string
+  - config type int
+  - config type combo
+  - CONFIG: add config defaults (freeparking on/off, auctions on/off) to config file
+  - CONFIG: add config changeability to config file
+- API: cmd to allow buying/selling multiple houses simultaneously
+- option to change gameType during configuration
+- API: more generic XML message for tradeobject
+  - merge .Tc and .Te into .Tu
+- have auctions for estates when player goes bankrupt on bank
+  - include estateId in bid command to avoid mistakes
+- allow for unmortgaging without 10% fee after transfer due to bankrupcy
+- wishlist: force default rules (for tournament servers)
+- API: password to join/watch games
+
+For 1.0.0
+---------
+
+- remove deprecated API messages
+- support airports for Atlantic game
+  ^ CONFIG: add advanceifowned= to estates
+    - add to class
+  - make sure rent is handled before advance in landPlayer
+  - add advanceifowned logic to landPlayer
+- Figure out "new space type" for Atlantic game
+- Write cards for Atlantic game
+  - advancetonext=Airports
+- complete .conf documentation
+
+Other
+-----
+
+Functionality such as themes, AI bots, game saving/loading are planned for
+after 1.0.

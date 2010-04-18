@@ -1,0 +1,110 @@
+Contents
+========
+
+	1. Introduction
+	2. Clients
+	3. Requirements
+	4. Installation
+	5. Release notes
+	6. Contact
+
+1. Introduction
+===============
+
+monopd is a dedicated game server daemon for playing Monopoly-like board
+games. Clients connect to the server and communicate using short commands
+and XML messages.
+
+2. Clients
+==========
+
+The monopd design was largely based upon the capability of supporting
+multiple games and clients simultaneously. A wide range of clients will make
+monopd the de facto board game server/protocol and improves interoperability
+between various desktop environments and operating systems.
+
+The following clients are currently available:
+
+Atlantik
+--------
+
+Environment:  KDE
+Author:       Rob Kaper <cap@capsi.com>
+Homepage;     http://unixcode.org/atlantik/
+Download:     http://unixcode.org/atlantik/download.html
+CVS:          KDE CVS, module kdegames
+Requirements: Qt, kdelibs, kdebase, libkdegames
+
+gtkAtlantic
+-----------
+
+Environment:  GTK+
+Author:       Rochet Sylvain <gradator@ifrance.com>
+Homepage:     http://gtkatlantic.sourceforge.net/
+Download:     http://gtkatlantic.sourceforge.net/downloads.html
+Requirements: libgtk1.2, libxml2, libpng
+
+gtkMonop
+--------
+
+Environment:  GNOME/GTK+
+Author:       Erik Bourget <ebourg@po-box.mcgill.ca>
+Homepage:     http://gtkmonop.sourceforge.net/
+Download:     http://gtkmonop.sourceforge.net/
+CVS:          http://sourceforge.net/, project gtkmonop
+Requirements: libgtk1.2, libxml2
+
+More clients are welcome! To get your client included in this list send
+e-mail to monopd-devel@lists.capsi.com with a short description of your
+client.
+
+3. Requirements
+===============
+
+monopd has the following requirements:
+
+- libmath++ >= 0.0.3
+  (http://www.surakware.net/download/)
+- libcapsinetwork >= 0.3.0
+  (http://unixcode.org/libcapsinetwork/)
+
+4. Installation
+===============
+
+In theory, this should suffice:
+
+./configure && make && su -c "make install"
+
+Arch users might want to run
+
+make -f Makefile.cvs
+
+first.
+
+5. Release notes
+================
+
+The best way to stay completely up-to-date with monopd is to use GNU arch.
+For more instructions, visit the project website:
+
+http://unixcode.org/monopd/download.html
+
+6. Contact
+==========
+
+Mailinglist
+-----------
+
+Development of the monopd server is being discussed on a mailinglist. Anyone
+interested in contributing to monopd (either the codebase itself or by
+making a compatible client) is encouraged to subscribe to this mailinglist.
+
+To subscribe, send e-mail to: monopd-devel-subscribe@lists.capsi.com
+To post, send e-mail to: monopd-devel@lists.capsi.com
+
+IRC
+---
+
+You can also find the core developers on IRC channel #monopoly on the
+OpenProjects network (irc.openprojects.net). If that fails, look for
+"Capzilla" on #kde-devel or #kde-freebsd on the same network.
