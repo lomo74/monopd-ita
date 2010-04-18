@@ -30,8 +30,7 @@
 
 #include <string>
 
-#include <libcapsinetwork/socket.h>
-
+#include "socket.h"
 #include "const.h"
 #include "auction.h"
 #include "event.h"

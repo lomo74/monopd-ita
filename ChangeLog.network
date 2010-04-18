@@ -1,0 +1,84 @@
+0.3.0
+-----
+
+- let users reimplement Listener::socketHandler rather than making a weird
+  callback that results in unresolved symbols on some platforms.
+- don't lookup host names unless socket is accepted.
+
+0.2.5
+-----
+
+- fixed race condition in Listener::do_select that occured when no
+  ListenPorts are bound
+- offer return code to Listener::addListenPort so applications can manually
+  handle failure
+
+0.2.4
+-----
+
+- added findSocket method to Listener so applications can look up sockets by fd.
+- fall back to inet_aton when inet_pton doesn't work (fix #63208)
+
+2002-11-19 (libcapsinetwork-0.2.3)
+----------
+
+- fixed race condition when deleting sockets in Listener::do_select()
+
+2002-11-09 (libcapsinetwork-0.2.2)
+---------
+
+- fixed possible iterator crash in Listener::do_select()
+
+2002-10-29 (cap) (libcapsinetwork-0.2.1)
+----------
+
+- fixed Gentoo compilation
+- fixed BSD compilation
+
+2002-10-22 (cap) (libcapsinetwork-0.2.0)
+----------
+
+- valgrind memory leak fix
+- simplified example server code
+- code cleanups
+
+2002-07-03 (cap) (libcapsinetwork-0.1.1)
+----------
+
+- gcc3 patches by Christian Parpart <cparpart@surakware.net>
+- valgrind fixes
+
+2002-05-01 (cap) (libcapsinetwork-0.1.0)
+----------
+
+- make example compile again
+- decent code copyright headers
+- switched to autotools
+
+2002-03-28 (cap)
+----------
+
+- rfds in Socket::io_close no longer a const
+- debug output takes less space
+
+2001-08-06 (cap)
+----------
+
+- Upgraded version to 0.1.0 (not releasing yet)
+- Many C to C++ conversions
+
+2001-07-30 (cap)
+----------
+
+- 0.13 release.
+- Added LGPL and README to distribution.
+
+2001-07-27 (cap)
+----------
+
+- Fixed buffer overflow bug in tcp_read
+
+2001-05-02
+----------
+
+- Added fdqn() member function for Socket

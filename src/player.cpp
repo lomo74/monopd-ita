@@ -22,8 +22,7 @@
 
 #include <string>
 
-#include <libcapsinetwork/socket.h>
-
+#include "socket.h"
 #include "card.h"
 #include "display.h"
 #include "estate.h"

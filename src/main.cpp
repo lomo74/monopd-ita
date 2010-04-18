@@ -23,9 +23,8 @@
 #include <iostream>
 #include <string>
 
-#include <libcapsinetwork/listener.h>
-#include <libcapsinetwork/socket.h>
-
+#include "listener.h"
+#include "socket.h"
 #include "const.h"
 #include "main.h"
 #include "server.h"

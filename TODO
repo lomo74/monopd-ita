@@ -46,6 +46,16 @@ For 1.0.0
 - Write cards for Atlantic game
   - advancetonext=Airports
 - complete .conf documentation
+- Listener needs to periodically try to rebind unbound ListenPorts
+- code header documentation
+- use Thiago's inet_pton reimplementation instead of current hack
+
+For 1.1.0 and onwards
+---------
+
+- rewrite socketHandler calls, split into handlers for New/Closed sockets
+  and sockets with data.
+- Support for choosing between TCP and UDP data.
 
 Other
 -----

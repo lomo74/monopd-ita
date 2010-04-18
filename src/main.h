@@ -22,7 +22,7 @@ class MonopdServer;
 class Socket;
 
 #include <string>
-#include <libcapsinetwork/listener.h>
+#include "listener.h"
 
 class MonopdListener : public Listener
 {
