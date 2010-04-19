@@ -23,9 +23,9 @@
 #include <iostream>
 #include <string>
 
+#include "config.h"
 #include "listener.h"
 #include "socket.h"
-#include "const.h"
 #include "main.h"
 #include "server.h"
 
@@ -48,7 +48,7 @@ void MonopdListener::socketHandler( Socket *socket, const std::string &data )
 	{
 		case Socket::New:
 			syslog( LOG_INFO, "connection: fd=[%d], ip=[%s]", socket->fd(), socket->ipAddr().c_str() );
-			socket->ioWrite( std::string("<monopd><server version=\"") + MONOPD_VERSION_STRING + "\"/></monopd>\n" );
+			socket->ioWrite( std::string("<monopd><server version=\"") + VERSION + "\"/></monopd>\n" );
 			m_server->initSocketTimeoutEvent( socket->fd() );
 			break;
 
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
 	signal( SIGPIPE, SIG_IGN );
 
 	openlog( "monopd", LOG_PID, LOG_DAEMON );
-	syslog( LOG_NOTICE, "monopd %s started", MONOPD_VERSION_STRING );
+	syslog( LOG_NOTICE, "monopd %s started", VERSION );
 
 	MonopdServer *server = new MonopdServer();
 	if ( argc > 1 )

@@ -30,8 +30,8 @@
 
 #include <string>
 
+#include "config.h"
 #include "socket.h"
-#include "const.h"
 #include "auction.h"
 #include "event.h"
 #include "game.h"
@@ -583,7 +583,7 @@ void MonopdServer::registerMonopigator()
 	if (connect(ircsock, (struct sockaddr *) & sin, sizeof(sin)))
 		return;
 
-	std::string getStr = std::string("GET /register.php?host=") + m_gatorIdentity + "&port=" + itoa(m_port) + "&version=" + escapeHTML(MONOPD_VERSION_STRING) + "&users=" + itoa(m_players.size()) + " HTTP/1.1\nHost:" + m_gatorHost + "\nUser-Agent: monopd/" + MONOPD_VERSION_STRING + "\n\n";
+	std::string getStr = std::string("GET /register.php?host=") + m_gatorIdentity + "&port=" + itoa(m_port) + "&version=" + escapeHTML(VERSION) + "&users=" + itoa(m_players.size()) + " HTTP/1.1\nHost:" + m_gatorHost + "\nUser-Agent: monopd/" + VERSION + "\n\n";
 	if (ircsock)
 	{
 		write(ircsock, getStr.c_str(), strlen(getStr.c_str()));
