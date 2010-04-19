@@ -48,7 +48,7 @@ void MonopdListener::socketHandler( Socket *socket, const std::string &data )
 	{
 		case Socket::New:
 			syslog( LOG_INFO, "connection: fd=[%d], ip=[%s]", socket->fd(), socket->ipAddr().c_str() );
-			socket->ioWrite( std::string("<monopd><server version=\"") + VERSION + "\"/></monopd>\n" );
+			m_server->welcomeNew( socket );
 			m_server->initSocketTimeoutEvent( socket->fd() );
 			break;
 
@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 	// close stdin, stdout, stderr
 	// close(0); close(1); close(2);
 
-	server->initMonopigatorEvent();
+	server->initMetaserverEvent();
 
 	for(;;)
 	{

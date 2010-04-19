@@ -18,6 +18,8 @@
 #ifndef __MONOPD_SERVER_H__
 #define	__MONOPD_SERVER_H__
 
+#include <netinet/in.h>
+
 #include "gameobject.h"
 
 class Auction;
@@ -43,7 +45,8 @@ public:
 	Player *findPlayer(Socket *socket);
 	void delPlayer(Player *player);
 
-	void initMonopigatorEvent();
+	void initMetaserverEvent();
+	void welcomeNew(Socket *socket);
 	void initSocketTimeoutEvent(int socketFd);
 	int processEvents(); /* returns -1 or socket fd in case of socket timeout */
 	void processInput(Socket *socket, const std::string data);
@@ -67,7 +70,7 @@ private:
 	void setGameDescription(Player *pInput, const std::string data);
 	void reconnectPlayer(Player *player, const std::string &cookie);
 
-	void registerMonopigator();
+	void registerMetaserver();
 	void loadConfig();
 	void loadGameTemplates();
 	void ioWrite(const char *data, ...);
@@ -85,10 +88,13 @@ private:
 	std::vector<Player *> m_players;
 
 	unsigned int m_nextGameId, m_nextPlayerId;
-	std::string m_gatorIdentity, m_gatorHost;
-	int m_port, m_gatorPort, m_gatorFrequency;
-	bool m_useMonopigator;
-	Event *m_monopigatorEvent;
+	std::string m_metaserverIdentity, m_metaserverHost;
+	int m_port, m_metaserverPort, m_metaserverFrequency;
+	bool m_useMetaserver;
+	Event *m_metaserverEvent;
+	int m_metaserverSocket;
+	struct sockaddr_in m_metaserverSockaddr;
+	int m_metaserverRefreshFrequency, m_metaserverRefreshCount;
 };
 
 #endif
