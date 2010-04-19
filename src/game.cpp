@@ -132,7 +132,7 @@ void Game::ioInfo(const char *data, ...)
 {
 	va_list arg;
 	char buf[2048];
-	
+
 	va_start(arg, data);
 	vsnprintf(buf, sizeof(buf)-1, data, arg);
 	va_end(arg);
@@ -572,7 +572,7 @@ void Game::setTokenLocation(Player *pInput, unsigned int estateId)
 	unsigned int money = 0;
 
 //	printf("Game::setTokenLocation, P:%d PTL:%d EID:%d\n", pInput->id(), pInput->tokenLocation()->id(), estateId);
-	
+
 	Estate *estate = 0;
 	for (std::vector<Estate *>::iterator it = m_estates.begin() ;;)
 	{
@@ -618,7 +618,7 @@ void Game::setTokenLocation(Player *pInput, unsigned int estateId)
 	}
 
 	// Find out if there are still clients busy with movement.
-	if (clientsMoving()) 
+	if (clientsMoving())
 		return;
 
 	// Land player!
@@ -786,7 +786,7 @@ void Game::solveDebts(Player *pInput, const bool &verbose)
 }
 
 bool Game::solveDebt( Debt *debt )
-{	
+{
 	Player *pFrom = debt->from();
 	int payAmount = debt->amount();
 	if ( !(pFrom->payMoney(payAmount)) )
@@ -798,7 +798,7 @@ bool Game::solveDebt( Debt *debt )
 		pCreditor->addMoney(payAmount);
 	else if ( ( eCreditor = debt->toEstate() )  && getBoolProperty("collectfines") )
 		eCreditor->addMoney(payAmount);
-        
+
 	setDisplay(m_pTurn->estate(), false, false, "%s pays off a %d debt to %s.", pFrom->getStringProperty("name").c_str(), debt->amount(), (pCreditor ? pCreditor->getStringProperty("name").c_str() : "Bank"));
 	if (debt == m_auctionDebt)
 	{
@@ -871,7 +871,7 @@ void Game::enforceDebt(Player *pBroke, Debt *debt)
 		delDebt(debt);
 }
 
-void Game::newAuction(Player *pInput) 
+void Game::newAuction(Player *pInput)
 {
 	if (!getBoolProperty("auctionsenabled") || !totalAssets())
 	{
@@ -939,7 +939,7 @@ int Game::bidInAuction(Player *pInput, char *data)
 		pInput->ioError("You don't have %d.", bid);
 		return 1;
 	}
-	
+
 	int highestBid = m_auction->getIntProperty("highbid");
 	if (bid <= highestBid)
 	{
@@ -986,7 +986,7 @@ Trade *Game::findTrade(unsigned int tradeId)
 	Trade *tTmp = 0;
 	for(std::vector<Trade *>::iterator it = m_trades.begin(); it != m_trades.end() && (tTmp = *it) ; ++it)
 		if (tradeId == tTmp->id()) return tTmp;
-	
+
 	return 0;
 }
 
@@ -1145,7 +1145,7 @@ void Game::completeAuction()
 		m_pTurn->setBoolProperty("can_roll", true);
 		setDisplay(estate, false, false, "%s may roll again.", m_pTurn->getStringProperty("name").c_str());
 	}
-	else 
+	else
 		updateTurn();
 }
 
@@ -1153,7 +1153,7 @@ void Game::setDisplay(Estate *estate, bool clearText, bool clearButtons, const c
 {
 	va_list arg;
 	char buf[2048];
-	
+
 	va_start(arg, data);
 	vsnprintf(buf, sizeof(buf)-1, data, arg);
 	va_end(arg);
@@ -1169,7 +1169,7 @@ void Game::setDisplay(Estate *estate, bool clearText, bool clearButtons, const c
 	}
 }
 
-void Game::sendMsgEstateUpdate(Estate *e) 
+void Game::sendMsgEstateUpdate(Estate *e)
 {
 	Estate *eTmp = 0;
 	Player *pTmp = 0;
@@ -1455,7 +1455,7 @@ Player *Game::findPlayer(int playerId)
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
 		if (playerId == pTmp->id())
 			return pTmp;
-	
+
 	return 0;
 }
 
@@ -1586,7 +1586,7 @@ void Game::updateTurn()
 	{
 		if (!pFirst && !player->getBoolProperty("bankrupt"))
 			pFirst = player;
-			
+
 		if (player == pOldTurn)
 			useNext = true;
 		else if (useNext && !player->getBoolProperty("bankrupt") && !player->getBoolProperty("spectator"))
@@ -1648,7 +1648,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 		// Store and write final data.
 		pTurn->addMoney(money);
 	}
-	
+
 	// Hm, we wait for all tokens to have landed, this is exactly what we
 	// were trying to avoid with async updates! So some of this stuff can be
 	// sent earlier.
@@ -1754,7 +1754,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 			payAmount = ( tax ? tax : (int)(taxPercentage * pTurn->assets() / 100 ) );
 
 		Estate * const ePayTarget = es->payTarget();
-				
+
 		if (!pTurn->payMoney(payAmount))
 		{
 			// TODO: If we go into debt here, we'll never enter rent
@@ -1784,7 +1784,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 		if ((pOwner = es->owner()))
 		{
 			// Owned.
-			
+
 			if (pOwner == pTurn)
 				setDisplay(es, false, false, "%s already owns it.", pTurn->getStringProperty("name").c_str());
 			else if (es->getBoolProperty("mortgaged"))
@@ -2095,7 +2095,7 @@ unsigned int Game::clientsMoving()
 {
 	unsigned int moving = 0;
 	Player *pTmp = 0;
-	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it) 
+	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
 		if (pTmp->tokenLocation())
 			moving++;
 	return moving;

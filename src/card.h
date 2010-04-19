@@ -42,7 +42,7 @@ public:
 	void setPayEach(int _pay) { m_payEach = _pay; }
 	void setAdvance(int _a) { m_advance = _a; }
 	void setAdvanceTo(int _a) { m_advanceTo = _a; }
-	void setAdvanceToNextOf(EstateGroup *group) { m_advanceToNextOf = group; } 
+	void setAdvanceToNextOf(EstateGroup *group) { m_advanceToNextOf = group; }
 	void setToJail(bool _j) { m_toJail = _j; }
 	void setOutOfJail(bool outOfJail) { m_outOfJail = outOfJail; }
 	void setRentMath(std::string rentMath) { m_rentMath = rentMath; }

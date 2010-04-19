@@ -67,7 +67,7 @@ const std::string Socket::readLine()
 
 		// Remove grabbed part from buffer
 		m_ioBuf.erase(0, pos);
-			
+
 		// Remove all subsequent newlines
 		m_ioBuf.erase(0, m_ioBuf.find_first_not_of(newLine));
 

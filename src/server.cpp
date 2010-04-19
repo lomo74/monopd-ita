@@ -224,7 +224,7 @@ void MonopdServer::delGame(Game *game, bool verbose)
 	}
 
 	// Remove events from game
-	for(std::vector<Event *>::iterator it = m_events.begin(); it != m_events.end() && (*it) ; ++it)
+	for(std::vector<Event *>::iterator it = m_events.begin(); it != m_events.end() && (*it) ; )
 	{
 		if ( (*it)->game() == game )
 		{
@@ -232,6 +232,7 @@ void MonopdServer::delGame(Game *game, bool verbose)
 			it = m_events.begin();
 			continue;
 		}
+		++it;
 	}
 
 	// Remove game
@@ -445,7 +446,7 @@ void MonopdServer::closedSocket(Socket *socket)
 	pInput->setSocket( 0 );
 	printf("%s socket 0 spec %d, bank %d, gamerun %d\n", pInput->name().c_str(), pInput->getBoolProperty("spectator"), pInput->getBoolProperty("bankrupt"), game->status() == Game::Run );
 	game->ioInfo("Connection with %s lost.", pInput->name().c_str());
-	
+
 	// Only remove from game when game not running, or when it's merely a spectator.
 	bool exitFromGame = false;
 	if (game->status() == Game::Run)
@@ -464,7 +465,7 @@ void MonopdServer::closedSocket(Socket *socket)
 	}
 	else
 		exitFromGame = true;
-	
+
 	if (exitFromGame)
 	{
 		printf("exit from game %d: %d\n", game->id(), pInput->id());
@@ -560,7 +561,7 @@ int MonopdServer::processEvents()
 			}
 			else
 				break;
-		} 
+		}
 	}
 	sendXMLUpdates();
 	return returnvalue;
@@ -570,7 +571,7 @@ void MonopdServer::registerMonopigator()
 {
 	int ircsock;
 	struct sockaddr_in sin;
-	struct hostent *hp = gethostbyname(m_gatorHost.c_str());	
+	struct hostent *hp = gethostbyname(m_gatorHost.c_str());
 	if (!hp)
 		return;
 
@@ -637,7 +638,7 @@ void MonopdServer::loadGameTemplates()
 	char str[256], *buf;
 	struct dirent *direntp;
 	std::string name = "", description = "";
-	
+
 	dirp = opendir(MONOPD_DATADIR "/games/");
 	if (!dirp)
 	{
@@ -753,7 +754,7 @@ void MonopdServer::sendGameList(Player *pInput, const bool &sendTemplates)
 {
 	pInput->ioWrite("<monopd>");
 
-	// Supported game types for new games	
+	// Supported game types for new games
 	GameConfig *gcTmp = 0;
 	if (sendTemplates)
 		for(std::vector<GameConfig *>::iterator it = m_gameConfigs.begin() ; it != m_gameConfigs.end() && (gcTmp = *it) ; ++it )
@@ -1067,7 +1068,7 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 	{
 		if(pInput->getBoolProperty("can_buyestate"))
 		{
-			switch(data[0]) 
+			switch(data[0])
 			{
 			case 'e':
 				switch(data[1])
@@ -1085,10 +1086,10 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 				break;
 			}
 		}
-		
+
 		if(pInput->getBoolProperty("jailed"))
 		{
-			switch(data[0]) 
+			switch(data[0])
 			{
 				case 'j':
 					switch(data[1])
@@ -1108,10 +1109,10 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 					break;
 			}
 		}
-		
+
 		if(pInput->getBoolProperty("can_roll"))
 		{
-			switch(data[0]) 
+			switch(data[0])
 			{
 				case 'r':
 					pInput->rollDice();
@@ -1119,12 +1120,12 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 					event->setLaunchTime(time(0) + 10);
 					return;
 			}
-			
+
 		}
 	}
 
 	// The following commands have their own availability checks.
-	switch(data[0])	
+	switch(data[0])
 	{
 		case 'E':
 			pInput->endTurn(true);
@@ -1235,7 +1236,7 @@ void MonopdServer::sendXMLUpdate(Player *pOutput, bool fullUpdate, bool excludeS
 	// Let game handle updates *about* all of its objects ..
 	if (Game *game = pOutput->game())
 		updateEmpty = game->sendChildXMLUpdate(pOutput, updateEmpty);
-	
+
 	if (!updateEmpty)
 		pOutput->ioWrite("</monopd>\n");
 }

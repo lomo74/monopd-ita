@@ -32,7 +32,7 @@ class GameObject
 public:
  	// We can abuse a Money object with its id as amount in trades.
  	enum Type { Unknown = 0, GGame, GCard, GEstate, GEstateGroup, GPlayer, Money, ConfigOption };
- 	
+
 	GameObject(int id, Type type = Unknown, Game *game = 0);
 	~GameObject();
 

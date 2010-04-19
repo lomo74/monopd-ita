@@ -35,7 +35,7 @@ const std::string DisplayButton::caption()
 {
 	return m_caption;
 }
- 
+
 const bool DisplayButton::enabled()
 {
 	return m_enabled;

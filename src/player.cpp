@@ -119,7 +119,7 @@ void Player::ioInfo(const char *data, ...)
 {
 	va_list arg;
 	char buf[2048];
-	
+
 	va_start(arg, data);
 	vsnprintf(buf, sizeof(buf)-1, data, arg);
 	va_end(arg);
@@ -137,7 +137,7 @@ void Player::ioError(const char *data, ...)
 {
 	va_list arg;
 	char buf[2048];
-	
+
 	va_start(arg, data);
 	vsnprintf(buf, sizeof(buf)-1, data, arg);
 	va_end(arg);
@@ -169,7 +169,7 @@ void Player::setDisplay(Estate *estate, const char *data, ...)
 {
 	va_list arg;
 	char buf[2048];
-	
+
 	va_start(arg, data);
 	vsnprintf(buf, sizeof(buf)-1, data, arg);
 	va_end(arg);
@@ -314,7 +314,7 @@ void Player::endTurn(bool userRequest)
 	else if (getBoolProperty("canrollagain"))
 	{
 		m_game->setDisplay(m_estate, false, false, "%s may roll again.", getStringProperty("name").c_str());
-		
+
 		setBoolProperty("can_roll", true);
 		setBoolProperty("canrollagain", false);
 		return;
@@ -331,7 +331,7 @@ void Player::endTurn(bool userRequest)
 			ioError("You cannot end your turn while jailed.");
 		return;
 	}
-	
+
 	else if (m_game->pausedForDialog())
 	{
 		if (userRequest)
@@ -601,7 +601,7 @@ void Player::buyHouse(int estateId)
 		ioError("You already have a hotel on '" + estate->name() + "'.");
 		return;
 	}
-	else if (estate->getIntProperty("houses") >= estate->maxHouses()) 
+	else if (estate->getIntProperty("houses") >= estate->maxHouses())
 	{
 		ioError("The even build rule prevents you from building more house on '" + estate->name() + "'.");
 		return;
@@ -861,7 +861,7 @@ void Player::advance(int pos, bool direct)
 {
 	int estates = m_game->estates();
 	int location = m_estate ? m_estate->id() : 0;
-	
+
 	location += pos;
 	if (location >= estates)
 		location %= estates;

@@ -25,7 +25,7 @@
 
 #define BUFSIZE	2048
 
-std::string escapeXML(std::string data) 
+std::string escapeXML(std::string data)
 {
 	stringReplace(data, "&", "\n");
 	stringReplace(data, "<", "&lt;");
@@ -35,7 +35,7 @@ std::string escapeXML(std::string data)
 	return data;
 }
 
-std::string escapeHTML(std::string data) 
+std::string escapeHTML(std::string data)
 {
 	stringReplace(data, " ", "+");
 	return data;

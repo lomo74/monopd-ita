@@ -57,7 +57,7 @@ void MonopdListener::socketHandler( Socket *socket, const std::string &data )
 			syslog( LOG_INFO, "disconnect: fd=[%d], ip=[%s]", socket->fd(), socket->ipAddr().c_str() );
 			m_server->closedSocket( socket );
 			break;
-			
+
 		case Socket::Ok:
 			m_server->processInput( socket, data );
 			break;

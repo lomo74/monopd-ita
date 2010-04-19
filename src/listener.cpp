@@ -190,7 +190,7 @@ void Listener::delSocket(Socket *socket)
 {
 	FD_CLR(socket->fd(), &m_fdset);
 	close(socket->fd());
-		
+
 	for (std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it) ; ++it)
 		if (*it == socket)
 		{
@@ -217,11 +217,11 @@ void Listener::socketHandler( Socket *socket, const std::string &data )
 		case Socket::New:
 			socket->ioWrite( std::string( "you are a new connection. welcome.\n" ) );
 			break;
-			
+
 		case Socket::Close:
 		case Socket::Closed:
 			break;
-			
+
 		case Socket::Ok:
 			socket->ioWrite( std::string( "your input (" + data + ") is appreciated.\n" ) );
 			break;

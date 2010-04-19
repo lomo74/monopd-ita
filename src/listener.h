@@ -26,7 +26,7 @@
 #define LIBCAPSI_NETWORK_LISTENER_H
 
 #include <sys/types.h>
-     
+
 #include <string>
 #include <vector>
 
@@ -44,7 +44,7 @@ public:
 	Socket *findSocket(unsigned int fd);
 
 	void checkActivity();
-		
+
 protected:
 	/*
 	 * Add a listen port. Returns -1 on failure, 0 on success.

@@ -31,7 +31,7 @@ Auction::Auction()
 	m_status = Bidding;
 }
 
-void Auction::setHighBid(Player *player, unsigned int bid) 
+void Auction::setHighBid(Player *player, unsigned int bid)
 {
 	setProperty("highbid", bid);
 	m_highBidder = player;

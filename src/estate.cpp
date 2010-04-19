@@ -99,7 +99,7 @@ bool Estate::canBuyHouses(Player *p)
 		return false;
 }
 
-bool Estate::canSellHouses(Player *p) 
+bool Estate::canSellHouses(Player *p)
 {
 	if ( (p == m_owner) && estateGroupIsMonopoly() && (getIntProperty("houses") > minHouses()) )
 		return true;
@@ -129,7 +129,7 @@ bool Estate::canToggleMortgage(Player *p)
 	return (p == m_owner && !groupHasBuildings()) ? true : false;
 }
 
-bool Estate::groupHasBuildings() 
+bool Estate::groupHasBuildings()
 {
 	Estate *eTmp = 0;
 	for(std::vector<Estate *>::iterator it = m_estates->begin(); it != m_estates->end() && (eTmp = *it) ; ++it) {

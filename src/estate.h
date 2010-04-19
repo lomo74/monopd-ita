@@ -61,7 +61,7 @@ public:
 	bool canToggleMortgage(Player *owner);
 	bool canBuyHouses(Player *);
 	bool canSellHouses(Player *);
-		
+
 	int groupSize(Player *);
 	int minHouses();
 	int maxHouses();

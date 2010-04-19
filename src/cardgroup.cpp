@@ -49,7 +49,7 @@ Card *CardGroup::nextCard()
 
 		// Remove first card
 		m_cards.erase(m_cards.begin());
-	
+
 		// Reinsert it at the back
 		m_cards.push_back(card);
 	}

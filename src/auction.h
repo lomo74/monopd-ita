@@ -32,7 +32,7 @@ class Auction : public GameObject
 	void setEstate(Estate *estate) { m_estate = estate; }
 	void setHighBid(Player *player, unsigned int bid);
 
-	void setStatus(unsigned int status) { m_status = status; }	
+	void setStatus(unsigned int status) { m_status = status; }
 	unsigned int status() { return m_status; }
 	Player *highBidder() { return m_highBidder; }
 	Estate *estate() { return m_estate; }
