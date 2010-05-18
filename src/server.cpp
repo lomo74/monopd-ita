@@ -288,9 +288,9 @@ Player *MonopdServer::newPlayer(Socket *socket, const std::string &name)
 		printf("  player %16s %16s game %d bankrupt %d socket %d fd %d\n", player->name().c_str(), player->getStringProperty("host").c_str(), (player->game() ? player->game()->id() : -1), player->getBoolProperty("bankrupt"), player->socket(), player->socket() ? (int)player->socket()->fd() : -1);
 
 	// Re-register to meta server with updated player count.
-	registerMetaserver();
-	if (m_metaserverEvent)
-		m_metaserverEvent->setLaunchTime(time(0) + m_metaserverEvent->frequency() );
+	//registerMetaserver();
+	//if (m_metaserverEvent)
+	//	m_metaserverEvent->setLaunchTime(time(0) + m_metaserverEvent->frequency() );
 
 	return player;
 }
