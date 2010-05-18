@@ -578,7 +578,7 @@ void MonopdServer::registerMetaserver()
 		struct sockaddr_in sin;
 		struct hostent *hp = gethostbyname(m_metaserverHost.c_str());
 
-		bcopy(hp->h_addr, (char *) &sin.sin_addr, hp->h_length);
+		memcpy((char *) &sin.sin_addr, hp->h_addr, hp->h_length);
 
 		if(m_metaserverSockaddr.sin_addr.s_addr != sin.sin_addr.s_addr) {
 
@@ -597,8 +597,8 @@ void MonopdServer::registerMetaserver()
 		if (!hp)
 			return;
 
-		bzero((char *) &sin, sizeof(sin));
-		bcopy(hp->h_addr, (char *) &sin.sin_addr, hp->h_length);
+		memset((char *) &sin, 0, sizeof(sin));
+		memcpy((char *) &sin.sin_addr, hp->h_addr, hp->h_length);
 		sin.sin_family = hp->h_addrtype;
 		sin.sin_port = htons(m_metaserverPort);
 
@@ -607,7 +607,7 @@ void MonopdServer::registerMetaserver()
 			return;
 
 		m_metaserverSocket = ircsock;
-		bcopy(&sin, &m_metaserverSockaddr, sizeof(sin) );
+		memcpy(&m_metaserverSockaddr, &sin, sizeof(sin) );
 
 		m_metaserverRefreshCount = 0;
 	}
