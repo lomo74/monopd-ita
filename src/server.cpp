@@ -614,7 +614,7 @@ void MonopdServer::registerMetaserver()
 
 	if( m_metaserverSocket>=0 ) {
 
-		std::string getStr = "<monopd><server host=\"" + m_metaserverIdentity + "\" port=\"" + itoa(m_port) + "\" version=\"" + VERSION + "\"/></monopd>";
+		std::string getStr = "<atlanticd><server host=\"" + m_metaserverIdentity + "\" port=\"" + itoa(m_port) + "\" version=\"" + VERSION + "\"/></atlanticd>";
 		sendto(m_metaserverSocket, getStr.c_str(), strlen(getStr.c_str()), 0, (sockaddr*)&m_metaserverSockaddr, sizeof(m_metaserverSockaddr) );
 		m_metaserverRefreshCount++;
 	}
