@@ -27,7 +27,7 @@ class Game;
 class Event : public GameObject
 {
 public:
-	enum EventType { Metaserver=0, TokenMovementTimeout, UserDecision, AuctionTimeout, PlayerTimeout, SocketTimeout };
+	enum EventType { Monopigator=0, TokenMovementTimeout, UserDecision, AuctionTimeout, PlayerTimeout, SocketTimeout };
 
 	Event(int id, EventType type, Game *game = 0);
 

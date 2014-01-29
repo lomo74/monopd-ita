@@ -1,29 +1,37 @@
 #
-# Atlanticd configuration file.
+# Monopd configuration file.
 #
 
 #
-# Port which atlanticd should be listening to.
+# Port which monopd should be listening to.
 #
 port=1234
 
 #
-# Host of the metaserver
+# Frequency of monopigator registrations in seconds. The monopigator XML
+# database only returns severs who have registered during the past 300
+# seconds, so make this value smaller than 300 if you want your server to
+# appear continously. The minimum value is 60.
 #
-metaserverhost=meta.atlanticd.net
+gatorfrequency=180
 
 #
-# UDP Port of the metaserver
+# Host of the monopigator web interface.
 #
-metaserverport=1241
+gatorhost=monopd.unixcode.org
 
 #
-# Our identity. Atlanticd will not register automatically unless this value 
-# is set, so uncomment it if you want to run a public server. Make sure 
-# you can be reached under the hostname you set here. The meta server 
-# will keep a connection to the server to track new games and check 
-# availability of your atlanticd server before adding you to the database 
-# to avoid localhost, masqueraded localnet and firewalled entries to 
-# appear there.
+# Port of the monopigator web interface.
 #
-#metaserveridentity=my.atlanticd.server.hostname
+gatorport=80
+
+#
+# Our identity. Monopd will not register automatically unless this value is
+# set, so uncomment it if you want to run a public server. Make sure you can
+# be reached under the hostname you set here or else you will show up in
+# Monopigator without users being able to use your host! The web interface
+# might check availability of your monopd server before adding you to the
+# database to avoid localhost, masqueraded localnet and firewalled entries
+# to appear there.
+#
+#gatoridentity=monopd.yourdomain.net
