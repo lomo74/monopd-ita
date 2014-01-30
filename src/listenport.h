@@ -34,13 +34,12 @@ class ListenPort
 public:
 	ListenPort(const std::string host, const unsigned int port);
 	const std::string ipAddr() { return m_ipAddr; }
-	const std::string fqdn() { return m_fqdn; }
 	const unsigned int port() { return m_port; }
 	const unsigned int fd() { return m_fd; }
 	bool isBound() const;
 
 private:
-	std::string m_ipAddr, m_fqdn;
+	std::string m_ipAddr;
 	unsigned int m_fd, m_port;
 	bool m_isBound;
 };

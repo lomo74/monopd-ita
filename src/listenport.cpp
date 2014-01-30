@@ -56,12 +56,6 @@ ListenPort::ListenPort(const std::string ip, const unsigned int port)
 //	servaddr.sin_addr.s_addr = htonl(INADDR_ANY); // any host may connect
 	servaddr.sin_port = htons(m_port);
 
-	struct hostent *host;
-	if((host = gethostbyaddr((char *)&servaddr.sin_addr, sizeof(servaddr.sin_addr), servaddr.sin_family)) != NULL)
-		m_fqdn = host->h_name;
-	else
-		m_fqdn = m_ipAddr;
-
 	// release the socket after program crash, avoid TIME_WAIT
 	int reuse = 1;
 	if(setsockopt(m_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1)
