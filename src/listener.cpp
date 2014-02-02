@@ -87,7 +87,7 @@ void Listener::checkActivity()
 
 	// Construct file descriptor set for new events
 	FD_ZERO(&m_fdset);
-	unsigned int highestFd = 0;
+	int highestFd = 0;
 
 	ListenPort *listenPort = 0;
 	for(std::vector<ListenPort *>::iterator it = m_listenPorts.begin() ; it != m_listenPorts.end() && (listenPort = *it) ; ++it)
@@ -163,7 +163,7 @@ void Listener::checkActivity()
 	}
 }
 
-Socket *Listener::newSocket(unsigned int fd)
+Socket *Listener::newSocket(int fd)
 {
 // TODO: reenable softbooting code
 //	if (!isNew)
@@ -181,8 +181,8 @@ Socket *Listener::newSocket(unsigned int fd)
 //	struct hostent *host;
 	char ip_str[INET6_ADDRSTRLEN];
 
-	unsigned int len = sizeof(clientaddr);
-	unsigned int socketFd = accept(fd, (struct sockaddr *) &clientaddr, (socklen_t *) &len);
+	int len = sizeof(clientaddr);
+	int socketFd = accept(fd, (struct sockaddr *) &clientaddr, (socklen_t *) &len);
 	if (socketFd == -1)
 		return 0;
 
@@ -219,7 +219,7 @@ void Listener::delSocket(Socket *socket)
 		}
 }
 
-Socket *Listener::findSocket(unsigned int fd)
+Socket *Listener::findSocket(int fd)
 {
 	Socket *socket = 0;
 	for (std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (socket = *it) ; ++it)

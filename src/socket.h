@@ -37,7 +37,7 @@ class Socket
 public:
 	enum Status { New, Ok, Close, Closed };
 
-	Socket(unsigned int fd);
+	Socket(int fd);
 	void setStatus(Status status) { m_status = status; }
 	Status status() { return m_status; }
 
@@ -46,16 +46,16 @@ public:
 	const std::string readLine();
 	void fillBuffer(const std::string data);
 
-	void setFd(unsigned int _fd) { m_fd = _fd; }
-	unsigned int fd() const { return m_fd; }
+	void setFd(int _fd) { m_fd = _fd; }
+	int fd() const { return m_fd; }
 	void setIpAddr(const std::string ipAddr) { m_ipAddr = ipAddr; m_fqdn = ipAddr; }
 	std::string ipAddr() const { return m_ipAddr; }
 	void setFqdn(const std::string fqdn) { m_fqdn = fqdn; }
 	std::string fqdn() const { return m_fqdn; }
 
 private:
-	unsigned int m_fd;
 	Status m_status;
+	int m_fd;
 	std::string m_ipAddr, m_fqdn, m_ioBuf;
 };
 

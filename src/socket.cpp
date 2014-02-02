@@ -31,7 +31,7 @@
 
 extern int errno;
 
-Socket::Socket( unsigned int fd )
+Socket::Socket( int fd )
  :	m_status( Socket::New ),
 	m_fd( fd )
 {

@@ -41,7 +41,7 @@ public:
 	Listener();
 	virtual ~Listener();
 
-	Socket *findSocket(unsigned int fd);
+	Socket *findSocket(int fd);
 
 	void checkActivity();
 
@@ -57,7 +57,7 @@ private:
 	/*
 	 * May return 0 in case the accept failed.
 	 */
-	Socket *newSocket(unsigned int fd);
+	Socket *newSocket(int fd);
 	void delSocket(Socket *socket);
 
 	fd_set m_fdset;
