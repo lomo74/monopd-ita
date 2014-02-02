@@ -53,10 +53,21 @@ Listener::~Listener()
 
 int Listener::addListenPort(const int port)
 {
-	ListenPort *listenPort = new ListenPort("0.0.0.0", port);
-	m_listenPorts.push_back(listenPort);
-	if ( !listenPort->isBound() )
+	ListenPort *listenPort;
+
+	listenPort = new ListenPort(AF_INET6, "::", port);
+	if ( !listenPort->isBound() ) {
+		delete listenPort;
+	} else {
+		m_listenPorts.push_back(listenPort);
+	}
+
+	listenPort = new ListenPort(AF_INET, "0.0.0.0", port);
+	if ( !listenPort->isBound() ) {
+		delete listenPort;
 		return -1;
+	}
+	m_listenPorts.push_back(listenPort);
 	return 0;
 }
 
@@ -166,8 +177,9 @@ Socket *Listener::newSocket(unsigned int fd)
 //		return socket;
 //	}
 
-	struct sockaddr_in clientaddr;
-	struct hostent *host;
+	struct sockaddr_storage clientaddr;
+//	struct hostent *host;
+	char ip_str[INET6_ADDRSTRLEN];
 
 	unsigned int len = sizeof(clientaddr);
 	unsigned int socketFd = accept(fd, (struct sockaddr *) &clientaddr, (socklen_t *) &len);
@@ -175,9 +187,16 @@ Socket *Listener::newSocket(unsigned int fd)
 		return 0;
 
 	Socket *socket = new Socket(socketFd);
-	socket->setIpAddr((char *) inet_ntoa(clientaddr.sin_addr));
-	if( (host = gethostbyaddr((char *)&clientaddr.sin_addr, sizeof(clientaddr.sin_addr), AF_INET)) != NULL)
-		socket->setFqdn(host->h_name);
+	if(clientaddr.ss_family == AF_INET) {
+		inet_ntop(clientaddr.ss_family, &(((struct sockaddr_in *)&clientaddr)->sin_addr), ip_str, INET6_ADDRSTRLEN);
+		socket->setIpAddr(ip_str);
+	} else if(clientaddr.ss_family == AF_INET6) {
+		inet_ntop(clientaddr.ss_family, &(((struct sockaddr_in6 *)&clientaddr)->sin6_addr), ip_str, INET6_ADDRSTRLEN);
+		socket->setIpAddr(ip_str);
+	}
+//	TODO: redo that asynchronously (and using getnameinfo() instead)
+//	if( (host = gethostbyaddr((char *)&clientaddr.sin_addr, sizeof(clientaddr.sin_addr), AF_INET)) != NULL)
+//		socket->setFqdn(host->h_name);
 	m_sockets.push_back(socket);
 
 	socketHandler( socket );

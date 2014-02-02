@@ -32,15 +32,15 @@
 class ListenPort
 {
 public:
-	ListenPort(const std::string host, const unsigned int port);
+	ListenPort(sa_family_t family, const std::string host, const int port);
 	const std::string ipAddr() { return m_ipAddr; }
-	const unsigned int port() { return m_port; }
-	const unsigned int fd() { return m_fd; }
+	const int port() { return m_port; }
+	const int fd() { return m_fd; }
 	bool isBound() const;
 
 private:
 	std::string m_ipAddr;
-	unsigned int m_fd, m_port;
+	int m_fd, m_port;
 	bool m_isBound;
 };
 

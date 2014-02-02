@@ -42,19 +42,35 @@
 
 extern int errno;
 
-ListenPort::ListenPort(const std::string ip, const unsigned int port)
+ListenPort::ListenPort(sa_family_t family, const std::string ip, const int port)
 {
 	m_ipAddr = ip;
 	m_port = port;
-	m_fd = socket(AF_INET, SOCK_STREAM, 0);
 	m_isBound = false;
+	m_fd = socket(family, SOCK_STREAM, 0);
+	if(m_fd < 0) {
+		return;
+	}
 
-	struct sockaddr_in servaddr;
+	struct sockaddr_storage servaddr;
 	memset(&servaddr, 0, sizeof(servaddr));
-	servaddr.sin_family = AF_INET;
-	inet_pton(AF_INET, m_ipAddr.c_str(), &servaddr.sin_addr);
-//	servaddr.sin_addr.s_addr = htonl(INADDR_ANY); // any host may connect
-	servaddr.sin_port = htons(m_port);
+	servaddr.ss_family = family;
+	if(family == AF_INET) {
+		struct sockaddr_in *servaddr_in = (struct sockaddr_in *)&servaddr;
+		inet_pton(AF_INET, m_ipAddr.c_str(), &(servaddr_in->sin_addr));
+		servaddr_in->sin_port = htons(m_port);
+	} else if (family == AF_INET6) {
+		struct sockaddr_in6 *servaddr_in6 = (struct sockaddr_in6 *)&servaddr;
+		inet_pton(AF_INET6, m_ipAddr.c_str(), &(servaddr_in6->sin6_addr));
+		servaddr_in6->sin6_port = htons(m_port);
+
+		// bind on IPv6 only if possible
+		int v6only = 1;
+		setsockopt(m_fd, IPPROTO_IPV6, IPV6_V6ONLY, &v6only, sizeof(v6only));
+	} else {
+		close(m_fd);
+		return;
+	}
 
 	// release the socket after program crash, avoid TIME_WAIT
 	int reuse = 1;
