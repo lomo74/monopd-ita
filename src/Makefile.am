@@ -13,4 +13,4 @@ noinst_HEADERS = auction.h card.h cardgroup.h debt.h display.h estate.h \
 	gameproperty.h io.h main.h player.h server.h trade.h \
 	tradecomponent.h socket.h listener.h listenport.h
 
-monopd_LDADD = -lmath++
+monopd_LDADD = $(SYSTEMD_DAEMON_LIBS) -lmath++

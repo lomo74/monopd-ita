@@ -29,6 +29,10 @@
 #include "main.h"
 #include "server.h"
 
+#if USE_SYSTEMD_DAEMON
+#include <systemd/sd-daemon.h>
+#endif /* USE_SYSTEMD_DAEMON */
+
 MonopdListener::MonopdListener( MonopdServer *server )
  :	Listener(),
  	m_server( server )
@@ -82,6 +86,9 @@ int main(int argc, char **argv)
 	// close(0); close(1); close(2);
 
 	server->initMonopigatorEvent();
+
+	/* Indicate to systemd that we are ready to answer requests. */
+	server->updateSystemdStatus();
 
 	for(;;)
 	{

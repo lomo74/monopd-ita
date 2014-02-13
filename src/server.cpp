@@ -41,6 +41,10 @@
 #include "player.h"
 #include "server.h"
 
+#if USE_SYSTEMD_DAEMON
+#include <systemd/sd-daemon.h>
+#endif /* USE_SYSTEMD_DAEMON */
+
 MonopdServer::MonopdServer() : GameObject(0)
 {
 	m_nextGameId = m_nextPlayerId = 1;
@@ -140,6 +144,8 @@ void MonopdServer::newGame(Player *player, const std::string gameType)
 
 	// FIXME: DEPRECATED 1.0
 	ioWrite(std::string("<monopd><updategamelist type=\"add\"><game id=\"") + itoa(game->id()) + "\" players=\"1\" gametype=\"" + game->gameType() + "\" name=\"" + game->name() + "\" description=\"" + game->getStringProperty("description") + "\" canbejoined=\"" + itoa(game->getBoolProperty("canbejoined")) + "\"/></updategamelist></monopd>\n");
+
+	updateSystemdStatus();
 }
 
 void MonopdServer::joinGame(Player *pInput, unsigned int gameId, const bool &spectator)
@@ -247,6 +253,8 @@ void MonopdServer::delGame(Game *game, bool verbose)
 			break;
 		}
 	delete game;
+
+	updateSystemdStatus();
 }
 
 void MonopdServer::setGameDescription(Player *pInput, const std::string data)
@@ -289,6 +297,7 @@ Player *MonopdServer::newPlayer(Socket *socket, const std::string &name)
 	if (m_monopigatorEvent)
 		m_monopigatorEvent->setLaunchTime(time(0) + m_monopigatorEvent->frequency() );
 
+	updateSystemdStatus();
 	return player;
 }
 
@@ -365,6 +374,8 @@ void MonopdServer::delPlayer(Player *player)
 	registerMonopigator();
 	if (m_monopigatorEvent)
 		m_monopigatorEvent->setLaunchTime(time(0) + m_monopigatorEvent->frequency() );
+
+	updateSystemdStatus();
 }
 
 Player *MonopdServer::findPlayer(int playerId)
@@ -643,7 +654,11 @@ void MonopdServer::loadGameTemplates()
 	if (!dirp)
 	{
 		syslog( LOG_ERR, "cannot open game directory, dir=[%s]", MONOPD_DATADIR "/games/" );
-		return;
+#if USE_SYSTEMD_DAEMON
+		sd_notifyf(1, "STATUS=Failed to start: cannot open game directory, dir=[%s]\nERRNO=%d", MONOPD_DATADIR "/games/", -1 );
+		usleep(100000);
+#endif /* USE_SYSTEMD_DAEMON */
+		exit(-1);
 	}
 	while ((direntp=readdir(dirp)) != NULL)
 	{
@@ -822,6 +837,13 @@ void MonopdServer::processInput(Socket *socket, const std::string data)
 		else
 			ioWrite("<monopd><msg type=\"chat\" playerid=\"" + itoa(pInput->id()) + "\" author=\"" + pInput->name() + "\" value=\"" + escapeXML(data) + "\"/></monopd>\n", true);
 	}
+}
+
+void MonopdServer::updateSystemdStatus() {
+#if USE_SYSTEMD_DAEMON
+	/* Update systemd status string */
+	sd_notifyf(0, "READY=1\nSTATUS=Running, %d players, %d games", m_players.size(), m_games.size() );
+#endif /* USE_SYSTEMD_DAEMON */
 }
 
 void MonopdServer::processCommands(Player *pInput, const std::string data2)

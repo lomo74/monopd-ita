@@ -47,6 +47,7 @@ public:
 	void initSocketTimeoutEvent(int socketFd);
 	int processEvents(); /* returns -1 or socket fd in case of socket timeout */
 	void processInput(Socket *socket, const std::string data);
+	void updateSystemdStatus();
 
 private:
 	Event *newEvent(unsigned int eventType, Game *game = 0, int id = 0);
