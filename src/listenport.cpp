@@ -104,6 +104,23 @@ ListenPort::ListenPort(sa_family_t family, const std::string ip, const int port)
 		return;
 }
 
+ListenPort::ListenPort(int fd) {
+	m_ipAddr = "";
+	m_port = 0;
+	m_isBound = true;
+	m_fd = fd;
+
+	// get current socket flags
+	int flags;
+	if ((flags=fcntl(m_fd, F_GETFL)) == -1)
+		return;
+
+	// set socket to non-blocking
+	flags |= O_NDELAY;
+	if (fcntl(m_fd, F_SETFL, flags) == -1)
+		return;
+}
+
 bool ListenPort::isBound() const
 {
 	return m_isBound;

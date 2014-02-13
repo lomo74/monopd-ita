@@ -37,6 +37,16 @@ MonopdListener::MonopdListener( MonopdServer *server )
  :	Listener(),
  	m_server( server )
 {
+#if USE_SYSTEMD_DAEMON
+	int socket_count = sd_listen_fds(0);
+	if (socket_count > 0) {
+		for (int fd = SD_LISTEN_FDS_START; socket_count--; fd++) {
+			addListenFd(fd);
+		}
+		syslog( LOG_NOTICE, "listener: systemd");
+	} else
+#endif /* USE_SYSTEMD_DAEMON */
+
 	if ( addListenPort( server->port() ) == -1 )
 	{
 		syslog( LOG_ERR, "could not bind port %d, exiting", server->port() );

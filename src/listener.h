@@ -51,6 +51,7 @@ protected:
 	 *
 	 */
 	int addListenPort(const int port);
+	int addListenFd(const int fd);
 	virtual void socketHandler( Socket *socket, const std::string &data = "" );
 
 private:

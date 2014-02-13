@@ -71,6 +71,12 @@ int Listener::addListenPort(const int port)
 	return 0;
 }
 
+int Listener::addListenFd(const int fd) {
+	ListenPort *listenPort = new ListenPort(fd);
+	m_listenPorts.push_back(listenPort);
+	return 0;
+}
+
 void Listener::checkActivity()
 {
 	// Notify socket close events and delete them.
