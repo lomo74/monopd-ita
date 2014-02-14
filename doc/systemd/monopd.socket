@@ -1,0 +1,7 @@
+Description=monopd listening socket
+
+[Socket]
+ListenStream=1234
+
+[Install]
+WantedBy=sockets.target
