@@ -211,7 +211,7 @@ void Game::loadConfig()
 		else
 		{
 			pos = line.find( "=" );
-			if ( pos != std::string::npos )
+			if ( pos != (int)std::string::npos )
 			{
 				key = line.substr( 0, pos );
 				value = line.substr( pos+1 );
@@ -513,7 +513,7 @@ void Game::start(Player *pInput)
 		return;
 	}
 	int minPlayers = getIntProperty("minplayers");
-	if (m_players.size() < minPlayers)
+	if ((int)m_players.size() < minPlayers)
 	{
 		pInput->ioError("This game requires at least %d players to be started.", minPlayers);
 		return;
@@ -657,7 +657,7 @@ unsigned int Game::auctionTimeout()
 	if (!m_auction)
 		return 0;
 
-	printf("Game::auctionTimeout %d %d\n", m_id, m_players.size());
+	printf("Game::auctionTimeout %d %d\n", m_id, (int)m_players.size());
 
 	int status = m_auction->status();
 	switch(status)
@@ -675,7 +675,7 @@ unsigned int Game::auctionTimeout()
 
 	if (status == Auction::Sold || status == Auction::PaymentDue)
 	{
-		printf("Game::auctionTimeout sold||paymentdue %d %d\n", m_id, m_players.size());
+		printf("Game::auctionTimeout sold||paymentdue %d %d\n", m_id, (int)m_players.size());
 		completeAuction();
 	}
 	if (status == Auction::PaymentDue)
@@ -686,7 +686,7 @@ unsigned int Game::auctionTimeout()
 		if (m_pTurn && !clientsMoving() )
 			m_pTurn->endTurn();
 
-		printf("Game::auctionTimeout delAuction %d %d\n", m_id, m_players.size());
+		printf("Game::auctionTimeout delAuction %d %d\n", m_id, (int)m_players.size());
 
 		delAuction();
 		return 0;
@@ -770,7 +770,7 @@ void Game::solveDebts(Player *pInput, const bool &verbose)
 		return;
 	}
 
-	while ( debt = findDebt(pInput) )
+	while ( (debt = findDebt(pInput)) )
 	{
 		if ( !solveDebt(debt) )
 			break;
@@ -981,7 +981,7 @@ Trade *Game::findTrade(Player *_p)
 	return 0;
 }
 
-Trade *Game::findTrade(unsigned int tradeId)
+Trade *Game::findTrade(int tradeId)
 {
 	Trade *tTmp = 0;
 	for(std::vector<Trade *>::iterator it = m_trades.begin(); it != m_trades.end() && (tTmp = *it) ; ++it)
@@ -2071,9 +2071,9 @@ void Game::rollDice()
 	dice[1] = 1 + (int) (6.0 * rand()/(RAND_MAX + 1.0 ));
 }
 
-unsigned int Game::players()
+int Game::players()
 {
-	return m_players.size();
+	return (int)m_players.size();
 }
 
 unsigned int Game::connectedPlayers()

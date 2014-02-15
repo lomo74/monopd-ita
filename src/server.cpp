@@ -78,7 +78,7 @@ Event *MonopdServer::newEvent(unsigned int eventType, Game *game, int id)
 {
 	Event *newEvent = new Event(id, (Event::EventType)eventType, game);
 	m_events.push_back(newEvent);
-	printf("newEvent %d/%d\n", id, m_events.size());
+	printf("newEvent %d/%d\n", id, (int)m_events.size());
 	return newEvent;
 }
 
@@ -87,7 +87,7 @@ void MonopdServer::delEvent(Event *event)
 	for(std::vector<Event *>::iterator it = m_events.begin(); it != m_events.end() && (*it) ; ++it)
 		if (*it == event)
 		{
-			printf("delEvent %d/%d\n", event->id(), m_events.size()-1);
+			printf("delEvent %d/%d\n", event->id(), (int)m_events.size()-1);
 			delete event;
 			m_events.erase(it);
 			break;
@@ -138,7 +138,7 @@ void MonopdServer::newGame(Player *player, const std::string gameType)
 		return;
 	}
 
-	syslog( LOG_INFO, "new game: id=[%d], type=[%s], games=[%d]", game->id(), gameType.c_str(), m_games.size() );
+	syslog( LOG_INFO, "new game: id=[%d], type=[%s], games=[%d]", game->id(), gameType.c_str(), (int)m_games.size() );
 
 	game->addPlayer(player, true);
 
@@ -201,7 +201,7 @@ void MonopdServer::exitGame(Game *game, Player *pInput)
 	sendGameList(pInput);
 }
 
-Game *MonopdServer::findGame(unsigned int gameId)
+Game *MonopdServer::findGame(int gameId)
 {
 	Game *game = 0;
 	for(std::vector<Game *>::iterator it = m_games.begin(); it != m_games.end() && (game = *it) ; ++it)
@@ -248,7 +248,7 @@ void MonopdServer::delGame(Game *game, bool verbose)
 			// FIXME: DEPRECATED 1.0
 			if (verbose)
 				ioWrite(std::string("<monopd><updategamelist type=\"del\"><game id=\"") + itoa(game->id()) + "\"/></updategamelist></monopd>\n");
-			syslog( LOG_INFO, "del game: id=[%d], games=[%d]", game->id(), m_games.size() - 1 );
+			syslog( LOG_INFO, "del game: id=[%d], games=[%d]", game->id(), (int)m_games.size() - 1 );
 			m_games.erase(it);
 			break;
 		}
@@ -287,10 +287,10 @@ Player *MonopdServer::newPlayer(Socket *socket, const std::string &name)
 	player->sendClientMsg();
 	sendGameList(player, true);
 
-	syslog( LOG_INFO, "new player: id=[%d], fd=[%d], name=[%s], players=[%d]", player->id(), socket->fd(), name.c_str(), m_players.size() );
+	syslog( LOG_INFO, "new player: id=[%d], fd=[%d], name=[%s], players=[%d]", player->id(), socket->fd(), name.c_str(), (int)m_players.size() );
 	player = 0;
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (player = *it) ; ++it)
-		printf("  player %16s %16s game %d bankrupt %d socket %d fd %d\n", player->name().c_str(), player->getStringProperty("host").c_str(), (player->game() ? player->game()->id() : -1), player->getBoolProperty("bankrupt"), player->socket(), player->socket() ? (int)player->socket()->fd() : -1);
+		printf("  player %16s %16s game %d bankrupt %d socket fd %d\n", player->name().c_str(), player->getStringProperty("host").c_str(), (player->game() ? player->game()->id() : -1), player->getBoolProperty("bankrupt"), player->socket() ? (int)player->socket()->fd() : -1);
 
 	// Re-register to meta server with updated player count.
 	registerMonopigator();
@@ -359,8 +359,8 @@ void MonopdServer::delPlayer(Player *player)
 		if (*it == player)
 		{
 			removeFromScope(player);
-			syslog( LOG_INFO, "del player: id=[%d], fd=[%d], name=[%s], players=[%d]", player->id(), player->socket() ? player->socket()->fd() : 0, player->getStringProperty("name").c_str(), m_players.size() - 1 );
-			printf("delPlayer %d/%d\n", player->id(), m_players.size()-1);
+			syslog( LOG_INFO, "del player: id=[%d], fd=[%d], name=[%s], players=[%d]", player->id(), player->socket() ? player->socket()->fd() : 0, player->getStringProperty("name").c_str(), (int)m_players.size() - 1 );
+			printf("delPlayer %d/%d\n", player->id(), (int)m_players.size()-1);
 			delete player;
 			m_players.erase(it);
 			player = 0;
@@ -368,7 +368,7 @@ void MonopdServer::delPlayer(Player *player)
 		}
 
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (player = *it) ; ++it)
-		printf("  player %16s %16s game %d bankrupt %d socket %d fd %d\n", player->name().c_str(), player->getStringProperty("host").c_str(), (player->game() ? player->game()->id() : -1), player->getBoolProperty("bankrupt"), player->socket(), player->socket() ? (int)player->socket()->fd() : -1);
+		printf("  player %16s %16s game %d bankrupt %d socket fd %d\n", player->name().c_str(), player->getStringProperty("host").c_str(), (player->game() ? player->game()->id() : -1), player->getBoolProperty("bankrupt"), player->socket() ? (int)player->socket()->fd() : -1);
 
 	// Re-register to meta server with updated player count.
 	registerMonopigator();
@@ -842,7 +842,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data)
 void MonopdServer::updateSystemdStatus() {
 #if USE_SYSTEMD_DAEMON
 	/* Update systemd status string */
-	sd_notifyf(0, "READY=1\nSTATUS=Running, %d players, %d games", m_players.size(), m_games.size() );
+	sd_notifyf(0, "READY=1\nSTATUS=Running, %d players, %d games", (int)m_players.size(), (int)m_games.size() );
 #endif /* USE_SYSTEMD_DAEMON */
 }
 

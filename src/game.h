@@ -85,7 +85,7 @@ class Game : public GameObject
 		bool sendChildXMLUpdate(Player *pOutput, bool emptyUpdate);
 		void unsetChildProperties();
 
-		unsigned int players();
+		int players();
 		unsigned int connectedPlayers();
 		Player *addPlayer(Player *, const bool &isMaster = false, const bool &isSpectator = false);
 		Player *findPlayer(int playerId);
@@ -123,7 +123,7 @@ class Game : public GameObject
 
 		void newTrade(Player *pInput, unsigned int playerId);
 		Trade *findTrade(Player *player);
-		Trade *findTrade(unsigned int tradeId);
+		Trade *findTrade(int tradeId);
 		void delTrade(Trade *trade);
 		void acceptTrade(Player *pInput, char *);
 		void rejectTrade(Player *pInput, unsigned int tradeId);

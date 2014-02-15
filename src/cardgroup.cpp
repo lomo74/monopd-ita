@@ -30,7 +30,7 @@ CardGroup::~CardGroup()
 	while (!m_cards.empty()) { delete *m_cards.begin(); m_cards.erase(m_cards.begin()); }
 }
 
-Card *CardGroup::newCard(unsigned int id, const std::string name)
+Card *CardGroup::newCard(int id, const std::string name)
 {
 	Card *card = new Card(this, id);
 	card->setProperty("name", name, m_game);
@@ -57,7 +57,7 @@ Card *CardGroup::nextCard()
 	return card;
 }
 
-Card *CardGroup::findCard(unsigned int id)
+Card *CardGroup::findCard(int id)
 {
 	Card *card = 0;
 	for (std::vector<Card *>::iterator it = m_cards.begin() ; it != m_cards.end() && (card = *it) ; ++it)

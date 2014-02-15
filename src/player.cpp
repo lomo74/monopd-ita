@@ -813,7 +813,7 @@ void Player::updateTradeMoney(char *data)
 	}
 
 	int playerToId = atoi(strsep(&data, ":"));
-	unsigned int money = atoi(data);
+	int money = atoi(data);
 
 	Trade *trade = m_game->findTrade(tradeId);
 	if (!trade)
@@ -901,7 +901,7 @@ void Player::addMoney(int amount)
 	setProperty("money", getIntProperty("money") + amount);
 }
 
-bool Player::payMoney(unsigned int amount)
+bool Player::payMoney(int amount)
 {
 	int money = getIntProperty("money");
 	if (money < amount)
@@ -1016,7 +1016,7 @@ void Player::takeCard(Card *card)
 		}
 }
 
-Card *Player::findCard(unsigned int cardId)
+Card *Player::findCard(int cardId)
 {
 	Card *card = 0;
 	for(std::vector<Card *>::iterator it = m_cards.begin() ; it != m_cards.end() && (card = *it) ; ++it)
@@ -1034,7 +1034,7 @@ Card *Player::findOutOfJailCard()
 	return 0;
 }
 
-unsigned int Player::assets()
+int Player::assets()
 {
 	if (m_game)
 		return m_game->playerAssets(this);

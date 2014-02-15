@@ -31,9 +31,9 @@ public:
 	CardGroup(int id, Game *game, std::string name);
 	virtual ~CardGroup();
 
-	Card *newCard(unsigned int id, const std::string name);
+	Card *newCard(int id, const std::string name);
 	Card *nextCard();
-	Card *findCard(unsigned int id);
+	Card *findCard(int id);
 	void pushCard(Card *card);
 	void popCard();
 	void shuffleCards();

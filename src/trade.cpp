@@ -172,7 +172,7 @@ bool Trade::allAccept()
 	return true;
 }
 
-void Trade::delComponent(const enum GameObject::Type type, unsigned int id)
+void Trade::delComponent(const enum GameObject::Type type, int id)
 {
 	TradeComponent *component = 0;
 	for(std::vector<TradeComponent *>::iterator it = m_components.begin(); it != m_components.end() && (component = *it) ; ++it)

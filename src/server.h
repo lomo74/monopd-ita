@@ -55,7 +55,7 @@ private:
 	Event *findEvent(Game *game, unsigned int eventType);
 	Event *findEvent(Game *game, GameObject *object);
 	void delEvent(Event *event);
-	Game *findGame(unsigned int gameId);
+	Game *findGame(int gameId);
 	GameConfig *newGameConfig(const std::string id, const std::string name, const std::string description);
 	void delGameConfig(GameConfig *gameConfig);
 	Player *findPlayer(int playerId);

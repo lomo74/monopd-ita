@@ -81,10 +81,10 @@ class Player : public GameObject
 		const bool requestedUpdate() { return m_requestedUpdate; }
 		void addCard(Card *card);
 		void takeCard(Card *card);
-		Card *findCard(unsigned int cardId);
+		Card *findCard(int cardId);
 		Card *findOutOfJailCard();
 		Card *findFirstCard();
-		unsigned int assets();
+		int assets();
 
 		void closeSocket();
 		void setSocket(Socket *socket);
@@ -96,7 +96,7 @@ class Player : public GameObject
 		void advanceTo(int pos, bool direct, bool passEstates = true);
 
 		void addMoney(int);
-		bool payMoney(unsigned int);
+		bool payMoney(int);
 
 private:
 	// Connection related

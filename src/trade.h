@@ -47,7 +47,7 @@ public:
 	void updateObject(GameObject *gameObject, Player *pFrom, Player *targetPlayer);
 	void updateMoney(Player *from, Player *targetPlayer, unsigned int money);
 	void setPlayerAccept(Player *player, const bool acceptTrade);
-	void delComponent(const enum GameObject::Type, unsigned int id);
+	void delComponent(const enum GameObject::Type, int id);
 
 	bool hasPlayer(Player *player);
 	bool allAccept();
