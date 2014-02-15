@@ -6,6 +6,7 @@
 - applied Debian patches against libcapsinetwork
 - bugfix: infinite loop when a game is ending
 - fixed all compilation warnings, added -Werror and -Wextra to compilation flags
+- added IPv6 listener support
 - added systemd support for readiness notification protocol
 - added systemd support for socket activation
 
