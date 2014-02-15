@@ -1,12 +1,13 @@
 0.9.4
 -----
 
-- welcome atlanticd, a monopd fork
 - applied Debian patches against monopd
 - merged libcapsinetwork into monopd
 - applied Debian patches against libcapsinetwork
 - bugfix: infinite loop when a game is ending
-- fixed all compilation warnings, added -Werror to compilation flags
+- fixed all compilation warnings, added -Werror and -Wextra to compilation flags
+- added systemd support for readiness notification protocol
+- added systemd support for socket activation
 
 0.9.3
 -----
