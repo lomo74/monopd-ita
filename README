@@ -66,6 +66,8 @@ monopd has the following requirements:
 - libmath++ >= 0.0.3
   (http://www.surakware.net/download/)
 
+- libsystemd-daemon (optional, for systemd notify and socket activation support)
+
 4. Installation
 ===============
 
