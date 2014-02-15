@@ -38,8 +38,8 @@ AS_IF([test "x$USE_SYSTEMD_DAEMON" != "xno"], [
 ])
 
 if test "x$GCC" = "xyes"; then  \
-     CFLAGS="-Wall -ggdb";  \ 
-     CXXFLAGS="-Wall -ggdb";  \ 
+     CFLAGS="-Wall -Wextra -ggdb";  \ 
+     CXXFLAGS="-Wall -Wextra -ggdb";  \ 
 fi
 
 AC_OUTPUT([

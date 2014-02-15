@@ -35,8 +35,8 @@ public:
 	ListenPort(sa_family_t family, const std::string host, const int port); // for a traditional bind socket
 	ListenPort(int fd); // for an already bound socket (e.g. using systemd socket activation)
 	const std::string ipAddr() { return m_ipAddr; }
-	const int port() { return m_port; }
-	const int fd() { return m_fd; }
+	int port() { return m_port; }
+	int fd() { return m_fd; }
 	bool isBound() const;
 
 private:

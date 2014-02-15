@@ -47,7 +47,7 @@ int Socket::ioWrite(const std::string data)
 	return 1;
 }
 
-const bool Socket::hasReadLine()
+bool Socket::hasReadLine()
 {
 	static std::string newLine = "\r\n";
 	std::string::size_type pos = m_ioBuf.find_first_of(newLine);

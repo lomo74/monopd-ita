@@ -78,7 +78,7 @@ class Player : public GameObject
 		void setTokenLocation(Estate *estate);
 		Estate *tokenLocation();
 		void setRequestedUpdate(const bool request) { m_requestedUpdate = request; }
-		const bool requestedUpdate() { return m_requestedUpdate; }
+		bool requestedUpdate() { return m_requestedUpdate; }
 		void addCard(Card *card);
 		void takeCard(Card *card);
 		Card *findCard(int cardId);

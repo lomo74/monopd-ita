@@ -54,6 +54,7 @@ int Estate::rent(Player *pLand, const std::string &rentMath)
 
 int Estate::groupSize(Player *owner)
 {
+	(void)owner;
 	int grouped = 0;
 
 	Estate *eTmp = 0;

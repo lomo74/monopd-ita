@@ -39,7 +39,7 @@ public:
 	void setId(int id) { m_id = id; }
 	int id();
 	std::string name();
-	const enum Type type();
+	enum Type type();
 	Game *game();
 
 	void setProperty(const std::string &key, const std::string &value, GameObject *scope = 0);

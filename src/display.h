@@ -28,7 +28,7 @@ public:
 	DisplayButton(const std::string command, const std::string caption, const bool enabled);
 	const std::string command();
 	const std::string caption();
-	const bool enabled();
+	bool enabled();
 
 private:
 	std::string m_command, m_caption;

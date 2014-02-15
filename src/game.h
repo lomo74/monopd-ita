@@ -80,7 +80,7 @@ class Game : public GameObject
 		const std::string bgColor() { return m_bgColor; }
 		int houses() { return m_houses; }
 		int hotels() { return m_hotels; }
-		const bool isValid() { return m_isValid; }
+		bool isValid() { return m_isValid; }
 
 		bool sendChildXMLUpdate(Player *pOutput, bool emptyUpdate);
 		void unsetChildProperties();
@@ -139,7 +139,7 @@ class Game : public GameObject
 		Estate *findNextJailEstate(Estate *startEstate = NULL);
 		unsigned int estates() const { return m_estates.size(); }
 		void setPausedForDialog(const bool paused);
-		const bool pausedForDialog();
+		bool pausedForDialog();
 		void delEstate(Estate *);
 		void transferEstate(Estate *estate, Player *player, const bool verbose = false);
 		CardGroup *newCardGroup(const std::string name);

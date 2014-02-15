@@ -42,7 +42,7 @@ public:
 	Status status() { return m_status; }
 
 	int ioWrite(const std::string data);
-	const bool hasReadLine();
+	bool hasReadLine();
 	const std::string readLine();
 	void fillBuffer(const std::string data);
 

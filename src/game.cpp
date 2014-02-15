@@ -1325,7 +1325,7 @@ void Game::setPausedForDialog(const bool paused)
 	m_pausedForDialog = paused;
 }
 
-const bool Game::pausedForDialog()
+bool Game::pausedForDialog()
 {
 	return m_pausedForDialog;
 }

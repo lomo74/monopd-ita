@@ -45,7 +45,7 @@ std::string GameObject::name()
 	return escapeXML(getStringProperty("name"));
 }
 
-const enum GameObject::Type GameObject::type()
+enum GameObject::Type GameObject::type()
 {
 	return m_type;
 }
