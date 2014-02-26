@@ -38,8 +38,8 @@ AS_IF([test "x$USE_SYSTEMD_DAEMON" != "xno"], [
 ])
 
 if test "x$GCC" = "xyes"; then  \
-     CFLAGS="-Wall -Wextra -ggdb";  \ 
-     CXXFLAGS="-Wall -Wextra -ggdb";  \ 
+     CFLAGS+="-Wall -Wextra";  \ 
+     CXXFLAGS+="-Wall -Wextra";  \ 
 fi
 
 AC_OUTPUT([
@@ -47,6 +47,7 @@ AC_OUTPUT([
   conf/Makefile
   doc/Makefile
   doc/api/Makefile
+  doc/systemd/Makefile
   games/Makefile
   src/Makefile
 ])
