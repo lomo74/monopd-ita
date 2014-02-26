@@ -1,3 +1,9 @@
+0.9.5
+-----
+
+- added systemd documentation to extra dist
+- fixed CXXFLAGS and CFLAGS passed through environment variable
+
 0.9.4
 -----
 
