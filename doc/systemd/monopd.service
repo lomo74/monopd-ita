@@ -4,6 +4,8 @@ Description=game server for board games like GtkAtlantic
 [Service]
 Type=notify
 ExecStart=/usr/sbin/monopd
+User=nobody
+Group=nogroup
 
 [Install]
 WantedBy=multi-user.target
