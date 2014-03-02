@@ -153,7 +153,7 @@ void MonopdServer::joinGame(Player *pInput, unsigned int gameId, const bool &spe
 	Game *game = findGame(gameId);
 	if (!game)
 	{
-		pInput->ioError("There is no game with id %ld.", gameId);
+		pInput->ioError("There is no game with id %d.", gameId);
 		return;
 	}
 
@@ -166,7 +166,7 @@ void MonopdServer::joinGame(Player *pInput, unsigned int gameId, const bool &spe
 			game->ioInfo("%s joins as spectator.", pInput->name().c_str());
 		}
 		else
-			pInput->ioError("Game %ld doesn't allow spectators.", gameId);
+			pInput->ioError("Game %d doesn't allow spectators.", gameId);
 		return;
 	}
 
@@ -787,7 +787,7 @@ void MonopdServer::sendGameList(Player *pInput, const bool &sendTemplates)
 	Game *gTmp = 0;
 	for(std::vector<Game *>::iterator it = m_games.begin(); it != m_games.end() && (gTmp = *it) ; ++it)
 		if (gTmp->status() == Game::Config)
-			pInput->ioWrite("<game id=\"%ld\" players=\"%d\" gametype=\"%s\" name=\"%s\" description=\"%s\" canbejoined=\"%d\"/>", gTmp->id(), gTmp->players(), gTmp->gameType().c_str(), gTmp->name().c_str(), gTmp->getStringProperty("description").c_str(), gTmp->getBoolProperty("canbejoined"));
+			pInput->ioWrite("<game id=\"%d\" players=\"%d\" gametype=\"%s\" name=\"%s\" description=\"%s\" canbejoined=\"%d\"/>", gTmp->id(), gTmp->players(), gTmp->gameType().c_str(), gTmp->name().c_str(), gTmp->getStringProperty("description").c_str(), gTmp->getBoolProperty("canbejoined"));
 
 	pInput->ioWrite("</updategamelist>");
 	// END FIXME: DEPRECATED 1.0

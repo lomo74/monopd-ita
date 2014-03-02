@@ -957,7 +957,7 @@ void Game::newTrade(Player *pInput, unsigned int playerId)
 	Player *player = findPlayer(playerId);
 	if (!player)
 	{
-		pInput->ioError("No such playerId: %ld.", playerId);
+		pInput->ioError("No such playerId: %d.", playerId);
 		return;
 	}
 	else if (player == pInput)
@@ -1022,17 +1022,17 @@ void Game::acceptTrade(Player *pInput, char *data)
 	Trade *trade = findTrade(tradeId);
 	if (!trade)
 	{
-		pInput->ioError("No such tradeId: %ld.", tradeId);
+		pInput->ioError("No such tradeId: %d.", tradeId);
 		return;
 	}
 	if ( !(trade->hasPlayer(pInput)) )
 	{
-		pInput->ioError("You are not part of trade %ld.", tradeId);
+		pInput->ioError("You are not part of trade %d.", tradeId);
 		return;
 	}
 	if (!ignoreRevision && revision != trade->getIntProperty("revision"))
 	{
-		pInput->ioError("Ignored accept for trade %ld because it was changed.", tradeId);
+		pInput->ioError("Ignored accept for trade %d because it was changed.", tradeId);
 		return;
 	}
 
@@ -1513,7 +1513,7 @@ Player *Game::kickPlayer(Player *pInput, int playerId)
 	Player *player = findPlayer(playerId);
 	if (!player)
 	{
-		pInput->ioError("No such playerId: %ld.", playerId);
+		pInput->ioError("No such playerId: %d.", playerId);
 		return 0;
 	}
 
@@ -1537,7 +1537,7 @@ void Game::upgradePlayer(Player *pInput, int playerId)
 	Player *player = findPlayer(playerId);
 	if (!player)
 	{
-		pInput->ioError("No such playerId: %ld.", playerId);
+		pInput->ioError("No such playerId: %d.", playerId);
 		return;
 	}
 
@@ -2138,7 +2138,7 @@ void Game::sendEstateList(Player *p)
 				color = estateGroup->getStringProperty("color");
 		}
 
-		p->ioWrite("<estateupdate estateid=\"%d\" color=\"%s\" bgcolor=\"%s\" owner=\"%d\" houseprice=\"%d\" group=\"%d\" can_be_owned=\"%d\" can_toggle_mortgage=\"%d\" can_buy_houses=\"%d\" can_sell_houses=\"%d\" price=\"%ld\" rent0=\"%d\" rent1=\"%d\" rent2=\"%d\" rent3=\"%d\" rent4=\"%d\" rent5=\"%d\"/>", eTmp->id(), color.c_str(), bgColor.c_str(), (eTmp->owner() ? eTmp->owner()->id() : -1), eTmp->housePrice(), eTmp->group() ? eTmp->group()->id() : -1, eTmp->canBeOwned(), eTmp->canToggleMortgage(p), eTmp->canBuyHouses(p), eTmp->canSellHouses(p), eTmp->price(), eTmp->rentByHouses(0), eTmp->rentByHouses(1), eTmp->rentByHouses(2), eTmp->rentByHouses(3), eTmp->rentByHouses(4), eTmp->rentByHouses(5));
+		p->ioWrite("<estateupdate estateid=\"%d\" color=\"%s\" bgcolor=\"%s\" owner=\"%d\" houseprice=\"%d\" group=\"%d\" can_be_owned=\"%d\" can_toggle_mortgage=\"%d\" can_buy_houses=\"%d\" can_sell_houses=\"%d\" price=\"%d\" rent0=\"%d\" rent1=\"%d\" rent2=\"%d\" rent3=\"%d\" rent4=\"%d\" rent5=\"%d\"/>", eTmp->id(), color.c_str(), bgColor.c_str(), (eTmp->owner() ? eTmp->owner()->id() : -1), eTmp->housePrice(), eTmp->group() ? eTmp->group()->id() : -1, eTmp->canBeOwned(), eTmp->canToggleMortgage(p), eTmp->canBuyHouses(p), eTmp->canSellHouses(p), eTmp->price(), eTmp->rentByHouses(0), eTmp->rentByHouses(1), eTmp->rentByHouses(2), eTmp->rentByHouses(3), eTmp->rentByHouses(4), eTmp->rentByHouses(5));
 		p->ioWrite(eTmp->oldXMLUpdate(p, true));
 	}
 }
