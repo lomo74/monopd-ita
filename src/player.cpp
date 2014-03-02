@@ -442,7 +442,7 @@ void Player::buyEstate()
 
 	if (!payMoney(m_estate->price()))
 	{
-		ioError("You do not have enough money to buy this property, %s costs %d.", m_estate->getStringProperty("name").c_str(), m_estate->price());
+		ioError("You do not have enough money to buy this property, %s costs %d.", m_estate->name().c_str(), m_estate->price());
 		return;
 	}
 
