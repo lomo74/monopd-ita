@@ -1,3 +1,11 @@
+0.9.6
+-----
+
+- DOC: added User and Group stanzas in systemd service unit-file as a hint for packager
+- bugfix: fixed broken formats on x86_64, %ld on int instead of %d
+- bugfix: fixed XML escaping for "You do not have enough money to buy this property, B & O Railroad costs 200."
+- API: added gameid attribute to the new configupdate protocol
+
 0.9.5
 -----
 
