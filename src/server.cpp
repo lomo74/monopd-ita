@@ -1230,7 +1230,7 @@ void MonopdServer::sendXMLUpdate(Player *pOutput, bool fullUpdate, bool excludeS
 			{
 				if (updateEmpty)
 				{
-					pOutput->ioWrite("<monopd> ");
+					pOutput->ioWrite("<monopd>");
 					updateEmpty = false;
 				}
 				pOutput->ioWrite("%s", updateXML.c_str());
@@ -1248,7 +1248,7 @@ void MonopdServer::sendXMLUpdate(Player *pOutput, bool fullUpdate, bool excludeS
 		{
 			if (updateEmpty)
 			{
-				pOutput->ioWrite("<monopd> ");
+				pOutput->ioWrite("<monopd>");
 				updateEmpty = false;
 			}
 			pOutput->ioWrite("%s", updateXML.c_str());

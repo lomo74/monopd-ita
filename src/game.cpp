@@ -2313,7 +2313,7 @@ bool Game::sendChildXMLUpdate(Player *pOutput, bool updateEmpty)
 		{
 			if (updateEmpty)
 			{
-				pOutput->ioWrite("<monopd> ");
+				pOutput->ioWrite("<monopd>");
 				updateEmpty = false;
 			}
 			pOutput->ioWrite("%s", updateXML.c_str());
@@ -2330,7 +2330,7 @@ bool Game::sendChildXMLUpdate(Player *pOutput, bool updateEmpty)
 		{
 			if (updateEmpty)
 			{
-				pOutput->ioWrite("<monopd> ");
+				pOutput->ioWrite("<monopd>");
 				updateEmpty = false;
 			}
 			pOutput->ioWrite("%s", updateXML.c_str());
