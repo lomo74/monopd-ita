@@ -422,8 +422,8 @@ postfixed with the configuration value: for bools 0 or 1, such as .geaf1
 
 WARNING: DEPRECATED for updated configupdate:
 
-<configupdate configid="int" name="string" title="string" type="string"
-  value="string|int|bool" edit="bool"/>
+<configupdate configid="int" gameid="int" name="string" title="string"
+  type="string" value="string|int|bool" edit="bool"/>
 
 Each configuration option has its own unique ID during a game and can be
 edited by sending the .gc$1:$2 where $1 is the configId and $2 the new
@@ -436,9 +436,10 @@ now send all clients edit=1 for properties that can be changed. It is
 assumed that clients will disable these items based on being the master
 player for a game or not.
 
-Configuration options are game-specific and should cease to exist (and
-cleared from memory) when playerSelf of a client is not (anymore) within a
-game.
+Configuration options may be sent globally in the future so clients can
+display current game configuration before joining a game. Clients are
+expected to filter on gameid attribute even if this doesn't seem necessary
+for now.
 
 --------------------
 

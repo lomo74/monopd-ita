@@ -20,6 +20,7 @@
 #include "gameobject.h"
 #include "gameproperty.h"
 #include "io.h"
+#include "game.h"
 
 GameObject::GameObject(int id, Type type, Game *game)
 {
@@ -234,7 +235,7 @@ std::string GameObject::oldXMLUpdate(GameObject *target, const bool &fullUpdate)
 				else if (m_type == GGame)
 					xmlString = "<gameupdate gameid=\"" + itoa(m_id) + "\"";
 				else if (m_type == ConfigOption)
-					xmlString = "<configupdate configid=\"" + itoa(m_id) + "\"";
+					xmlString = "<configupdate configid=\"" + itoa(m_id) + "\" gameid=\"" + itoa(m_game->m_id) + "\"";
 				else
 					assert(0); // don't use use this on non-supported objects yet! :-p~
 
@@ -258,7 +259,7 @@ std::string GameObject::oldXMLUpdate(GameObject *target, const bool &fullUpdate)
 				else if (m_type == GGame)
 					xmlString = "<gameupdate gameid=\"" + itoa(m_id) + "\"";
 				else if (m_type == ConfigOption)
-					xmlString = "<configupdate configid=\"" + itoa(m_id) + "\"";
+					xmlString = "<configupdate configid=\"" + itoa(m_id) + "\" gameid=\"" + itoa(m_game->m_id) + "\"";
 				else
 					assert(0); // don't use use this on non-supported objects yet! :-p~
 
@@ -282,7 +283,7 @@ std::string GameObject::oldXMLUpdate(GameObject *target, const bool &fullUpdate)
 				else if (m_type == GGame)
 					xmlString = "<gameupdate gameid=\"" + itoa(m_id) + "\"";
 				else if (m_type == ConfigOption)
-					xmlString = "<configupdate configid=\"" + itoa(m_id) + "\"";
+					xmlString = "<configupdate configid=\"" + itoa(m_id) + "\" gameid=\"" + itoa(m_game->m_id) + "\"";
 				else
 					assert(0); // don't use use this on non-supported objects yet! :-p~
 
