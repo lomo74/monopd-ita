@@ -484,7 +484,7 @@ void Player::sellEstate(int estateId)
 	int sellPrice = estate->price() / 2;
 
 	addMoney(sellPrice);
-	m_game->transferEstate(m_estate, 0);
+	m_game->transferEstate(estate, 0);
 	m_game->setDisplay(estate, false, false, "%s sold %s for %d.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), sellPrice);
 
 	if (getBoolProperty("hasdebt"))
