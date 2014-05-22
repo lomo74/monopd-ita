@@ -55,14 +55,17 @@ ListenPort::ListenPort(sa_family_t family, const std::string ip, const int port)
 	struct sockaddr_storage servaddr;
 	memset(&servaddr, 0, sizeof(servaddr));
 	servaddr.ss_family = family;
+	socklen_t addrlen;
 	if(family == AF_INET) {
 		struct sockaddr_in *servaddr_in = (struct sockaddr_in *)&servaddr;
 		inet_pton(AF_INET, m_ipAddr.c_str(), &(servaddr_in->sin_addr));
 		servaddr_in->sin_port = htons(m_port);
+		addrlen = sizeof(*servaddr_in);
 	} else if (family == AF_INET6) {
 		struct sockaddr_in6 *servaddr_in6 = (struct sockaddr_in6 *)&servaddr;
 		inet_pton(AF_INET6, m_ipAddr.c_str(), &(servaddr_in6->sin6_addr));
 		servaddr_in6->sin6_port = htons(m_port);
+		addrlen = sizeof(*servaddr_in6);
 
 		// bind on IPv6 only if possible
 		int v6only = 1;
@@ -80,7 +83,7 @@ ListenPort::ListenPort(sa_family_t family, const std::string ip, const int port)
 		return;
 	}
 
-	if( (bind(m_fd, (struct sockaddr *) &servaddr, sizeof(servaddr))) == -1)
+	if( (bind(m_fd, (struct sockaddr *) &servaddr, addrlen)) == -1)
 	{
 		close(m_fd);
 		return;
