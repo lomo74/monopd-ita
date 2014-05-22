@@ -26,9 +26,16 @@ rm -f src/*~
 rm -f -r src/.deps
 rm -f -r src/.libs
 rm -f conf/Makefile.in
+rm -f conf/Makefile
 rm -f api/Makefile.in
+rm -f api/Makefile
 rm -f doc/Makefile.in
+rm -f doc/Makefile
 rm -f doc/api/Makefile.in
+rm -f doc/api/Makefile
+rm -f doc/systemd/Makefile.in
+rm -f doc/systemd/Makefile
 rm -f games/Makefile.in
+rm -f games/Makefile
 find . -name "CVS" -type d -exec rm -f -rf {} \;
 find . -name ".svn" -type d -exec rm -f -rf {} \;

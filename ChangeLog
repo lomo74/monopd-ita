@@ -1,7 +1,14 @@
+0.9.7
+-----
+
+- bugfix: wrong estate was chosen when selling an estate, the current estate
+  was chosen instead of the player selected estate
+- bugfix: fixed bind() on Mac OS X and probably some others
+
 0.9.6
 -----
 
-- DOC: added User and Group stanzas in systemd service unit-file as a hint for packager
+- DOC: added User and Group stanzas in systemd service unit-file as a hint for packagers
 - bugfix: fixed broken formats on x86_64, %ld on int instead of %d
 - bugfix: fixed XML escaping for "You do not have enough money to buy this property, B & O Railroad costs 200."
 - API: added gameid attribute to the new configupdate protocol

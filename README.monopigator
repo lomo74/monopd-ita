@@ -19,7 +19,7 @@ how to enable it in monopd.
 http://monopd.unixcode.org/ returns a XML page like this:
  
 <monopigator>
-  <server ipaddr="1.2.3.4" host="monopd.unixcode.org" port="1234" version="0.9.6" users="1"/>
+  <server ipaddr="1.2.3.4" host="monopd.unixcode.org" port="1234" version="0.9.7" users="1"/>
 </monopigator>
  
 Parse it and your client is good to go (a value of -1 for users indicates
