@@ -9,7 +9,7 @@ Contents
 ---------------
 
 In order to make it easier to find people to play against, monopd can be run
-as dedicated game server and clients can request a list of available servers
+as a dedicated game server and clients can request a list of available servers
 on-line. This document describes the implementation of this technique and
 how to enable it in monopd.
 
@@ -37,7 +37,7 @@ to monopd.unixcode.org:
 http://monopd.unixcode.org/register.php?host=monopd.mydomain.net&port=1234&version=0.2.1-CVS
 
 This keeps a server in the database for three minutes. So you'll have to
-register continously. Fortunately monopd can do this for you, but it does
+register continuously. Fortunately monopd can do this for you, but it does
 _not_ register by default. It will only register automatically when you
 enable it in the configuration.
 

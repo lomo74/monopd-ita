@@ -11,7 +11,7 @@ port=1234
 # Frequency of monopigator registrations in seconds. The monopigator XML
 # database only returns severs who have registered during the past 300
 # seconds, so make this value smaller than 300 if you want your server to
-# appear continously. The minimum value is 60.
+# appear continuously. The minimum value is 60.
 #
 gatorfrequency=180
 

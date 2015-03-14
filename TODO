@@ -29,7 +29,7 @@ For 0.10.0 and onwards
   - merge .Tc and .Te into .Tu
 - have auctions for estates when player goes bankrupt on bank
   - include estateId in bid command to avoid mistakes
-- allow for unmortgaging without 10% fee after transfer due to bankrupcy
+- allow for unmortgaging without 10% fee after transfer due to bankruptcy
 - wishlist: force default rules (for tournament servers)
 - API: password to join/watch games
 

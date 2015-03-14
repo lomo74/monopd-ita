@@ -26,7 +26,7 @@ i. protocol notes
 -----------------
 
 Commands from clients to the monopd server are in the form of a tiny message
-preceeded by a dot and followed by a newline:
+preceded by a dot and followed by a newline:
 
 .gn
 
@@ -43,7 +43,7 @@ message such as
 	</gamelist>
 </monopd>
 
-should be parsed by clients as five seperate (and all invalid) messages.
+should be parsed by clients as five separate (and all invalid) messages.
 
 <monopd><msg type="info" value="Rob throws a 6 and a 2."/></monopd>
 
@@ -53,15 +53,15 @@ Further example messages in this document will however be wrapped using
 newlines, for readability.
 
 There have been complaints of monopd sending multiple root elements in one
-"document", but unless there's a bug somewhere, newline seperated messages
-itself should not contain more than one root element. Please do treat data
+"document", but unless there's a bug somewhere, newline-separated messages
+themselves should not contain more than one root element. Please do treat data
 after a newline as a new document. Most modern network APIs provide methods
 such as canReadLine() and readLine() which are optimised for this usage.
 
 Not all fields of the XML messages are sent on every update; clients are to
 assume that anything not referred to is either undefined if there has been no
 previous mention of the attribute, or that it keeps the same value as the
-last update that included it set it to. These incremental updates decreases
+last update that included it set it to. These incremental updates decrease
 the amount of data sent over the network.
 
 The encoding of the protocol is UTF-8.
@@ -150,7 +150,7 @@ server.
 .Tm$1:$2:$3:$4 : Player $2 gives $3 an amount of $4 as part of trade $1.
 .Ta$1:$2       : Accept current (revision $2) terms of trade with tradeid $1.
 .Ta$1          : Accept current terms of trade with tradeid $1. (WARNING:
-                 deprecated. Exists for backwards compatiblity but clients
+                 deprecated. Exists for backwards compatibility but clients
                  are encouraged to use the above command instead)
 .Tr$1          : Reject trade $1.
 
@@ -214,7 +214,7 @@ server.
 ===============================================================================
 
 While they won't come like this from the server, I've split some messages
-onto more than one line for readibility.  Each line of messages is enclosed
+onto more than one line for readability.  Each line of messages is enclosed
 by <monopd> and </monopd>.
 
 --------------------
@@ -273,7 +273,7 @@ WARNING: DEPRECATED, see <gameupdate> and <deletegame>.
     bankrupt="bool" hasturn="bool" can_roll="bool" can_buyestate="bool"
     host="string" spectator="bool" hasdebt="bool" canauction="bool" canusecard="bool" />
 
-Most of these are obvious. Directmove is a suggestion to clients about if
+Most of these are obvious. Directmove is a suggestion to clients whether
 they should animate tokens (or not, directmove is 1 for "go directly to
 jail"). Master is 1 or 0 depending on whether the player is the controlling
 player in a game and spectator indicates whether a player is participating
@@ -335,7 +335,7 @@ proposal or including cards and estates (targetplayer is a playerid, or -1
 when a component is removed, money objects are removed when money is 0),
 "accepted" (at which point the ownerships are being transferred).
 
-Actor is the playerid of the player initiating the tradeof rejecting it.
+Actor is the playerid of the player initiating the trade or rejecting it.
 
 Tradeplayer's accept field denotes whether that player has agreed to the
 current terms of the trade; this is reset to 0 upon any change and must be
@@ -417,7 +417,7 @@ can_roll or estateupdate can_toggle_mortgage.
 </configupdate>
 
 Allows clients to view/configure options (editing might only be available
-before game start!). Supported types are: bool. Edit is a boolean to tell
+before the game starts!). Supported types are: bool. Edit is a boolean to tell
 clients whether this option can be edited or not. Commands should be
 postfixed with the configuration value: for bools 0 or 1, such as .geaf1
 

@@ -2,7 +2,7 @@
 -----
 
 - bugfix: wrong estate was chosen when selling an estate, the current estate
-  was chosen instead of the player selected estate
+  was chosen instead of the player-selected estate
 - bugfix: fixed bind() on Mac OS X and probably some others
 
 0.9.6
@@ -158,11 +158,11 @@
 - bugfix: change master attribute before sending playerupdate when creating a game
 - bugfix: init Auction::m_highBidder in constructor
 - bugfix: proper check for housePrice in Player::buyHouse
-- bugfix: don't mess with auction events when on unsuccesful bid
+- bugfix: don't mess with auction events when on unsuccessful bid
 - bugfix: allow building *houses* when max hotels reached
 - bugfix: change player name in game description
 - bugfix: only set edit=1 for master in configupdate
-- bugfix: unmortgage estates thatare sold to the bank on bankrupcy
+- bugfix: unmortgage estates thatare sold to the bank on bankruptcy
 
 2002-12-24 (monopd-0.6.2)
 ----------
@@ -196,7 +196,7 @@
 - gcc 3.2 compilation fixes
 - updated DESIGN document
 - deleting tradecomponents in trade deconstructor no longer crashes
-- CONFIG: Card::jailcard is now seperated into Card::outofjail bool and
+- CONFIG: Card::jailcard is now separated into Card::outofjail bool and
   Card::canbeowned bool, to allow for different types of ownable cards in the
   future
 - support for trading of jail cards
@@ -217,7 +217,7 @@
 - CONFIG: move min/max players to config file
 - ported to libcapsinetwork 0.2.0
 - API: moved newturn message to playerupdate attribute hasturn
-- remove Cards+Estates from Trades when owner changes (bankrupcy/trade/card usage)
+- remove Cards+Estates from Trades when owner changes (bankruptcy/trade/card usage)
 - API: allow for reconnect with .R
 - handle passing of estates elegantly
 - CONFIG: remove nexutil and nextrr with advancetonextof=groupname,
@@ -227,7 +227,7 @@
 ----------
 
 - if you are insolvent on third roll of the dice in jail it doesn't end the turn right
-- correctly move player to destination on succesful jail roll
+- correctly move player to destination on successful jail roll
 - allow players to go "back" (leaving a game)
 - valgrind fixes, including huge memory leak in escapeXML
 - free parking target for estates (cards/jail/taxes)
@@ -795,7 +795,7 @@
 2001-06-19 (cap)
 ----------
 
-- Changed game name into description (makes more sense) and issued seperate
+- Changed game name into description (makes more sense) and issued separate
   command for it (.gd) so the master can change the description.
 - Prepared some stuff for Chance/CC jailcards.
 
@@ -823,7 +823,7 @@
 ----------
 
 - Bugfix: double count must be reset after being sent to jail.
-- Added Player::solvent() function to seperate money checking from
+- Added Player::solvent() function to separate money checking from
   Player::pay()
 - B & O Railroad -> B &amp; O Railroad. Change is currently in config file,
   I guess we should transform it ourselves before sending as XML?
@@ -999,7 +999,7 @@ instead of 1.1.1.x ?
 2001-04-28
 ----------
 
-- API decision: messages are seperated by newlines. Syntax within a message
+- API decision: messages are separated by newlines. Syntax within a message
   is yet unspecified, although it will probably use a subset of XML.
 - gamelist is printed in tiny XML.
 
@@ -1008,7 +1008,7 @@ instead of 1.1.1.x ?
 
 - turn-based game, .r only allowed on players turn [Milestone I bugfix]
 - complete redesign of user, game, player and ownership relations
-- seperate class for estate entities, names and prices from file
+- separate class for estate entities, names and prices from file
 - to_jail property for estates
 - buying properties and collecting rent are supported in the game, however
   there are no commands in the API yet to buy properties. unowned properties

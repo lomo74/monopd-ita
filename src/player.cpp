@@ -725,14 +725,14 @@ void Player::updateTradeObject(char *data)
 	// data looks like "1:10:1", tradeid, objectid, playerid
 	if (!strstr(data, ":"))
 	{
-		ioError("Invalid input, no seperator after tradeId");
+		ioError("Invalid input, no separator after tradeId");
 		return;
 	}
 	int tradeId = atoi(strsep(&data, ":"));
 
 	if (!strstr(data, ":"))
 	{
-		ioError("Invalid input, no seperator after objectId");
+		ioError("Invalid input, no separator after objectId");
 		return;
 	}
 	int objectId = atoi(strsep(&data, ":"));
@@ -776,7 +776,7 @@ void Player::updateTradeObject(char *data)
 		Card *card = m_game->findCard(objectId);
 		if (!card || !card->owner())
 		{
-			ioError("Noone owns a card with cardId %d.", objectId);
+			ioError("No one owns a card with cardId %d.", objectId);
 			return;
 		}
 		object = card;
@@ -794,21 +794,21 @@ void Player::updateTradeMoney(char *data)
 	// data looks like "1:1:1:100", tradeid, playerfrom, playerto, money
 	if (!strstr(data, ":"))
 	{
-		ioError("Invalid input for .Tm, no seperator after tradeId");
+		ioError("Invalid input for .Tm, no separator after tradeId");
 		return;
 	}
 	int tradeId = atoi(strsep(&data, ":"));
 
 	if (!strstr(data, ":"))
 	{
-		ioError("Invalid input for .Tm, no seperator after playerFromId");
+		ioError("Invalid input for .Tm, no separator after playerFromId");
 		return;
 	}
 	int playerFromId = atoi(strsep(&data, ":"));
 
 	if (!strstr(data, ":"))
 	{
-		ioError("Invalid input for .Tm, no seperator after playerToId");
+		ioError("Invalid input for .Tm, no separator after playerToId");
 		return;
 	}
 

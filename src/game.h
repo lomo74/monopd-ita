@@ -117,7 +117,7 @@ class Game : public GameObject
 		void enforceDebt(Player *pBroke, Debt *debt = 0);
 		void newAuction(Player *pInput);
 		Auction *auction();
-		// Returns 0 on succesful bid, 1 on error.
+		// Returns 0 on successful bid, 1 on error.
 		int bidInAuction(Player *pInput, char *data);
 		void delAuction();
 

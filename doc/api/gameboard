@@ -1,5 +1,5 @@
 This document described the configuration syntax of monopd game configuration
-files. See the the actualy configuration files within games/ to see how
+files. See the actual configuration files within games/ to see how
 this syntax is applied.
 
 Configuration Groups

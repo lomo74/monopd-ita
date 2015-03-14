@@ -388,7 +388,7 @@ void Game::editConfiguration(Player *pInput, char *data)
 
 	if (!strstr(data, ":"))
 	{
-		pInput->ioError("Invalid input for .gc, no seperator after configId");
+		pInput->ioError("Invalid input for .gc, no separator after configId");
 		return;
 	}
 	int configId = atoi(strsep(&data, ":"));
@@ -907,12 +907,12 @@ void Game::delAuction()
 	m_auction = 0;
 }
 
-// Returns 0 on succesful bid, 1 on error.
+// Returns 0 on successful bid, 1 on error.
 int Game::bidInAuction(Player *pInput, char *data)
 {
 	if (!strstr(data, ":"))
 	{
-		pInput->ioError("Invalid input for .ab, no seperator after auctionId");
+		pInput->ioError("Invalid input for .ab, no separator after auctionId");
 		return 1;
 	}
 	int auctionId = atoi(strsep(&data, ":"));
@@ -1008,7 +1008,7 @@ void Game::acceptTrade(Player *pInput, char *data)
 	// data looks like "1:1", tradeid, revision
 	if (!strstr(data, ":"))
 	{
-//		ioError("Invalid input for .Ta, no seperator after tradeId");
+//		ioError("Invalid input for .Ta, no separator after tradeId");
 //		return;
 		ignoreRevision = true; // backwards compatibility
 		tradeId = atoi(data);
@@ -1836,7 +1836,7 @@ bool Game::giveCard(Player *pTurn, Estate *estate, Card *card)
 {
 	if (!card)
 	{
-		ioError(pTurn->name() + " should get a card, but there doesn't seem to be any available!");
+		ioError(pTurn->name() + " should get a card, but there don't seem to be any available!");
 		return true;
 	}
 	setDisplay(estate, false, false, "%s", card->getStringProperty("name").c_str());
