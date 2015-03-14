@@ -29,10 +29,13 @@ AC_ARG_WITH([systemd-daemon], AS_HELP_STRING([--with-systemd-daemon],
             [Add support for systemd startup notification (default is autodetected)]),
             [USE_SYSTEMD_DAEMON=$withval], [USE_SYSTEMD_DAEMON=auto])
 AS_IF([test "x$USE_SYSTEMD_DAEMON" != "xno"], [
-    PKG_CHECK_MODULES([SYSTEMD_DAEMON], [libsystemd-daemon],
+    PKG_CHECK_MODULES([SYSTEMD_DAEMON], [libsystemd],
         [AC_DEFINE(USE_SYSTEMD_DAEMON, 1, [Use systemd startup notification])],
-        [AS_IF([test "x$USE_SYSTEMD_DAEMON" = "xyes"],
-            [AC_MSG_ERROR([systemd startup notification support requested, but libsystemd-daemon not found.])]
+        [PKG_CHECK_MODULES([SYSTEMD_DAEMON], [libsystemd-daemon],
+            [AC_DEFINE(USE_SYSTEMD_DAEMON, 1, [Use systemd startup notification])],
+            [AS_IF([test "x$USE_SYSTEMD_DAEMON" = "xyes"],
+                [AC_MSG_ERROR([systemd startup notification support requested, but libsystemd-daemon not found.])]
+            )]
         )]
     )
 ])
