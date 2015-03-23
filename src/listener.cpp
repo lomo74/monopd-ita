@@ -142,7 +142,7 @@ void Listener::checkActivity()
 	{
 		if ( (*it)->status() == Socket::Ok && FD_ISSET( (*it)->fd(), &m_fdset ) )
 		{
-			char *readBuf = new char[MAXLINE];
+			char *readBuf = new char[MAXLINE+1]; // MAXLINE + '\0'
 			int n = read((*it)->fd(), readBuf, MAXLINE);
 			if (n <= 0) // socket was closed
 			{
