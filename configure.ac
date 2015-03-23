@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT(src/main.cpp)
-AM_INIT_AUTOMAKE(monopd, 0.9.7)
+AM_INIT_AUTOMAKE(monopd, 0.9.8)
 AM_CONFIG_HEADER(config.h)
 AC_LANG(C++)
 

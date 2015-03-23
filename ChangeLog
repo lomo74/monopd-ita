@@ -1,3 +1,12 @@
+0.9.8
+-----
+
+- fixed CVE-2015-0841: off-by-one error in network code
+- check for libsystemd in preference to libsystemd-daemon
+- fixed a lot of typographical and grammatical errors
+- fixed systemd unit file example: it is not allowed to create a stand-alone
+  Description field, moved to [Unit] section
+
 0.9.7
 -----
 
@@ -8,9 +17,11 @@
 0.9.6
 -----
 
-- DOC: added User and Group stanzas in systemd service unit-file as a hint for packagers
+- DOC: added User and Group stanzas in systemd service unit-file as a hint for
+  packagers
 - bugfix: fixed broken formats on x86_64, %ld on int instead of %d
-- bugfix: fixed XML escaping for "You do not have enough money to buy this property, B & O Railroad costs 200."
+- bugfix: fixed XML escaping for "You do not have enough money to buy this
+  property, B & O Railroad costs 200."
 - API: added gameid attribute to the new configupdate protocol
 
 0.9.5
