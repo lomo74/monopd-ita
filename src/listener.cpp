@@ -32,6 +32,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <fcntl.h>
 
 #include "listener.h"
 #include "listenport.h"
@@ -187,6 +188,7 @@ Socket *Listener::acceptSocket(int fd)
 	struct sockaddr_storage clientaddr;
 //	struct hostent *host;
 	char ip_str[INET6_ADDRSTRLEN];
+	int flags;
 
 	int len = sizeof(clientaddr);
 	int socketFd = accept(fd, (struct sockaddr *) &clientaddr, (socklen_t *) &len);
@@ -204,6 +206,14 @@ Socket *Listener::acceptSocket(int fd)
 //	TODO: redo that asynchronously (and using getnameinfo() instead)
 //	if( (host = gethostbyaddr((char *)&clientaddr.sin_addr, sizeof(clientaddr.sin_addr), AF_INET)) != NULL)
 //		socket->setFqdn(host->h_name);
+
+	// set socket to non-blocking
+	flags = fcntl(socketFd, F_GETFL);
+	if (flags >= 0) {
+		flags |= O_NDELAY;
+		fcntl(socketFd, F_SETFL, flags);
+	}
+
 	m_sockets.push_back(socket);
 
 	socket->setType( Socket::Player );
