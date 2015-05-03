@@ -15,6 +15,7 @@
 // the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 // Boston, MA 02111-1307, USA.
 
+#include <stdio.h>
 #include <signal.h>
 #include <syslog.h>
 #include <unistd.h>
@@ -60,16 +61,19 @@ void MonopdListener::socketHandler( Socket *socket, const std::string &data )
 {
 	switch( socket->status() )
 	{
-		case Socket::New:
-			syslog( LOG_INFO, "connection: fd=[%d], ip=[%s]", socket->fd(), socket->ipAddr().c_str() );
-			m_server->welcomeNew( socket );
-			m_server->initSocketTimeoutEvent( socket->fd() );
+		case Socket::Connect:
 			break;
 
-		case Socket::Close:
-		case Socket::Closed:
-			syslog( LOG_INFO, "disconnect: fd=[%d], ip=[%s]", socket->fd(), socket->ipAddr().c_str() );
-			m_server->closedSocket( socket );
+		case Socket::New:
+			syslog( LOG_INFO, "connection: fd=[%d], ip=[%s]", socket->fd(), socket->ipAddr().c_str() );
+			switch (socket->type()) {
+			case Socket::Player:
+				m_server->welcomeNew( socket );
+				break;
+			case Socket::Metaserver:
+				m_server->welcomeMetaserver( socket );
+				break;
+			}
 			break;
 
 		case Socket::Ok:
@@ -77,10 +81,16 @@ void MonopdListener::socketHandler( Socket *socket, const std::string &data )
 			case Socket::Player:
 				m_server->processInput( socket, data );
 				break;
-			default:
-				m_server->processInput( socket, data );
+			case Socket::Metaserver:
 				break;
 			}
+			break;
+
+		case Socket::Close:
+		case Socket::Closed:
+			syslog( LOG_INFO, "disconnect: fd=[%d], ip=[%s]", socket->fd(), socket->ipAddr().c_str() );
+			m_server->closedSocket( socket );
+			break;
 	}
 }
 

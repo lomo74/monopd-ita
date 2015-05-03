@@ -49,7 +49,7 @@ public:
 
 	void initMetaserverEvent();
 	void welcomeNew(Socket *socket);
-	void initSocketTimeoutEvent(int socketFd);
+	void welcomeMetaserver(Socket *socket);
 	int processEvents(); /* returns -1 or socket fd in case of socket timeout */
 	void processInput(Socket *socket, const std::string data);
 	void updateSystemdStatus();

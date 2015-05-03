@@ -572,26 +572,7 @@ int MonopdServer::processEvents()
 
 void MonopdServer::registerMetaserver()
 {
-	int ircsock;
-	struct sockaddr_in sin;
-	struct hostent *hp = gethostbyname(m_metaserverHost.c_str());
-	if (!hp)
-		return;
-
-	bzero((char *) &sin, sizeof(sin));
-	bcopy(hp->h_addr, (char *) &sin.sin_addr, hp->h_length);
-	sin.sin_family = hp->h_addrtype;
-	sin.sin_port = htons(m_metaserverPort);
-	ircsock = socket(AF_INET, SOCK_STREAM, 0);
-	if (connect(ircsock, (struct sockaddr *) & sin, sizeof(sin)))
-		return;
-
-	std::string getStr = std::string("GET /register.php?host=") + m_metaserverIdentity + "&port=" + itoa(m_port) + "&version=" + escapeHTML(VERSION) + "&users=" + itoa(m_players.size()) + " HTTP/1.1\nHost:" + m_metaserverHost + "\nUser-Agent: monopd/" + VERSION + "\n\n";
-	if (ircsock)
-	{
-		write(ircsock, getStr.c_str(), strlen(getStr.c_str()));
-		close(ircsock);
-	}
+	m_listener->connectSocket(m_metaserverHost, m_metaserverPort);
 }
 
 void MonopdServer::loadConfig()
@@ -696,12 +677,18 @@ void MonopdServer::initMetaserverEvent()
 void MonopdServer::welcomeNew(Socket *socket)
 {
 	socket->ioWrite( std::string("<monopd><server host=\"") + m_metaserverIdentity + "\" version=\"" VERSION "\"/></monopd>\n" );
+
+	Event *socketTimeout = newEvent(Event::SocketTimeout, 0, socket->fd());
+	socketTimeout->setLaunchTime(time(0) + 30);
 }
 
-void MonopdServer::initSocketTimeoutEvent(int socketFd)
+void MonopdServer::welcomeMetaserver(Socket *socket)
 {
-		Event *socketTimeout = newEvent(Event::SocketTimeout, 0, socketFd);
-		socketTimeout->setLaunchTime(time(0) + 30);
+	socket->ioWrite( std::string("GET /register.php?host=") + m_metaserverIdentity + "&port=" + itoa(m_port) + "&version=" + escapeHTML(VERSION) + "&users=" + itoa(m_players.size()) + " HTTP/1.1\nHost:" + m_metaserverHost + "\nUser-Agent: monopd/" + VERSION + "\n\n" );
+
+	/* we can't set socket to Close state here, Listener is going to change state from New to Ok */
+	Event *socketTimeout = newEvent(Event::SocketTimeout, 0, socket->fd());
+	socketTimeout->setLaunchTime(time(0) + 1);
 }
 
 void MonopdServer::delSocketTimeoutEvent(int socketFd)
