@@ -92,7 +92,7 @@ void Listener::checkActivity()
 			++it;
 
 	// Construct file descriptor set for new events
-	FD_ZERO(&m_fdset);
+	FD_ZERO(&m_readfdset);
 	int highestFd = 0;
 
 	ListenPort *listenPort = 0;
@@ -100,7 +100,7 @@ void Listener::checkActivity()
 	{
 		if ( listenPort->isBound() )
 		{
-			FD_SET(listenPort->fd(), &m_fdset);
+			FD_SET(listenPort->fd(), &m_readfdset);
 			if (listenPort->fd() > highestFd)
 				highestFd = listenPort->fd();
 		}
@@ -108,7 +108,7 @@ void Listener::checkActivity()
 
 	for (std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it) ; ++it)
 	{
-		FD_SET( (*it)->fd(), &m_fdset );
+		FD_SET( (*it)->fd(), &m_readfdset );
 		if ( (*it)->fd() > highestFd )
 			highestFd = (*it)->fd();
 	}
@@ -127,12 +127,12 @@ void Listener::checkActivity()
 	tv.tv_usec = 100000; // perhaps decrease with increasing amount of sockets, or make this configurable?
 
 	// Check filedescriptors for input.
-	if ( (select(highestFd+1, &m_fdset, NULL, NULL, &tv)) <= 0 )
+	if ( (select(highestFd+1, &m_readfdset, NULL, NULL, &tv)) <= 0 )
 		return;
 
 	// Check for new connections
 	for(std::vector<ListenPort *>::iterator it = m_listenPorts.begin() ; it != m_listenPorts.end() && (listenPort = *it) ; ++it)
-		if (FD_ISSET(listenPort->fd(), &m_fdset))
+		if (FD_ISSET(listenPort->fd(), &m_readfdset))
 		{
 			acceptSocket( listenPort->fd() );
 		}
@@ -140,7 +140,7 @@ void Listener::checkActivity()
 	// Check socket data.
 	for ( std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it) ; ++it )
 	{
-		if ( (*it)->status() == Socket::Ok && FD_ISSET( (*it)->fd(), &m_fdset ) )
+		if ( (*it)->status() == Socket::Ok && FD_ISSET( (*it)->fd(), &m_readfdset ) )
 		{
 			char *readBuf = new char[MAXLINE+1]; // MAXLINE + '\0'
 			int n = read((*it)->fd(), readBuf, MAXLINE);
@@ -174,7 +174,7 @@ Socket *Listener::acceptSocket(int fd)
 // TODO: reenable softbooting code
 //	if (!isNew)
 //	{
-//		FD_SET(fd, &m_fdset);
+//		FD_SET(fd, &m_readfdset);
 //
 //		Socket *socket = new Socket(fd);
 //		socket->setStatus(Socket::Ok);
@@ -214,7 +214,7 @@ Socket *Listener::acceptSocket(int fd)
 
 void Listener::delSocket(Socket *socket)
 {
-	FD_CLR(socket->fd(), &m_fdset);
+	FD_CLR(socket->fd(), &m_readfdset);
 	close(socket->fd());
 
 	for (std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it) ; ++it)

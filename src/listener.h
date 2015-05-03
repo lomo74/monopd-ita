@@ -61,7 +61,7 @@ private:
 	Socket *acceptSocket(int fd);
 	void delSocket(Socket *socket);
 
-	fd_set m_fdset;
+	fd_set m_readfdset;
 
 	std::vector<Socket *> m_sockets;
 	std::vector<ListenPort *> m_listenPorts;
