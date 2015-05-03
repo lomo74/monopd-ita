@@ -97,6 +97,7 @@ int main(int argc, char **argv)
 		server->setPort( atoi(argv[1]) );
 
 	MonopdListener *listener = new MonopdListener( server );
+	server->setListener(listener);
 
 	// close stdin, stdout, stderr
 	// close(0); close(1); close(2);

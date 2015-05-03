@@ -19,6 +19,7 @@
 #define	__MONOPD_SERVER_H__
 
 #include "gameobject.h"
+#include "main.h"
 
 class Auction;
 class GameConfig;
@@ -32,6 +33,9 @@ class MonopdServer : public GameObject
 public:
 	MonopdServer();
 	~MonopdServer();
+
+	void setListener(MonopdListener *listener) { m_listener = listener; }
+	MonopdListener *listener() { return m_listener; }
 
 	void setPort(int port);
 	int port() { return m_port; }
@@ -86,6 +90,7 @@ private:
 	std::vector<GameConfig *> m_gameConfigs;
 	std::vector<Player *> m_players;
 
+	MonopdListener *m_listener;
 	unsigned int m_nextGameId, m_nextPlayerId;
 	std::string m_metaserverIdentity, m_metaserverHost;
 	int m_port, m_metaserverPort;
