@@ -708,6 +708,11 @@ void MonopdServer::initMonopigatorEvent()
 	}
 }
 
+void MonopdServer::welcomeNew(Socket *socket)
+{
+	socket->ioWrite( std::string("<monopd><server host=\"") + m_gatorIdentity + "\" version=\"" VERSION "\"/></monopd>\n" );
+}
+
 void MonopdServer::initSocketTimeoutEvent(int socketFd)
 {
 		Event *socketTimeout = newEvent(Event::SocketTimeout, 0, socketFd);

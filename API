@@ -71,7 +71,7 @@ ii. server introduction
 
 The server identifies itself with an introductory XML message:
 
-<monopd><server version="0.9.8"/>
+<monopd><server host="" version="0.9.8"/>
 
 The client must then complete the handshake by using the "set name" command:
 
@@ -219,7 +219,7 @@ by <monopd> and </monopd>.
 
 --------------------
 
- <server name="$1" version="$2"/>
+ <server host="$1" version="$2"/>
 
 Identifies the server, sent upon connection.
 
