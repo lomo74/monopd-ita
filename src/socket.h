@@ -36,10 +36,13 @@ class Socket
 {
 public:
 	enum Status { New, Ok, Close, Closed };
+	enum Type { Player, Metaserver };
 
 	Socket(int fd);
 	void setStatus(Status status) { m_status = status; }
 	Status status() { return m_status; }
+	void setType(Type type) { m_type = type; }
+	Type type() { return m_type; }
 
 	int ioWrite(const std::string data);
 	bool hasReadLine();
@@ -55,6 +58,7 @@ public:
 
 private:
 	Status m_status;
+	Type m_type;
 	int m_fd;
 	std::string m_ipAddr, m_fqdn, m_ioBuf;
 };

@@ -156,7 +156,7 @@ void Listener::checkActivity()
 
 			while ( (*it)->hasReadLine() )
 			{
-		        std::string data = (*it)->readLine();
+				std::string data = (*it)->readLine();
 
 				// Return activity if we have a line
 				if ( data.size() > 0 )
@@ -205,6 +205,7 @@ Socket *Listener::newSocket(int fd)
 //		socket->setFqdn(host->h_name);
 	m_sockets.push_back(socket);
 
+	socket->setType( Socket::Player );
 	socketHandler( socket );
 	socket->setStatus( Socket::Ok );
 

@@ -73,8 +73,14 @@ void MonopdListener::socketHandler( Socket *socket, const std::string &data )
 			break;
 
 		case Socket::Ok:
-			m_server->processInput( socket, data );
-			break;
+			switch (socket->type()) {
+			case Socket::Player:
+				m_server->processInput( socket, data );
+				break;
+			default:
+				m_server->processInput( socket, data );
+				break;
+			}
 	}
 }
 

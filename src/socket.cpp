@@ -63,7 +63,7 @@ const std::string Socket::readLine()
 	if (pos != std::string::npos)
 	{
 		// Grab first part for the listener
-           std::string data = m_ioBuf.substr(0, pos);
+		std::string data = m_ioBuf.substr(0, pos);
 
 		// Remove grabbed part from buffer
 		m_ioBuf.erase(0, pos);
