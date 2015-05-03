@@ -295,9 +295,10 @@ Player *MonopdServer::newPlayer(Socket *socket, const std::string &name)
 		printf("  player %16s %16s game %d bankrupt %d socket fd %d\n", player->name().c_str(), player->getStringProperty("host").c_str(), (player->game() ? player->game()->id() : -1), player->getBoolProperty("bankrupt"), player->socket() ? (int)player->socket()->fd() : -1);
 
 	// Re-register to meta server with updated player count.
-	registerMetaserver();
-	if (m_metaserverEvent)
+	if (m_metaserverEvent) {
+		registerMetaserver();
 		m_metaserverEvent->setLaunchTime(time(0) + m_metaserverEvent->frequency() );
+	}
 
 	updateSystemdStatus();
 	return player;
@@ -373,9 +374,10 @@ void MonopdServer::delPlayer(Player *player)
 		printf("  player %16s %16s game %d bankrupt %d socket fd %d\n", player->name().c_str(), player->getStringProperty("host").c_str(), (player->game() ? player->game()->id() : -1), player->getBoolProperty("bankrupt"), player->socket() ? (int)player->socket()->fd() : -1);
 
 	// Re-register to meta server with updated player count.
-	registerMetaserver();
-	if (m_metaserverEvent)
+	if (m_metaserverEvent) {
+		registerMetaserver();
 		m_metaserverEvent->setLaunchTime(time(0) + m_metaserverEvent->frequency() );
+	}
 
 	updateSystemdStatus();
 }
