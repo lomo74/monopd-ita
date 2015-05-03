@@ -45,6 +45,8 @@
 #include <systemd/sd-daemon.h>
 #endif /* USE_SYSTEMD_DAEMON */
 
+#define METASERVER_PERIOD 180
+
 MonopdServer::MonopdServer() : GameObject(0)
 {
 	m_nextGameId = m_nextPlayerId = 1;
@@ -52,7 +54,6 @@ MonopdServer::MonopdServer() : GameObject(0)
 	m_port = 1234;
 	m_gatorHost = "monopd.unixcode.org";
 	m_gatorPort = 80;
-	m_gatorFrequency = 60;
 	m_useMonopigator = false;
 	m_monopigatorEvent = 0;
 
@@ -621,9 +622,7 @@ void MonopdServer::loadConfig()
 		else if (strstr(str, "="))
 		{
 			buf = strtok(str, "=");
-			if (!strcmp(buf, "gatorfrequency"))
-				m_gatorFrequency = atoi(strtok(NULL, "\n\0"));
-			else if (!strcmp(buf, "gatorhost"))
+			if (!strcmp(buf, "gatorhost"))
 				m_gatorHost = strtok(NULL, "\n\0");
 			else if (!strcmp(buf, "gatoridentity"))
 			{
@@ -638,9 +637,6 @@ void MonopdServer::loadConfig()
 		fgets(str, sizeof(str), f);
 	}
 	fclose(f);
-
-	if (m_gatorFrequency < 60)
-		m_gatorFrequency = 60;
 }
 
 void MonopdServer::loadGameTemplates()
@@ -704,7 +700,7 @@ void MonopdServer::initMonopigatorEvent()
 		// Register Monopigator event
 		m_monopigatorEvent = newEvent(Event::Monopigator);
 		m_monopigatorEvent->setLaunchTime(time(0));
-		m_monopigatorEvent->setFrequency(m_gatorFrequency);
+		m_monopigatorEvent->setFrequency(METASERVER_PERIOD);
 	}
 }
 

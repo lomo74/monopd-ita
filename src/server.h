@@ -88,7 +88,7 @@ private:
 
 	unsigned int m_nextGameId, m_nextPlayerId;
 	std::string m_gatorIdentity, m_gatorHost;
-	int m_port, m_gatorPort, m_gatorFrequency;
+	int m_port, m_gatorPort;
 	bool m_useMonopigator;
 	Event *m_monopigatorEvent;
 };
