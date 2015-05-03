@@ -134,7 +134,7 @@ void Listener::checkActivity()
 	for(std::vector<ListenPort *>::iterator it = m_listenPorts.begin() ; it != m_listenPorts.end() && (listenPort = *it) ; ++it)
 		if (FD_ISSET(listenPort->fd(), &m_fdset))
 		{
-			newSocket( listenPort->fd() );
+			acceptSocket( listenPort->fd() );
 		}
 
 	// Check socket data.
@@ -169,7 +169,7 @@ void Listener::checkActivity()
 	}
 }
 
-Socket *Listener::newSocket(int fd)
+Socket *Listener::acceptSocket(int fd)
 {
 // TODO: reenable softbooting code
 //	if (!isNew)

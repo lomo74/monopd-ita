@@ -58,7 +58,7 @@ private:
 	/*
 	 * May return 0 in case the accept failed.
 	 */
-	Socket *newSocket(int fd);
+	Socket *acceptSocket(int fd);
 	void delSocket(Socket *socket);
 
 	fd_set m_fdset;
