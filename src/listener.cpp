@@ -237,18 +237,6 @@ Socket *Listener::findSocket(int fd)
 
 void Listener::socketHandler( Socket *socket, const std::string &data )
 {
-	switch( socket->status() )
-	{
-		case Socket::New:
-			socket->ioWrite( std::string( "you are a new connection. welcome.\n" ) );
-			break;
-
-		case Socket::Close:
-		case Socket::Closed:
-			break;
-
-		case Socket::Ok:
-			socket->ioWrite( std::string( "your input (" + data + ") is appreciated.\n" ) );
-			break;
-	}
+	(void)socket;
+	(void)data;
 }
