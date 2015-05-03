@@ -35,7 +35,7 @@
 class Socket
 {
 public:
-	enum Status { New, Ok, Close, Closed };
+	enum Status { Connect, New, Ok, Close, Closed };
 	enum Type { Player, Metaserver };
 
 	Socket(int fd);

@@ -22,6 +22,7 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -39,8 +40,6 @@
 #ifdef USE_INET_ATON
 #define inet_pton(a, b, c) inet_aton(b, c)
 #endif
-
-extern int errno;
 
 ListenPort::ListenPort(sa_family_t family, const std::string ip, const int port)
 {

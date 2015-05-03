@@ -22,6 +22,9 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -33,14 +36,13 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <syslog.h>
 
 #include "listener.h"
 #include "listenport.h"
 #include "socket.h"
 
 #define	MAXLINE	1024
-
-extern int errno;
 
 Listener::Listener()
 {
@@ -110,9 +112,17 @@ void Listener::checkActivity()
 
 	for (std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it) ; ++it)
 	{
-		FD_SET( (*it)->fd(), &m_readfdset );
-		if ( (*it)->fd() > highestFd )
-			highestFd = (*it)->fd();
+		if ( (*it)->status() == Socket::Ok ) {
+			FD_SET( (*it)->fd(), &m_readfdset );
+			if ( (*it)->fd() > highestFd )
+				highestFd = (*it)->fd();
+		}
+		/* connection in progress */
+		else if ( (*it)->status() == Socket::Connect ) {
+			FD_SET( (*it)->fd(), &m_writefdset );
+			if ( (*it)->fd() > highestFd )
+				highestFd = (*it)->fd();
+		}
 	}
 
 	// No file descriptors are opened, exit.
@@ -142,7 +152,7 @@ void Listener::checkActivity()
 	// Check socket data.
 	for ( std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it) ; ++it )
 	{
-		if ( (*it)->status() == Socket::Ok && FD_ISSET( (*it)->fd(), &m_readfdset ) )
+		if ( FD_ISSET( (*it)->fd(), &m_readfdset ) )
 		{
 			char *readBuf = new char[MAXLINE+1]; // MAXLINE + '\0'
 			int n = read((*it)->fd(), readBuf, MAXLINE);
@@ -165,6 +175,23 @@ void Listener::checkActivity()
 				{
 					socketHandler( (*it), data );
 					continue;
+				}
+			}
+		}
+
+		if ( FD_ISSET( (*it)->fd(), &m_writefdset ) ) {
+			if ( (*it)->status() == Socket::Connect ) {
+				int err;
+				int sockerr;
+				socklen_t len = sizeof(sockerr);
+				err = getsockopt((*it)->fd(), SOL_SOCKET, SO_ERROR, &sockerr, &len);
+				if (err == 0 && sockerr == 0) {
+					(*it)->setStatus(Socket::New);
+					socketHandler( (*it) );
+					(*it)->setStatus(Socket::Ok);
+				} else {
+					syslog( LOG_INFO, "connect() failed: error=[%s]", strerror(sockerr) );
+					(*it)->setStatus(Socket::Closed);
 				}
 			}
 		}
@@ -214,19 +241,65 @@ Socket *Listener::acceptSocket(int fd)
 		fcntl(socketFd, F_SETFL, flags);
 	}
 
+	socket->setType( Socket::Player );
 	m_sockets.push_back(socket);
 
-	socket->setType( Socket::Player );
 	socketHandler( socket );
 	socket->setStatus( Socket::Ok );
 
 	return socket;
 }
 
+Socket *Listener::connectSocket(const std::string &host, int port) {
+	int socketFd;
+	int err;
+	Socket *sock;
+	struct sockaddr_in sin;
+	struct hostent *hp = gethostbyname(host.c_str());
+	if (!hp)
+		return NULL;
+
+	memset(&sin, 0, sizeof(sin));
+	memcpy(&sin.sin_addr, hp->h_addr, hp->h_length);
+	sin.sin_family = hp->h_addrtype;
+	sin.sin_port = htons(port);
+
+	socketFd = socket(AF_INET, SOCK_STREAM, 0);
+	if (socketFd < 0)
+		return NULL;
+
+	// get current socket flags
+	int flags = fcntl(socketFd, F_GETFL);
+	if (flags < 0)
+		goto non_blocking_failed;
+
+	// set socket to non-blocking
+	flags |= O_NDELAY;
+	if (fcntl(socketFd, F_SETFL, flags) < 0)
+		goto non_blocking_failed;
+
+	err = connect(socketFd, (struct sockaddr *) & sin, sizeof(sin));
+	if (err < 0 && errno != EINPROGRESS)
+		goto connect_failed;
+
+	sock = new Socket(socketFd);
+	sock->setType( Socket::Metaserver );
+	sock->setStatus( Socket::Connect );
+	m_sockets.push_back(sock);
+	socketHandler( sock );
+	return sock;
+
+connect_failed:
+non_blocking_failed:
+	close(socketFd);
+	return NULL;
+}
+
 void Listener::delSocket(Socket *socket)
 {
 	FD_CLR(socket->fd(), &m_readfdset);
 	FD_CLR(socket->fd(), &m_writefdset);
+	shutdown(socket->fd(), SHUT_RDWR);
 	close(socket->fd());
 
 	for (std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it) ; ++it)

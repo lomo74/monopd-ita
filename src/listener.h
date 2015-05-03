@@ -45,6 +45,8 @@ public:
 
 	void checkActivity();
 
+	Socket *connectSocket(const std::string &host, int port);
+
 protected:
 	/*
 	 * Add a listen port. Returns -1 on failure, 0 on success.

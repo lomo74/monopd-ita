@@ -22,14 +22,13 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
+#include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 
 #include "socket.h"
-
-extern int errno;
 
 Socket::Socket( int fd )
  :	m_status( Socket::New ),
