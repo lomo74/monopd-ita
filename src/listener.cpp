@@ -93,6 +93,7 @@ void Listener::checkActivity()
 
 	// Construct file descriptor set for new events
 	FD_ZERO(&m_readfdset);
+	FD_ZERO(&m_writefdset);
 	int highestFd = 0;
 
 	ListenPort *listenPort = 0;
@@ -127,7 +128,7 @@ void Listener::checkActivity()
 	tv.tv_usec = 100000; // perhaps decrease with increasing amount of sockets, or make this configurable?
 
 	// Check filedescriptors for input.
-	if ( (select(highestFd+1, &m_readfdset, NULL, NULL, &tv)) <= 0 )
+	if ( (select(highestFd+1, &m_readfdset, &m_writefdset, NULL, &tv)) <= 0 )
 		return;
 
 	// Check for new connections
@@ -215,6 +216,7 @@ Socket *Listener::acceptSocket(int fd)
 void Listener::delSocket(Socket *socket)
 {
 	FD_CLR(socket->fd(), &m_readfdset);
+	FD_CLR(socket->fd(), &m_writefdset);
 	close(socket->fd());
 
 	for (std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it) ; ++it)
