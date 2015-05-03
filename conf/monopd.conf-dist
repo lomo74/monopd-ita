@@ -8,22 +8,22 @@
 port=1234
 
 #
-# Host of the monopigator web interface.
+# Metaserver host.
 #
-gatorhost=monopd.unixcode.org
+metaserverhost=meta.atlanticd.net
 
 #
-# Port of the monopigator web interface.
+# Metaserver port.
 #
-gatorport=80
+metaserverport=1240
 
 #
-# Our identity. Monopd will not register automatically unless this value is
-# set, so uncomment it if you want to run a public server. Make sure you can
-# be reached under the hostname you set here or else you will show up in
-# Monopigator without users being able to use your host! The web interface
-# might check availability of your monopd server before adding you to the
-# database to avoid localhost, masqueraded localnet and firewalled entries
-# to appear there.
+# Our identity. Monopd will not register automatically unless this value
+# is set, so uncomment it if you want to run a public server. Make sure
+# you can be reached under the hostname you set here. The meta server
+# will keep a connection to the server to track new games and check
+# availability of your monopd server before adding you to the database
+# to avoid localhost, masqueraded localnet and firewalled entries to
+# appear there.
 #
-#gatoridentity=monopd.yourdomain.net
+#metaserveridentity=monopd.yourdomain.net

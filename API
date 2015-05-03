@@ -107,7 +107,7 @@ A list of available monopd servers is available on
 http://monopd.unixcode.org/ and can be used by clients to connect to
 dedicated servers on the Internet.
 
-Please read the file README.monopigator from the monopd distribution for
+Please read the file README.metaserver from the monopd distribution for
 more information.
 
 ===============================================================================

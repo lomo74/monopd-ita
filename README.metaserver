@@ -18,9 +18,9 @@ how to enable it in monopd.
  
 http://monopd.unixcode.org/ returns a XML page like this:
  
-<monopigator>
+<metaserver>
   <server ipaddr="1.2.3.4" host="monopd.unixcode.org" port="1234" version="0.9.8" users="1"/>
-</monopigator>
+</metaserver>
  
 Parse it and your client is good to go (a value of -1 for users indicates
 the server did not register with a user count). Future additions might
@@ -42,12 +42,12 @@ _not_ register by default. It will only register automatically when you
 enable it in the configuration.
 
 To enable registration, move the installed monopd.conf-dist to monopd.conf
-(or edit your existing monopd.conf) and uncomment the gatoridentity entry.
-You can also control some other monopigator and monopd settings here.
+(or edit your existing monopd.conf) and uncomment the metaserveridentity entry.
+You can also control some other metaserver and monopd settings here.
 
 The hostname you enter as identity will be the one to appear in the
 database, so you can use nice aliases instead of your boring reverse lookup.
 
-Monopigator will ignore registrations if it cannot connect to the given host
+Metaserver will ignore registrations if it cannot connect to the given host
 and port. This prevents masqueraded and firewalled hosts from appearing in
-Monopigator.
+Metaserver.

@@ -43,7 +43,7 @@ public:
 	Player *findPlayer(Socket *socket);
 	void delPlayer(Player *player);
 
-	void initMonopigatorEvent();
+	void initMetaserverEvent();
 	void welcomeNew(Socket *socket);
 	void initSocketTimeoutEvent(int socketFd);
 	int processEvents(); /* returns -1 or socket fd in case of socket timeout */
@@ -69,7 +69,7 @@ private:
 	void setGameDescription(Player *pInput, const std::string data);
 	void reconnectPlayer(Player *player, const std::string &cookie);
 
-	void registerMonopigator();
+	void registerMetaserver();
 	void loadConfig();
 	void loadGameTemplates();
 	void ioWrite(const char *data, ...);
@@ -87,10 +87,10 @@ private:
 	std::vector<Player *> m_players;
 
 	unsigned int m_nextGameId, m_nextPlayerId;
-	std::string m_gatorIdentity, m_gatorHost;
-	int m_port, m_gatorPort;
-	bool m_useMonopigator;
-	Event *m_monopigatorEvent;
+	std::string m_metaserverIdentity, m_metaserverHost;
+	int m_port, m_metaserverPort;
+	bool m_useMetaserver;
+	Event *m_metaserverEvent;
 };
 
 #endif

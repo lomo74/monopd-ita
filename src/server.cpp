@@ -50,12 +50,12 @@
 MonopdServer::MonopdServer() : GameObject(0)
 {
 	m_nextGameId = m_nextPlayerId = 1;
-	m_gatorIdentity = "";
 	m_port = 1234;
-	m_gatorHost = "monopd.unixcode.org";
-	m_gatorPort = 80;
-	m_useMonopigator = false;
-	m_monopigatorEvent = 0;
+	m_metaserverHost = "meta.atlanticd.net";
+	m_metaserverPort = 1240;
+	m_metaserverIdentity = "";
+	m_useMetaserver = false;
+	m_metaserverEvent = 0;
 
 	loadConfig();
 	loadGameTemplates();
@@ -295,9 +295,9 @@ Player *MonopdServer::newPlayer(Socket *socket, const std::string &name)
 		printf("  player %16s %16s game %d bankrupt %d socket fd %d\n", player->name().c_str(), player->getStringProperty("host").c_str(), (player->game() ? player->game()->id() : -1), player->getBoolProperty("bankrupt"), player->socket() ? (int)player->socket()->fd() : -1);
 
 	// Re-register to meta server with updated player count.
-	registerMonopigator();
-	if (m_monopigatorEvent)
-		m_monopigatorEvent->setLaunchTime(time(0) + m_monopigatorEvent->frequency() );
+	registerMetaserver();
+	if (m_metaserverEvent)
+		m_metaserverEvent->setLaunchTime(time(0) + m_metaserverEvent->frequency() );
 
 	updateSystemdStatus();
 	return player;
@@ -373,9 +373,9 @@ void MonopdServer::delPlayer(Player *player)
 		printf("  player %16s %16s game %d bankrupt %d socket fd %d\n", player->name().c_str(), player->getStringProperty("host").c_str(), (player->game() ? player->game()->id() : -1), player->getBoolProperty("bankrupt"), player->socket() ? (int)player->socket()->fd() : -1);
 
 	// Re-register to meta server with updated player count.
-	registerMonopigator();
-	if (m_monopigatorEvent)
-		m_monopigatorEvent->setLaunchTime(time(0) + m_monopigatorEvent->frequency() );
+	registerMetaserver();
+	if (m_metaserverEvent)
+		m_metaserverEvent->setLaunchTime(time(0) + m_metaserverEvent->frequency() );
 
 	updateSystemdStatus();
 }
@@ -524,8 +524,8 @@ int MonopdServer::processEvents()
 					event->setFrequency(frequency);
 				}
 				break;
-			case Event::Monopigator:
-				registerMonopigator();
+			case Event::Metaserver:
+				registerMetaserver();
 				break;
 			case Event::PlayerTimeout:
 				GameObject *object = event->object();
@@ -580,23 +580,23 @@ int MonopdServer::processEvents()
 	return returnvalue;
 }
 
-void MonopdServer::registerMonopigator()
+void MonopdServer::registerMetaserver()
 {
 	int ircsock;
 	struct sockaddr_in sin;
-	struct hostent *hp = gethostbyname(m_gatorHost.c_str());
+	struct hostent *hp = gethostbyname(m_metaserverHost.c_str());
 	if (!hp)
 		return;
 
 	bzero((char *) &sin, sizeof(sin));
 	bcopy(hp->h_addr, (char *) &sin.sin_addr, hp->h_length);
 	sin.sin_family = hp->h_addrtype;
-	sin.sin_port = htons(m_gatorPort);
+	sin.sin_port = htons(m_metaserverPort);
 	ircsock = socket(AF_INET, SOCK_STREAM, 0);
 	if (connect(ircsock, (struct sockaddr *) & sin, sizeof(sin)))
 		return;
 
-	std::string getStr = std::string("GET /register.php?host=") + m_gatorIdentity + "&port=" + itoa(m_port) + "&version=" + escapeHTML(VERSION) + "&users=" + itoa(m_players.size()) + " HTTP/1.1\nHost:" + m_gatorHost + "\nUser-Agent: monopd/" + VERSION + "\n\n";
+	std::string getStr = std::string("GET /register.php?host=") + m_metaserverIdentity + "&port=" + itoa(m_port) + "&version=" + escapeHTML(VERSION) + "&users=" + itoa(m_players.size()) + " HTTP/1.1\nHost:" + m_metaserverHost + "\nUser-Agent: monopd/" + VERSION + "\n\n";
 	if (ircsock)
 	{
 		write(ircsock, getStr.c_str(), strlen(getStr.c_str()));
@@ -622,17 +622,16 @@ void MonopdServer::loadConfig()
 		else if (strstr(str, "="))
 		{
 			buf = strtok(str, "=");
-			if (!strcmp(buf, "gatorhost"))
-				m_gatorHost = strtok(NULL, "\n\0");
-			else if (!strcmp(buf, "gatoridentity"))
-			{
-				m_gatorIdentity = strtok(NULL, "\n\0");
-				m_useMonopigator = true;
-			}
-			else if (!strcmp(buf, "port"))
+			if (!strcmp(buf, "port"))
 				setPort(atoi(strtok(NULL, "\n\0")));
-			else if (!strcmp(buf, "gatorport"))
-				m_gatorPort = atoi(strtok(NULL, "\n\0"));
+			else if (!strcmp(buf, "metaserverhost"))
+				m_metaserverHost = strtok(NULL, "\n\0");
+			else if (!strcmp(buf, "metaserverport"))
+				m_metaserverPort = atoi(strtok(NULL, "\n\0"));
+			else if (!strcmp(buf, "metaserveridentity")) {
+				m_metaserverIdentity = strtok(NULL, "\n\0");
+				m_useMetaserver = true;
+			}
 		}
 		fgets(str, sizeof(str), f);
 	}
@@ -693,20 +692,20 @@ void MonopdServer::loadGameTemplates()
 	closedir(dirp);
 }
 
-void MonopdServer::initMonopigatorEvent()
+void MonopdServer::initMetaserverEvent()
 {
-	if (m_useMonopigator==true)
+	if (m_useMetaserver==true)
 	{
-		// Register Monopigator event
-		m_monopigatorEvent = newEvent(Event::Monopigator);
-		m_monopigatorEvent->setLaunchTime(time(0));
-		m_monopigatorEvent->setFrequency(METASERVER_PERIOD);
+		// Register Metaserver event
+		m_metaserverEvent = newEvent(Event::Metaserver);
+		m_metaserverEvent->setLaunchTime(time(0));
+		m_metaserverEvent->setFrequency(METASERVER_PERIOD);
 	}
 }
 
 void MonopdServer::welcomeNew(Socket *socket)
 {
-	socket->ioWrite( std::string("<monopd><server host=\"") + m_gatorIdentity + "\" version=\"" VERSION "\"/></monopd>\n" );
+	socket->ioWrite( std::string("<monopd><server host=\"") + m_metaserverIdentity + "\" version=\"" VERSION "\"/></monopd>\n" );
 }
 
 void MonopdServer::initSocketTimeoutEvent(int socketFd)
