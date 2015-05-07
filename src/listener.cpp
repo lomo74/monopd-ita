@@ -264,9 +264,7 @@ Socket *Listener::connectSocket(const std::string &host, int port) {
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 
-	snprintf(port_str, sizeof(port_str)-1, "%d", port);
-	port_str[sizeof(port_str)-1] = '\0';
-
+	snprintf(port_str, sizeof(port_str), "%d", port);
 	r = getaddrinfo(host.c_str(), port_str, &hints, &result);
 	if (r != 0) {
 		syslog(LOG_INFO, "getaddrinfo() failed: error=[%s]", gai_strerror(r));
