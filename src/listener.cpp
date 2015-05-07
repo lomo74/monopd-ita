@@ -289,8 +289,10 @@ Socket *Listener::connectSocket(const std::string &host, int port) {
 		goto non_blocking_failed;
 
 	err = connect(socketFd, rp->ai_addr, rp->ai_addrlen);
-	if (err < 0 && errno != EINPROGRESS)
+	if (err < 0 && errno != EINPROGRESS) {
+		syslog(LOG_INFO, "connect() failed: error=[%s]", strerror(errno));
 		goto connect_failed;
+	}
 
 	sock = new Socket(socketFd);
 	sock->setType( Socket::Metaserver );
