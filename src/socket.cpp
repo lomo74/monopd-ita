@@ -85,3 +85,12 @@ void Socket::fillBuffer(const std::string data)
 		m_ioBuf.append(data);
 	}
 }
+
+void Socket::clearAddrinfo(void) {
+	if (!m_addrinfoResult) {
+		return;
+	}
+	freeaddrinfo(m_addrinfoResult);
+	m_addrinfoResult = NULL;
+	m_addrinfoCursor = NULL;
+}

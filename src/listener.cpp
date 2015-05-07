@@ -186,12 +186,52 @@ void Listener::checkActivity()
 				socklen_t len = sizeof(sockerr);
 				err = getsockopt((*it)->fd(), SOL_SOCKET, SO_ERROR, &sockerr, &len);
 				if (err == 0 && sockerr == 0) {
+					(*it)->clearAddrinfo(); // no longer needed
 					(*it)->setStatus(Socket::New);
 					socketHandler( (*it) );
 					(*it)->setStatus(Socket::Ok);
 				} else {
+					int socketFd;
 					syslog( LOG_INFO, "connect() failed: error=[%s]", strerror(sockerr) );
-					(*it)->setStatus(Socket::Closed);
+
+					/* Try next */
+					struct addrinfo *rp = (*it)->addrinfoCursor();
+					for (; rp != NULL; rp = rp->ai_next) {
+						socketFd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+						if (socketFd < 0)
+							continue;
+
+						// get current socket flags
+						int flags = fcntl(socketFd, F_GETFL);
+						if (flags < 0)
+							goto non_blocking_failed;
+
+						// set socket to non-blocking
+						flags |= O_NDELAY;
+						if (fcntl(socketFd, F_SETFL, flags) < 0)
+							goto non_blocking_failed;
+
+						err = connect(socketFd, rp->ai_addr, rp->ai_addrlen);
+						if (err < 0 && errno != EINPROGRESS) {
+							syslog(LOG_INFO, "connect() failed: error=[%s]", strerror(errno));
+							goto connect_failed;
+						}
+						break;
+
+connect_failed:
+non_blocking_failed:
+						close(socketFd);
+					}
+
+					// Connect failed
+					if (rp == NULL) {
+						(*it)->setStatus(Socket::Closed);
+						continue;
+					}
+
+					close((*it)->fd());
+					(*it)->setFd(socketFd);
+					(*it)->setAddrinfoCursor(rp);
 				}
 			}
 		}
@@ -268,44 +308,49 @@ Socket *Listener::connectSocket(const std::string &host, int port) {
 	r = getaddrinfo(host.c_str(), port_str, &hints, &result);
 	if (r != 0) {
 		syslog(LOG_INFO, "getaddrinfo() failed: error=[%s]", gai_strerror(r));
-		goto getaddrinfo_failed;
+		return NULL;
 	}
 
-	rp = result;
-	socketFd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-	if (socketFd < 0)
-		goto socket_failed;
+	for (rp = result; rp != NULL; rp = rp->ai_next) {
+		socketFd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+		if (socketFd < 0)
+			continue;
 
-	// get current socket flags
-	flags = fcntl(socketFd, F_GETFL);
-	if (flags < 0)
-		goto non_blocking_failed;
+		// get current socket flags
+		flags = fcntl(socketFd, F_GETFL);
+		if (flags < 0)
+			goto non_blocking_failed;
 
-	// set socket to non-blocking
-	flags |= O_NDELAY;
-	if (fcntl(socketFd, F_SETFL, flags) < 0)
-		goto non_blocking_failed;
+		// set socket to non-blocking
+		flags |= O_NDELAY;
+		if (fcntl(socketFd, F_SETFL, flags) < 0)
+			goto non_blocking_failed;
 
-	err = connect(socketFd, rp->ai_addr, rp->ai_addrlen);
-	if (err < 0 && errno != EINPROGRESS) {
-		syslog(LOG_INFO, "connect() failed: error=[%s]", strerror(errno));
-		goto connect_failed;
+		err = connect(socketFd, rp->ai_addr, rp->ai_addrlen);
+		if (err < 0 && errno != EINPROGRESS) {
+			syslog(LOG_INFO, "connect() failed: error=[%s]", strerror(errno));
+			goto connect_failed;
+		}
+		break;
+
+connect_failed:
+non_blocking_failed:
+		close(socketFd);
+	}
+
+	if (rp == NULL) {
+		freeaddrinfo(result);
+		return NULL;
 	}
 
 	sock = new Socket(socketFd);
 	sock->setType( Socket::Metaserver );
 	sock->setStatus( Socket::Connect );
+	sock->setAddrinfoResult(result);
+	sock->setAddrinfoCursor(rp);
 	m_sockets.push_back(sock);
 	socketHandler( sock );
 	return sock;
-
-connect_failed:
-non_blocking_failed:
-	close(socketFd);
-socket_failed:
-	freeaddrinfo(result);
-getaddrinfo_failed:
-	return NULL;
 }
 
 void Listener::delSocket(Socket *socket)
@@ -314,6 +359,7 @@ void Listener::delSocket(Socket *socket)
 	FD_CLR(socket->fd(), &m_writefdset);
 	shutdown(socket->fd(), SHUT_RDWR);
 	close(socket->fd());
+	socket->clearAddrinfo();
 
 	for (std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it) ; ++it)
 		if (*it == socket)

@@ -25,6 +25,10 @@
 #ifndef LIBCAPSI_NETWORK_SOCKET_H
 #define LIBCAPSI_NETWORK_SOCKET_H
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
 #include <string>
 
 /*
@@ -55,12 +59,19 @@ public:
 	std::string ipAddr() const { return m_ipAddr; }
 	void setFqdn(const std::string fqdn) { m_fqdn = fqdn; }
 	std::string fqdn() const { return m_fqdn; }
+	void setAddrinfoResult(struct addrinfo *result) { m_addrinfoResult = result; }
+	struct addrinfo *addrinfoResult() { return m_addrinfoResult; }
+	void setAddrinfoCursor(struct addrinfo *cursor) { m_addrinfoCursor = cursor; }
+	struct addrinfo *addrinfoCursor() { return m_addrinfoCursor; }
+	void clearAddrinfo(void);
 
 private:
 	Status m_status;
 	Type m_type;
 	int m_fd;
 	std::string m_ipAddr, m_fqdn, m_ioBuf;
+	struct addrinfo *m_addrinfoResult;
+	struct addrinfo *m_addrinfoCursor;
 };
 
 #endif // LIBCAPSI_NETWORK_SOCKET_H
