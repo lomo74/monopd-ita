@@ -195,7 +195,7 @@ void Listener::checkActivity()
 					syslog( LOG_INFO, "connect() failed: error=[%s]", strerror(sockerr) );
 
 					/* Try next */
-					struct addrinfo *rp = (*it)->addrinfoCursor();
+					struct addrinfo *rp = (*it)->addrinfoCursor()->ai_next;
 					for (; rp != NULL; rp = rp->ai_next) {
 						socketFd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
 						if (socketFd < 0)
