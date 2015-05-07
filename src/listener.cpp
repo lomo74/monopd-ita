@@ -84,7 +84,8 @@ void Listener::checkActivity()
 {
 	// Notify socket close events and delete them.
 	for ( std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it) ; )
-		if ( (*it)->status() == Socket::Close || (*it)->status() == Socket::Closed )
+		if ( (*it)->status() == Socket::Close || (*it)->status() == Socket::Closed
+			|| (*it)->status() == Socket::ConnectFailed )
 		{
 			socketHandler( (*it) );
 			delSocket( (*it) );
@@ -234,7 +235,7 @@ non_blocking_failed:
 
 					// Connect failed
 					if (rp == NULL) {
-						(*it)->setStatus(Socket::Closed);
+						(*it)->setStatus(Socket::ConnectFailed);
 						continue;
 					}
 
