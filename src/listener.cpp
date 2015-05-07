@@ -254,22 +254,32 @@ Socket *Listener::connectSocket(const std::string &host, int port) {
 	int socketFd;
 	int err;
 	Socket *sock;
-	struct sockaddr_in sin;
-	struct hostent *hp = gethostbyname(host.c_str());
-	if (!hp)
-		return NULL;
+	struct addrinfo hints;
+	struct addrinfo *result, *rp;
+	char port_str[6];
+	int r;
+	int flags;
 
-	memset(&sin, 0, sizeof(sin));
-	memcpy(&sin.sin_addr, hp->h_addr, hp->h_length);
-	sin.sin_family = hp->h_addrtype;
-	sin.sin_port = htons(port);
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
 
-	socketFd = socket(AF_INET, SOCK_STREAM, 0);
+	snprintf(port_str, sizeof(port_str)-1, "%d", port);
+	port_str[sizeof(port_str)-1] = '\0';
+
+	r = getaddrinfo(host.c_str(), port_str, &hints, &result);
+	if (r != 0) {
+		syslog(LOG_INFO, "getaddrinfo() failed: error=[%s]", gai_strerror(r));
+		goto getaddrinfo_failed;
+	}
+
+	rp = result;
+	socketFd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
 	if (socketFd < 0)
-		return NULL;
+		goto socket_failed;
 
 	// get current socket flags
-	int flags = fcntl(socketFd, F_GETFL);
+	flags = fcntl(socketFd, F_GETFL);
 	if (flags < 0)
 		goto non_blocking_failed;
 
@@ -278,7 +288,7 @@ Socket *Listener::connectSocket(const std::string &host, int port) {
 	if (fcntl(socketFd, F_SETFL, flags) < 0)
 		goto non_blocking_failed;
 
-	err = connect(socketFd, (struct sockaddr *) & sin, sizeof(sin));
+	err = connect(socketFd, rp->ai_addr, rp->ai_addrlen);
 	if (err < 0 && errno != EINPROGRESS)
 		goto connect_failed;
 
@@ -292,6 +302,9 @@ Socket *Listener::connectSocket(const std::string &host, int port) {
 connect_failed:
 non_blocking_failed:
 	close(socketFd);
+socket_failed:
+	freeaddrinfo(result);
+getaddrinfo_failed:
 	return NULL;
 }
 
