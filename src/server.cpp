@@ -684,7 +684,7 @@ void MonopdServer::welcomeNew(Socket *socket)
 
 void MonopdServer::welcomeMetaserver(Socket *socket)
 {
-	socket->ioWrite( std::string("GET /register.php?host=") + m_metaserverIdentity + "&port=" + itoa(m_port) + "&version=" + escapeHTML(VERSION) + "&users=" + itoa(m_players.size()) + " HTTP/1.1\nHost:" + m_metaserverHost + "\nUser-Agent: monopd/" + VERSION + "\n\n" );
+	socket->ioWrite( std::string("REGISTER ") + m_metaserverIdentity + " " + itoa(m_port) + " " + VERSION + "\n");
 
 	/* we can't set socket to Close state here, Listener is going to change state from New to Ok */
 	Event *socketTimeout = newEvent(Event::SocketTimeout, 0, socket->fd());
