@@ -317,6 +317,10 @@ Socket *Listener::connectSocket(const std::string &host, int port) {
 	hints.ai_socktype = SOCK_STREAM;
 
 	snprintf(port_str, sizeof(port_str), "%d", port);
+	/*
+	 * getaddrinfo() is synchronous and might block, this is still less worse
+	 * than a blocking connect(), DNS resolution are less likely to fail.
+	 */
 	r = getaddrinfo(host.c_str(), port_str, &hints, &result);
 	if (r != 0) {
 		syslog(LOG_INFO, "getaddrinfo() failed: error=[%s]", gai_strerror(r));
