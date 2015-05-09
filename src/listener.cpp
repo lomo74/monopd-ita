@@ -250,20 +250,7 @@ non_blocking_failed:
 
 Socket *Listener::acceptSocket(int fd)
 {
-// TODO: reenable softbooting code
-//	if (!isNew)
-//	{
-//		FD_SET(fd, &m_readfdset);
-//
-//		Socket *socket = new Socket(fd);
-//		socket->setStatus(Socket::Ok);
-//		m_sockets.push_back(socket);
-//
-//		return socket;
-//	}
-
 	struct sockaddr_storage clientaddr;
-//	struct hostent *host;
 	char ip_str[INET6_ADDRSTRLEN];
 	int flags;
 
@@ -280,9 +267,6 @@ Socket *Listener::acceptSocket(int fd)
 		inet_ntop(clientaddr.ss_family, &(((struct sockaddr_in6 *)&clientaddr)->sin6_addr), ip_str, INET6_ADDRSTRLEN);
 		socket->setIpAddr(ip_str);
 	}
-//	TODO: redo that asynchronously (and using getnameinfo() instead)
-//	if( (host = gethostbyaddr((char *)&clientaddr.sin_addr, sizeof(clientaddr.sin_addr), AF_INET)) != NULL)
-//		socket->setFqdn(host->h_name);
 
 	// set socket to non-blocking
 	flags = fcntl(socketFd, F_GETFL);

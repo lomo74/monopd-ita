@@ -55,10 +55,8 @@ public:
 
 	void setFd(int _fd) { m_fd = _fd; }
 	int fd() const { return m_fd; }
-	void setIpAddr(const std::string ipAddr) { m_ipAddr = ipAddr; m_fqdn = ipAddr; }
+	void setIpAddr(const std::string ipAddr) { m_ipAddr = ipAddr; }
 	std::string ipAddr() const { return m_ipAddr; }
-	void setFqdn(const std::string fqdn) { m_fqdn = fqdn; }
-	std::string fqdn() const { return m_fqdn; }
 	void setAddrinfoNext(struct addrinfo *next) { m_addrinfoNext = next; }
 	struct addrinfo *addrinfoNext() { return m_addrinfoNext; }
 
@@ -66,7 +64,7 @@ private:
 	Status m_status;
 	Type m_type;
 	int m_fd;
-	std::string m_ipAddr, m_fqdn, m_ioBuf;
+	std::string m_ipAddr, m_ioBuf;
 	struct addrinfo *m_addrinfoNext;
 };
 

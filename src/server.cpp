@@ -285,7 +285,7 @@ Player *MonopdServer::newPlayer(Socket *socket, const std::string &name)
 	addToScope(player);
 
 	player->setProperty("game", -1, this);
-	player->setProperty("host", socket->fqdn(), this);
+	player->setProperty("host", socket->ipAddr(), this);
 	setPlayerName(player, name);
 
 	player->sendClientMsg();

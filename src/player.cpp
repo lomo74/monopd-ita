@@ -920,7 +920,7 @@ void Player::setSocket(Socket *socket)
 {
 	m_socket = socket;
 	if (m_socket)
-		setProperty( "host", socket->fqdn() );
+		setProperty( "host", socket->ipAddr() );
 	else
 		setProperty( "host", "" );
 }
