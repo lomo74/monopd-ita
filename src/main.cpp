@@ -59,55 +59,50 @@ MonopdListener::MonopdListener( MonopdServer *server )
 
 void MonopdListener::socketHandler( Socket *socket, const std::string &data )
 {
-	switch( socket->status() )
-	{
-		case Socket::Connect:
-			break;
+	switch (socket->type()) {
+
+	case Socket::Player:
+		switch (socket->status()) {
 
 		case Socket::New:
 			syslog( LOG_INFO, "connection: fd=[%d], ip=[%s]", socket->fd(), socket->ipAddr().c_str() );
-			switch (socket->type()) {
-			case Socket::Player:
-				m_server->welcomeNew( socket );
-				break;
-			case Socket::Metaserver:
-				m_server->welcomeMetaserver( socket );
-				break;
-			}
+			m_server->welcomeNew( socket );
 			break;
 
 		case Socket::Ok:
-			switch (socket->type()) {
-			case Socket::Player:
-				m_server->processInput( socket, data );
-				break;
-			case Socket::Metaserver:
-				break;
-			}
+			m_server->processInput( socket, data );
 			break;
 
 		case Socket::Close:
 		case Socket::Closed:
 			syslog( LOG_INFO, "disconnect: fd=[%d], ip=[%s]", socket->fd(), socket->ipAddr().c_str() );
-			switch (socket->type()) {
-			case Socket::Player:
-				m_server->closedSocket( socket );
-				break;
-			case Socket::Metaserver:
-				m_server->closedMetaserver(socket);
-				break;
-			}
+			m_server->closedSocket( socket );
 			break;
 
+		case Socket::Connect:
 		case Socket::ConnectFailed:
-			switch (socket->type()) {
-			case Socket::Player:
-				break;
-			case Socket::Metaserver:
-				m_server->closedMetaserver(socket);
-				break;
-			}
 			break;
+		}
+		break;
+
+	case Socket::Metaserver:
+		switch (socket->status()) {
+
+		case Socket::New:
+			m_server->welcomeMetaserver( socket );
+			break;
+
+		case Socket::Close:
+		case Socket::Closed:
+		case Socket::ConnectFailed:
+			m_server->closedMetaserver(socket);
+			break;
+
+		case Socket::Connect:
+		case Socket::Ok:
+			break;
+		}
+		break;
 	}
 }
 
