@@ -32,7 +32,10 @@
 
 Socket::Socket( int fd )
  :	m_status( Socket::New ),
-	m_fd( fd )
+	m_type( Socket::Player ),
+	m_fd( fd ),
+	m_addrinfoResult( NULL ),
+	m_addrinfoCursor( NULL )
 {
 }
 
