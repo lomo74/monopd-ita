@@ -89,10 +89,24 @@ void MonopdListener::socketHandler( Socket *socket, const std::string &data )
 		case Socket::Close:
 		case Socket::Closed:
 			syslog( LOG_INFO, "disconnect: fd=[%d], ip=[%s]", socket->fd(), socket->ipAddr().c_str() );
-			m_server->closedSocket( socket );
+			switch (socket->type()) {
+			case Socket::Player:
+				m_server->closedSocket( socket );
+				break;
+			case Socket::Metaserver:
+				m_server->closedMetaserver(socket);
+				break;
+			}
 			break;
 
 		case Socket::ConnectFailed:
+			switch (socket->type()) {
+			case Socket::Player:
+				break;
+			case Socket::Metaserver:
+				m_server->closedMetaserver(socket);
+				break;
+			}
 			break;
 	}
 }

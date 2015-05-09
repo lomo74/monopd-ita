@@ -691,10 +691,8 @@ void MonopdServer::initMetaserverEvent()
 {
 	if (m_useMetaserver==true)
 	{
-		// Register Metaserver event
 		m_metaserverEvent = newEvent(Event::Metaserver);
 		m_metaserverEvent->setLaunchTime(time(0));
-		m_metaserverEvent->setFrequency(METASERVER_PERIOD);
 	}
 }
 
@@ -713,6 +711,14 @@ void MonopdServer::welcomeMetaserver(Socket *socket)
 	/* we can't set socket to Close state here, Listener is going to change state from New to Ok */
 	Event *socketTimeout = newEvent(Event::SocketTimeout, 0, socket->fd());
 	socketTimeout->setLaunchTime(time(0) + 1);
+}
+
+void MonopdServer::closedMetaserver(Socket *socket)
+{
+	(void)socket;
+
+	m_metaserverEvent = newEvent(Event::Metaserver);
+	m_metaserverEvent->setLaunchTime(time(0) + METASERVER_PERIOD);
 }
 
 void MonopdServer::delSocketTimeoutEvent(int socketFd)
