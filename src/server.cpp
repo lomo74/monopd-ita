@@ -57,6 +57,7 @@ MonopdServer::MonopdServer() : GameObject(0)
 	m_useMetaserver = false;
 	m_metaserverEvent = 0;
 	m_metaserverAddrinfo = NULL;
+	m_metaserverBusy = false;
 
 	loadConfig();
 	loadGameTemplates();
@@ -573,6 +574,9 @@ int MonopdServer::processEvents()
 
 void MonopdServer::registerMetaserver()
 {
+	if (m_metaserverBusy)
+		return;
+
 	if (m_metaserverAddrinfo == NULL) {
 		struct addrinfo hints;
 		struct addrinfo *result;
@@ -596,7 +600,9 @@ void MonopdServer::registerMetaserver()
 		m_metaserverAddrinfo = result;
 	}
 
-	m_listener->connectSocket(m_metaserverAddrinfo);
+	Socket *socket = m_listener->connectSocket(m_metaserverAddrinfo);
+	if (socket)
+		m_metaserverBusy = true;
 }
 
 void MonopdServer::loadConfig()
@@ -689,11 +695,13 @@ void MonopdServer::loadGameTemplates()
 
 void MonopdServer::initMetaserverEvent()
 {
-	if (m_useMetaserver==true)
-	{
-		m_metaserverEvent = newEvent(Event::Metaserver);
-		m_metaserverEvent->setLaunchTime(time(0));
-	}
+	if (!m_useMetaserver)
+		return;
+
+	// Register Metaserver event
+	m_metaserverEvent = newEvent(Event::Metaserver);
+	m_metaserverEvent->setLaunchTime(time(0));
+	m_metaserverEvent->setFrequency(METASERVER_PERIOD);
 }
 
 void MonopdServer::welcomeNew(Socket *socket)
@@ -716,9 +724,7 @@ void MonopdServer::welcomeMetaserver(Socket *socket)
 void MonopdServer::closedMetaserver(Socket *socket)
 {
 	(void)socket;
-
-	m_metaserverEvent = newEvent(Event::Metaserver);
-	m_metaserverEvent->setLaunchTime(time(0) + METASERVER_PERIOD);
+	m_metaserverBusy = false;
 }
 
 void MonopdServer::delSocketTimeoutEvent(int socketFd)

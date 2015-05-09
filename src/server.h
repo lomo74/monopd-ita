@@ -100,6 +100,7 @@ private:
 	std::string m_metaserverIdentity, m_metaserverHost;
 	int m_port, m_metaserverPort;
 	bool m_useMetaserver;
+	bool m_metaserverBusy;
 	Event *m_metaserverEvent;
 	struct addrinfo *m_metaserverAddrinfo;
 };
