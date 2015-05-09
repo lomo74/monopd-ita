@@ -577,7 +577,8 @@ void MonopdServer::registerMetaserver()
 	if (m_metaserverBusy)
 		return;
 
-	if (m_metaserverAddrinfo == NULL) {
+	/* Don't ruin games, only try getaddrinfo() if no games are currently running */
+	if (m_metaserverAddrinfo == NULL || m_games.size() == 0) {
 		struct addrinfo hints;
 		struct addrinfo *result;
 		char port_str[6];
@@ -591,13 +592,19 @@ void MonopdServer::registerMetaserver()
 		/*
 		 * getaddrinfo() is synchronous and might block, this is still less worse
 		 * than a blocking connect(), DNS resolution are less likely to fail.
+		 *
+		 * Furthermore, we are only calling getaddrinfo() when no games are
+		 * currently running.
 		 */
 		r = getaddrinfo(m_metaserverHost.c_str(), port_str, &hints, &result);
 		if (r != 0) {
 			syslog(LOG_INFO, "getaddrinfo() failed: error=[%s]", gai_strerror(r));
-			return;
+			/* use previous result */
+		} else {
+			if (m_metaserverAddrinfo)
+				freeaddrinfo(m_metaserverAddrinfo);
+			m_metaserverAddrinfo = result;
 		}
-		m_metaserverAddrinfo = result;
 	}
 
 	Socket *socket = m_listener->connectSocket(m_metaserverAddrinfo);
