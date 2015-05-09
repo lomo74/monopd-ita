@@ -56,6 +56,7 @@ MonopdServer::MonopdServer() : GameObject(0)
 	m_metaserverIdentity = "";
 	m_useMetaserver = false;
 	m_metaserverEvent = 0;
+	m_metaserverAddrinfo = NULL;
 
 	loadConfig();
 	loadGameTemplates();
@@ -572,7 +573,30 @@ int MonopdServer::processEvents()
 
 void MonopdServer::registerMetaserver()
 {
-	m_listener->connectSocket(m_metaserverHost, m_metaserverPort);
+	if (m_metaserverAddrinfo == NULL) {
+		struct addrinfo hints;
+		struct addrinfo *result;
+		char port_str[6];
+		int r;
+
+		memset(&hints, 0, sizeof(struct addrinfo));
+		hints.ai_family = AF_UNSPEC;
+		hints.ai_socktype = SOCK_STREAM;
+
+		snprintf(port_str, sizeof(port_str), "%d", m_metaserverPort);
+		/*
+		 * getaddrinfo() is synchronous and might block, this is still less worse
+		 * than a blocking connect(), DNS resolution are less likely to fail.
+		 */
+		r = getaddrinfo(m_metaserverHost.c_str(), port_str, &hints, &result);
+		if (r != 0) {
+			syslog(LOG_INFO, "getaddrinfo() failed: error=[%s]", gai_strerror(r));
+			return;
+		}
+		m_metaserverAddrinfo = result;
+	}
+
+	m_listener->connectSocket(m_metaserverAddrinfo);
 }
 
 void MonopdServer::loadConfig()

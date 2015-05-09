@@ -34,8 +34,7 @@ Socket::Socket( int fd )
  :	m_status( Socket::New ),
 	m_type( Socket::Player ),
 	m_fd( fd ),
-	m_addrinfoResult( NULL ),
-	m_addrinfoCursor( NULL )
+	m_addrinfoNext( NULL )
 {
 }
 
@@ -87,13 +86,4 @@ void Socket::fillBuffer(const std::string data)
 		m_ioBuf.erase();
 		m_ioBuf.append(data);
 	}
-}
-
-void Socket::clearAddrinfo(void) {
-	if (!m_addrinfoResult) {
-		return;
-	}
-	freeaddrinfo(m_addrinfoResult);
-	m_addrinfoResult = NULL;
-	m_addrinfoCursor = NULL;
 }

@@ -21,6 +21,10 @@
 #include "gameobject.h"
 #include "main.h"
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
 class Auction;
 class GameConfig;
 class Event;
@@ -96,6 +100,7 @@ private:
 	int m_port, m_metaserverPort;
 	bool m_useMetaserver;
 	Event *m_metaserverEvent;
+	struct addrinfo *m_metaserverAddrinfo;
 };
 
 #endif

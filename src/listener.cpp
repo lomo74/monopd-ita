@@ -187,7 +187,6 @@ void Listener::checkActivity()
 				socklen_t len = sizeof(sockerr);
 				err = getsockopt((*it)->fd(), SOL_SOCKET, SO_ERROR, &sockerr, &len);
 				if (err == 0 && sockerr == 0) {
-					(*it)->clearAddrinfo(); // no longer needed
 					(*it)->setStatus(Socket::New);
 					socketHandler( (*it) );
 					(*it)->setStatus(Socket::Ok);
@@ -197,9 +196,9 @@ void Listener::checkActivity()
 					syslog( LOG_INFO, "connect() failed: ip=[%s], error=[%s]", (*it)->ipAddr().c_str(), strerror(sockerr) );
 
 					/* Try next */
-					struct addrinfo *rp = (*it)->addrinfoCursor()->ai_next;
-					for (; rp != NULL; rp = rp->ai_next) {
-						socketFd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+					struct addrinfo *addrinfo = (*it)->addrinfoNext();
+					for (; addrinfo != NULL; addrinfo = addrinfo->ai_next) {
+						socketFd = socket(addrinfo->ai_family, addrinfo->ai_socktype, addrinfo->ai_protocol);
 						if (socketFd < 0)
 							continue;
 
@@ -213,15 +212,15 @@ void Listener::checkActivity()
 						if (fcntl(socketFd, F_SETFL, flags) < 0)
 							goto non_blocking_failed;
 
-						if (rp->ai_family == AF_INET) {
-							inet_ntop(rp->ai_family, &(((struct sockaddr_in *)rp->ai_addr)->sin_addr), ip_str, INET6_ADDRSTRLEN);
-						} else if(rp->ai_family == AF_INET6) {
-							inet_ntop(rp->ai_family, &(((struct sockaddr_in6 *)rp->ai_addr)->sin6_addr), ip_str, INET6_ADDRSTRLEN);
+						if (addrinfo->ai_family == AF_INET) {
+							inet_ntop(addrinfo->ai_family, &(((struct sockaddr_in *)addrinfo->ai_addr)->sin_addr), ip_str, INET6_ADDRSTRLEN);
+						} else if(addrinfo->ai_family == AF_INET6) {
+							inet_ntop(addrinfo->ai_family, &(((struct sockaddr_in6 *)addrinfo->ai_addr)->sin6_addr), ip_str, INET6_ADDRSTRLEN);
 						} else {
 							ip_str[0] = '\0';
 						}
 
-						err = connect(socketFd, rp->ai_addr, rp->ai_addrlen);
+						err = connect(socketFd, addrinfo->ai_addr, addrinfo->ai_addrlen);
 						if (err < 0 && errno != EINPROGRESS) {
 							syslog(LOG_INFO, "connect() failed: ip=[%s], error=[%s]", ip_str, strerror(errno));
 							goto connect_failed;
@@ -234,14 +233,14 @@ non_blocking_failed:
 					}
 
 					// Connect failed
-					if (rp == NULL) {
+					if (addrinfo == NULL) {
 						(*it)->setStatus(Socket::ConnectFailed);
 						continue;
 					}
 
 					close((*it)->fd());
 					(*it)->setFd(socketFd);
-					(*it)->setAddrinfoCursor(rp);
+					(*it)->setAddrinfoNext(addrinfo->ai_next);
 					(*it)->setIpAddr(ip_str);
 				}
 			}
@@ -301,34 +300,15 @@ Socket *Listener::acceptSocket(int fd)
 	return socket;
 }
 
-Socket *Listener::connectSocket(const std::string &host, int port) {
+Socket *Listener::connectSocket(struct addrinfo *addrinfo) {
 	int socketFd;
 	int err;
 	Socket *sock;
-	struct addrinfo hints;
-	struct addrinfo *result, *rp;
-	char port_str[6];
-	int r;
 	int flags;
 	char ip_str[INET6_ADDRSTRLEN];
 
-	memset(&hints, 0, sizeof(struct addrinfo));
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-
-	snprintf(port_str, sizeof(port_str), "%d", port);
-	/*
-	 * getaddrinfo() is synchronous and might block, this is still less worse
-	 * than a blocking connect(), DNS resolution are less likely to fail.
-	 */
-	r = getaddrinfo(host.c_str(), port_str, &hints, &result);
-	if (r != 0) {
-		syslog(LOG_INFO, "getaddrinfo() failed: error=[%s]", gai_strerror(r));
-		return NULL;
-	}
-
-	for (rp = result; rp != NULL; rp = rp->ai_next) {
-		socketFd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+	for (; addrinfo != NULL; addrinfo = addrinfo->ai_next) {
+		socketFd = socket(addrinfo->ai_family, addrinfo->ai_socktype, addrinfo->ai_protocol);
 		if (socketFd < 0)
 			continue;
 
@@ -342,15 +322,15 @@ Socket *Listener::connectSocket(const std::string &host, int port) {
 		if (fcntl(socketFd, F_SETFL, flags) < 0)
 			goto non_blocking_failed;
 
-		if (rp->ai_family == AF_INET) {
-			inet_ntop(rp->ai_family, &(((struct sockaddr_in *)rp->ai_addr)->sin_addr), ip_str, INET6_ADDRSTRLEN);
-		} else if(rp->ai_family == AF_INET6) {
-			inet_ntop(rp->ai_family, &(((struct sockaddr_in6 *)rp->ai_addr)->sin6_addr), ip_str, INET6_ADDRSTRLEN);
+		if (addrinfo->ai_family == AF_INET) {
+			inet_ntop(addrinfo->ai_family, &(((struct sockaddr_in *)addrinfo->ai_addr)->sin_addr), ip_str, INET6_ADDRSTRLEN);
+		} else if(addrinfo->ai_family == AF_INET6) {
+			inet_ntop(addrinfo->ai_family, &(((struct sockaddr_in6 *)addrinfo->ai_addr)->sin6_addr), ip_str, INET6_ADDRSTRLEN);
 		} else {
 			ip_str[0] = '\0';
 		}
 
-		err = connect(socketFd, rp->ai_addr, rp->ai_addrlen);
+		err = connect(socketFd, addrinfo->ai_addr, addrinfo->ai_addrlen);
 		if (err < 0 && errno != EINPROGRESS) {
 			syslog(LOG_INFO, "connect() failed: ip=[%s], error=[%s]", ip_str, strerror(errno));
 			goto connect_failed;
@@ -362,16 +342,14 @@ non_blocking_failed:
 		close(socketFd);
 	}
 
-	if (rp == NULL) {
-		freeaddrinfo(result);
+	if (addrinfo == NULL) {
 		return NULL;
 	}
 
 	sock = new Socket(socketFd);
 	sock->setType( Socket::Metaserver );
 	sock->setStatus( Socket::Connect );
-	sock->setAddrinfoResult(result);
-	sock->setAddrinfoCursor(rp);
+	sock->setAddrinfoNext(addrinfo->ai_next);
 	sock->setIpAddr(ip_str);
 	m_sockets.push_back(sock);
 	socketHandler( sock );
@@ -384,7 +362,6 @@ void Listener::delSocket(Socket *socket)
 	FD_CLR(socket->fd(), &m_writefdset);
 	shutdown(socket->fd(), SHUT_RDWR);
 	close(socket->fd());
-	socket->clearAddrinfo();
 
 	for (std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it) ; ++it)
 		if (*it == socket)

@@ -26,6 +26,8 @@
 #define LIBCAPSI_NETWORK_LISTENER_H
 
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 #include <string>
 #include <vector>
@@ -45,7 +47,7 @@ public:
 
 	void checkActivity();
 
-	Socket *connectSocket(const std::string &host, int port);
+	Socket *connectSocket(struct addrinfo *addrinfo);
 
 protected:
 	/*
