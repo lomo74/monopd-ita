@@ -88,7 +88,6 @@ private:
 	void sendXMLUpdates();
 	void sendXMLUpdate(Player *player, bool fullUpdate = false, bool excludeSelf = false);
 	void setPlayerName(Player *player, const std::string &name);
-	void delSocketTimeoutEvent(int socketFd);
 
 	std::vector<Event *> m_events;
 	std::vector<Game *> m_games;

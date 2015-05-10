@@ -277,9 +277,6 @@ void MonopdServer::setGameDescription(Player *pInput, const std::string data)
 
 void MonopdServer::identifyPlayer(Player *player, const std::string &name)
 {
-	// Players completed the handshake, delete socket timeout event
-	delSocketTimeoutEvent( player->socket()->fd() );
-
 	player->identify(m_nextPlayerId++);
 	player->setProperty("game", -1, this);
 	player->setProperty("host", player->socket()->ipAddr(), this);
@@ -430,16 +427,9 @@ void MonopdServer::delGameConfig(GameConfig *gameConfig)
 void MonopdServer::closedSocket(Socket *socket)
 {
 	Player *pInput = findPlayer(socket);
-	if (!pInput)
-	{
-		// Delete socket timeout event, socket is closed already
-		delSocketTimeoutEvent( socket->fd() );
-		return;
-	}
 
 	Game *game = pInput->game();
-	if (!game)
-	{
+	if (!game) {
 		delPlayer(pInput);
 		return;
 	}
@@ -716,9 +706,6 @@ void MonopdServer::welcomeNew(Socket *socket)
 	player->ioWrite( std::string("<monopd><server host=\"") + m_metaserverIdentity + "\" version=\"" VERSION "\"/></monopd>\n" );
 	sendGameList(player, true);
 	sendXMLUpdate(player, true, true); // give new player a full update (excluding self) so it knows who's in the lounge
-
-	Event *socketTimeout = newEvent(Event::SocketTimeout, 0, socket->fd());
-	socketTimeout->setLaunchTime(time(0) + 30);
 }
 
 void MonopdServer::welcomeMetaserver(Socket *socket)
@@ -734,17 +721,6 @@ void MonopdServer::closedMetaserver(Socket *socket)
 {
 	(void)socket;
 	m_metaserverBusy = false;
-}
-
-void MonopdServer::delSocketTimeoutEvent(int socketFd)
-{
-	Event *event = 0;
-	for(std::vector<Event *>::iterator it = m_events.begin(); it != m_events.end() && (event = *it) ; ++it)
-		if (event->id() == socketFd)
-		{
-			delEvent(event);
-			return;
-		}
 }
 
 void MonopdServer::ioWrite(const char *fmt, ...)

@@ -139,7 +139,7 @@ int main(int argc, char **argv)
 		if(fd != -1)
 		{
 			Socket *delSocket = listener->findSocket(fd);
-			if (delSocket && !server->findPlayer(delSocket))
+			if (delSocket)
 				delSocket->setStatus(Socket::Close);
 		}
 	}
