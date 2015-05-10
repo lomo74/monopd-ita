@@ -714,7 +714,7 @@ void MonopdServer::welcomeMetaserver(Socket *socket)
 
 	/* we can't set socket to Close state here, Listener is going to change state from New to Ok */
 	Event *socketTimeout = newEvent(Event::SocketTimeout, 0, socket->fd());
-	socketTimeout->setLaunchTime(time(0) + 1);
+	socketTimeout->setLaunchTime(time(0));
 }
 
 void MonopdServer::closedMetaserver(Socket *socket)
