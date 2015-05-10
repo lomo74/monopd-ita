@@ -47,7 +47,7 @@ public:
 	void closedSocket(Socket *socket);
 	Game *findGame(Player *player);
 	void delGame(Game *game, bool verbose = true);
-	Player *newPlayer(Socket *socket, const std::string &name);
+	void identifyPlayer(Player *player, const std::string &name);
 	Player *findPlayer(Socket *socket);
 	void delPlayer(Player *player);
 

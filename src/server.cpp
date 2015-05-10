@@ -275,28 +275,24 @@ void MonopdServer::setGameDescription(Player *pInput, const std::string data)
 		pInput->ioError("Only the master can set the game description!");
 }
 
-Player *MonopdServer::newPlayer(Socket *socket, const std::string &name)
+void MonopdServer::identifyPlayer(Player *player, const std::string &name)
 {
 	// Players completed the handshake, delete socket timeout event
-	delSocketTimeoutEvent( socket->fd() );
+	delSocketTimeoutEvent( player->socket()->fd() );
 
-	Player *player = new Player(socket, m_nextPlayerId++);
-	m_players.push_back(player);
-	addToScope(player);
-
+	player->identify();
 	player->setProperty("game", -1, this);
-	player->setProperty("host", socket->ipAddr(), this);
+	player->setProperty("host", player->socket()->ipAddr(), this);
 	setPlayerName(player, name);
 
 	player->sendClientMsg();
 
-	syslog( LOG_INFO, "new player: id=[%d], fd=[%d], name=[%s], players=[%d]", player->id(), socket->fd(), name.c_str(), (int)m_players.size() );
+	syslog( LOG_INFO, "new player: id=[%d], fd=[%d], name=[%s], players=[%d]", player->id(), player->socket()->fd(), name.c_str(), (int)m_players.size() );
 	player = 0;
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (player = *it) ; ++it)
 		printf("  player %16s %16s game %d bankrupt %d socket fd %d\n", player->name().c_str(), player->getStringProperty("host").c_str(), (player->game() ? player->game()->id() : -1), player->getBoolProperty("bankrupt"), player->socket() ? (int)player->socket()->fd() : -1);
 
 	updateSystemdStatus();
-	return player;
 }
 
 void MonopdServer::reconnectPlayer(Player *pInput, const std::string &cookie)
@@ -714,6 +710,10 @@ void MonopdServer::welcomeNew(Socket *socket)
 	socket->ioWrite( std::string("<monopd><server host=\"") + m_metaserverIdentity + "\" version=\"" VERSION "\"/></monopd>\n" );
 	sendGameList(socket, true);
 
+	Player *player = new Player(socket, m_nextPlayerId++);
+	m_players.push_back(player);
+	addToScope(player);
+
 	Event *socketTimeout = newEvent(Event::SocketTimeout, 0, socket->fd());
 	socketTimeout->setLaunchTime(time(0) + 30);
 }
@@ -804,24 +804,23 @@ void MonopdServer::sendGameList(Socket *socket, const bool &sendTemplates)
 void MonopdServer::processInput(Socket *socket, const std::string data)
 {
 	Player *pInput = findPlayer(socket);
-	if (!pInput)
+
+	if (!pInput->identified())
 	{
 		// The 'n' name command is available even for non-players. In fact,
 		// it's considered to be the protocol handshake.
 		if (data[0] == '.')
 		{
-			Player *pNew = 0;
 			switch(data[1])
 			{
 			case 'n':
-				pNew = newPlayer(socket, data.substr(2, 16));
-				pNew->identified();
+				identifyPlayer(pInput, data.substr(2, 16));
 				sendXMLUpdates();
-				sendXMLUpdate(pNew, true, true); // give new player a full update (excluding self) so it knows who's in the lounge
+				sendXMLUpdate(pInput, true, true); // give new player a full update (excluding self) so it knows who's in the lounge
 				return;
 			case 'R':
-				pNew = newPlayer(socket, "");
-				reconnectPlayer(pNew, data.substr(2));
+				identifyPlayer(pInput, "");
+				reconnectPlayer(pInput, data.substr(2));
 				return;
 			}
 		}

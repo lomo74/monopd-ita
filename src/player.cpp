@@ -40,6 +40,7 @@ Player::Player(Socket *socket, int id) : GameObject(id, GameObject::GPlayer)
 	m_destination = 0;
 	m_tokenLocation = 0;
 	m_requestedUpdate = false;
+	m_identified = false;
 }
 
 Player::~Player()
@@ -78,10 +79,11 @@ void Player::reset(bool removeProperties)
 	m_display->resetButtons();
 }
 
-void Player::identified() {
+void Player::identify() {
 	m_display = new Display();
 	setProperty("cookie", std::string(itoa(m_id)) + "/" + itoa(rand()), this);
 	reset();
+	m_identified = true;
 }
 
 void Player::ioWrite(const char *fmt, va_list args)
