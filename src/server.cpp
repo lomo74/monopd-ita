@@ -346,7 +346,9 @@ void MonopdServer::delPlayer(Player *player)
 		game->removePlayer( player );
 	}
 
-	ioWrite("<monopd><deleteplayer playerid=\"" + itoa(player->id()) + "\"/></monopd>\n");
+	if (player->id() > 0) {
+		ioWrite("<monopd><deleteplayer playerid=\"" + itoa(player->id()) + "\"/></monopd>\n");
+	}
 
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (*it) ; ++it)
 		if (*it == player)
