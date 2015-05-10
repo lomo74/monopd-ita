@@ -747,40 +747,18 @@ void MonopdServer::delSocketTimeoutEvent(int socketFd)
 
 void MonopdServer::ioWrite(const char *fmt, ...)
 {
-	int n, size = 256;
-	char *buf = new char[size];
-	static std::string ioStr;
 	va_list arg;
 
-	buf[0] = 0;
-
-	while (1)
-	{
-		va_start(arg, fmt);
-		n = vsnprintf(buf, size, fmt, arg);
-		va_end(arg);
-
-		if (n > -1 && n < size)
-		{
-			ioStr = buf;
-			delete[] buf;
-			ioWrite(ioStr);
-			return;
-		}
-
-		if (n > -1)
-			size = n+1;
-		else
-			size *= 2;
-
-		delete[] buf;
-		buf = new char[size];
-	}
+	/* Socket::ioWrite is doing a va_copy(), we don't need to va_start()/va_end() on each iteration */
+	va_start(arg, fmt);
+	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (*it) ; ++it)
+		(*it)->ioWrite(fmt, arg);
+	va_end(arg);
 }
 
 void MonopdServer::ioWrite(const std::string &data, const bool &noGameOnly)
 {
-	Player *player = 0;
+	Player *player;
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (player = *it) ; ++it)
 		if ( !(noGameOnly && player->game()) )
 			player->ioWrite(data);

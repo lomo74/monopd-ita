@@ -18,6 +18,7 @@
 #ifndef MONOP_PLAYER_H
 #define MONOP_PLAYER_H
 
+#include <stdarg.h>
 #include <vector>
 #include <string>
 
@@ -37,6 +38,7 @@ class Player : public GameObject
 		virtual ~Player();
 
 		void reset(bool removeProperties = true);
+		void ioWrite(const char *fmt, va_list args);
 		void ioWrite(const char *, ...);
 		void ioWrite(std::string data);
 		void ioInfo(const char *data, ...);

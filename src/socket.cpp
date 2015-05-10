@@ -38,6 +38,47 @@ Socket::Socket( int fd )
 {
 }
 
+ssize_t Socket::ioWrite(const char *fmt, va_list args)
+{
+	int n, size = 256;
+	char *buf = new char[size];
+	static std::string ioStr;
+	va_list arg;
+
+	buf[0] = 0;
+
+	while (1) {
+		va_copy(arg, args);
+		n = vsnprintf(buf, size, fmt, arg);
+		va_end(arg);
+
+		if (n > -1 && n < size) {
+			ioStr = buf;
+			delete[] buf;
+			return ioWrite(ioStr);
+		}
+
+		if (n > -1)
+			size = n+1;
+		else
+			size *= 2;
+
+		delete[] buf;
+		buf = new char[size];
+	}
+}
+
+ssize_t Socket::ioWrite(const char *fmt, ...)
+{
+	va_list arg;
+	ssize_t s;
+
+	va_start(arg, fmt);
+	s = ioWrite(fmt, arg);
+	va_end(arg);
+	return s;
+}
+
 ssize_t Socket::ioWrite(const std::string data)
 {
 	if (m_status == New || m_status == Ok)
