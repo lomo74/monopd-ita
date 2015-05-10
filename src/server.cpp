@@ -289,7 +289,6 @@ Player *MonopdServer::newPlayer(Socket *socket, const std::string &name)
 	setPlayerName(player, name);
 
 	player->sendClientMsg();
-	sendGameList(player, true);
 
 	syslog( LOG_INFO, "new player: id=[%d], fd=[%d], name=[%s], players=[%d]", player->id(), socket->fd(), name.c_str(), (int)m_players.size() );
 	player = 0;
@@ -319,7 +318,6 @@ void MonopdServer::reconnectPlayer(Player *pInput, const std::string &cookie)
 			pInput->ioInfo("Reconnecting.");
 			player->setSocket(pInput->socket());
 			player->sendClientMsg();
-			sendGameList(player, true);
 			if (game->status() == Game::Run)
 			{
 				game->setStatus(Game::Init);
@@ -714,6 +712,7 @@ void MonopdServer::initMetaserverEvent()
 void MonopdServer::welcomeNew(Socket *socket)
 {
 	socket->ioWrite( std::string("<monopd><server host=\"") + m_metaserverIdentity + "\" version=\"" VERSION "\"/></monopd>\n" );
+	sendGameList(socket, true);
 
 	Event *socketTimeout = newEvent(Event::SocketTimeout, 0, socket->fd());
 	socketTimeout->setLaunchTime(time(0) + 30);
@@ -766,32 +765,40 @@ void MonopdServer::ioWrite(const std::string &data, const bool &noGameOnly)
 
 void MonopdServer::sendGameList(Player *pInput, const bool &sendTemplates)
 {
-	pInput->ioWrite("<monopd>");
+	if (pInput->socket())
+		sendGameList(pInput->socket(), sendTemplates);
+}
+
+void MonopdServer::sendGameList(Socket *socket, const bool &sendTemplates)
+{
+	socket->ioWrite("<monopd>");
+
+	// FIXME: should we send games other than template here ?
 
 	// Supported game types for new games
 	GameConfig *gcTmp = 0;
 	if (sendTemplates)
 		for(std::vector<GameConfig *>::iterator it = m_gameConfigs.begin() ; it != m_gameConfigs.end() && (gcTmp = *it) ; ++it )
-			pInput->ioWrite("<gameupdate gameid=\"-1\" gametype=\"%s\" name=\"%s\" description=\"%s\"/>", gcTmp->id().c_str(), gcTmp->name().c_str(), gcTmp->description().c_str());
+			socket->ioWrite("<gameupdate gameid=\"-1\" gametype=\"%s\" name=\"%s\" description=\"%s\"/>", gcTmp->id().c_str(), gcTmp->name().c_str(), gcTmp->description().c_str());
 
 	// FIXME: DEPRECATED 1.0
-	pInput->ioWrite("<updategamelist type=\"full\">");
+	socket->ioWrite("<updategamelist type=\"full\">");
 
 	// Supported game types for new games (always send, type=full)
 	gcTmp = 0;
 	for(std::vector<GameConfig *>::iterator it = m_gameConfigs.begin() ; it != m_gameConfigs.end() && (gcTmp = *it) ; ++it )
-		pInput->ioWrite("<game id=\"-1\" gametype=\"%s\" name=\"%s\" description=\"%s\"/>", gcTmp->id().c_str(), gcTmp->name().c_str(), gcTmp->description().c_str());
+		socket->ioWrite("<game id=\"-1\" gametype=\"%s\" name=\"%s\" description=\"%s\"/>", gcTmp->id().c_str(), gcTmp->name().c_str(), gcTmp->description().c_str());
 
 	// Games currently under configuration, we can join these
 	Game *gTmp = 0;
 	for(std::vector<Game *>::iterator it = m_games.begin(); it != m_games.end() && (gTmp = *it) ; ++it)
 		if (gTmp->status() == Game::Config)
-			pInput->ioWrite("<game id=\"%d\" players=\"%d\" gametype=\"%s\" name=\"%s\" description=\"%s\" canbejoined=\"%d\"/>", gTmp->id(), gTmp->players(), gTmp->gameType().c_str(), gTmp->name().c_str(), gTmp->getStringProperty("description").c_str(), gTmp->getBoolProperty("canbejoined"));
+			socket->ioWrite("<game id=\"%d\" players=\"%d\" gametype=\"%s\" name=\"%s\" description=\"%s\" canbejoined=\"%d\"/>", gTmp->id(), gTmp->players(), gTmp->gameType().c_str(), gTmp->name().c_str(), gTmp->getStringProperty("description").c_str(), gTmp->getBoolProperty("canbejoined"));
 
-	pInput->ioWrite("</updategamelist>");
+	socket->ioWrite("</updategamelist>");
 	// END FIXME: DEPRECATED 1.0
 
-	pInput->ioWrite("</monopd>\n");
+	socket->ioWrite("</monopd>\n");
 }
 
 void MonopdServer::processInput(Socket *socket, const std::string data)
