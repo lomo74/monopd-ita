@@ -38,14 +38,13 @@ Socket::Socket( int fd )
 {
 }
 
-int Socket::ioWrite(const std::string data)
+ssize_t Socket::ioWrite(const std::string data)
 {
-	if ( m_status == New || m_status == Ok )
-	{
-		write( m_fd, data.c_str(), strlen( data.c_str() ) );
-		return 0;
-	}
-	return 1;
+	if (m_status == New || m_status == Ok)
+		return write(m_fd, data.c_str(), strlen(data.c_str()));
+
+	errno = EBADFD;
+	return -1;
 }
 
 bool Socket::hasReadLine()

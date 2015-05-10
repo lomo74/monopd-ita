@@ -48,7 +48,7 @@ public:
 	void setType(Type type) { m_type = type; }
 	Type type() { return m_type; }
 
-	int ioWrite(const std::string data);
+	ssize_t ioWrite(const std::string data);
 	bool hasReadLine();
 	const std::string readLine();
 	void fillBuffer(const std::string data);
