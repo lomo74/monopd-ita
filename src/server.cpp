@@ -815,6 +815,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data)
 			{
 			case 'n':
 				pNew = newPlayer(socket, data.substr(2, 16));
+				pNew->identified();
 				sendXMLUpdates();
 				sendXMLUpdate(pNew, true, true); // give new player a full update (excluding self) so it knows who's in the lounge
 				return;

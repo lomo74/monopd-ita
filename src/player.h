@@ -38,6 +38,7 @@ class Player : public GameObject
 		virtual ~Player();
 
 		void reset(bool removeProperties = true);
+		void identified();
 		void ioWrite(const char *fmt, va_list args);
 		void ioWrite(const char *, ...);
 		void ioWrite(std::string data);
