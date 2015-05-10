@@ -280,7 +280,7 @@ void MonopdServer::identifyPlayer(Player *player, const std::string &name)
 	// Players completed the handshake, delete socket timeout event
 	delSocketTimeoutEvent( player->socket()->fd() );
 
-	player->identify();
+	player->identify(m_nextPlayerId++);
 	player->setProperty("game", -1, this);
 	player->setProperty("host", player->socket()->ipAddr(), this);
 	setPlayerName(player, name);
@@ -710,7 +710,7 @@ void MonopdServer::welcomeNew(Socket *socket)
 	socket->ioWrite( std::string("<monopd><server host=\"") + m_metaserverIdentity + "\" version=\"" VERSION "\"/></monopd>\n" );
 	sendGameList(socket, true);
 
-	Player *player = new Player(socket, m_nextPlayerId++);
+	Player *player = new Player(socket);
 	m_players.push_back(player);
 	addToScope(player);
 

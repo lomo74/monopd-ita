@@ -31,7 +31,7 @@
 #include "player.h"
 #include "trade.h" // move trade commands to game/engine
 
-Player::Player(Socket *socket, int id) : GameObject(id, GameObject::GPlayer)
+Player::Player(Socket *socket) : GameObject(-1, GameObject::GPlayer)
 {
 	m_socket = socket;
 	m_game = 0;
@@ -79,7 +79,8 @@ void Player::reset(bool removeProperties)
 	m_display->resetButtons();
 }
 
-void Player::identify() {
+void Player::identify(int id) {
+	m_id = id;
 	m_display = new Display();
 	setProperty("cookie", std::string(itoa(m_id)) + "/" + itoa(rand()), this);
 	reset();

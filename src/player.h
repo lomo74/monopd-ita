@@ -34,11 +34,11 @@ class Socket;
 class Player : public GameObject
 {
 	public:
-		Player(Socket *socket, int id);
+		Player(Socket *socket);
 		virtual ~Player();
 
 		void reset(bool removeProperties = true);
-		void identify();
+		void identify(int id);
 		bool identified() { return m_identified; };
 		void ioWrite(const char *fmt, va_list args);
 		void ioWrite(const char *, ...);
