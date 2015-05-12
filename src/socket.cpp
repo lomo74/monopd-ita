@@ -38,19 +38,16 @@ Socket::Socket( int fd )
 {
 }
 
-ssize_t Socket::ioWrite(const std::string data)
+void Socket::ioWrite(const std::string data)
 {
 	if (m_status == New || m_status == Ok)
-		return write(m_fd, data.c_str(), strlen(data.c_str()));
-
-	errno = EBADFD;
-	return -1;
+		write(m_fd, data.c_str(), strlen(data.c_str()));
 }
 
 bool Socket::hasReadLine()
 {
 	static std::string newLine = "\r\n";
-	std::string::size_type pos = m_ioBuf.find_first_of(newLine);
+	std::string::size_type pos = m_recvBuf.find_first_of(newLine);
 
 	return (!(pos == std::string::npos));
 }
@@ -58,18 +55,18 @@ bool Socket::hasReadLine()
 const std::string Socket::readLine()
 {
 	static std::string newLine = "\r\n";
-	std::string::size_type pos = m_ioBuf.find_first_of(newLine);
+	std::string::size_type pos = m_recvBuf.find_first_of(newLine);
 
 	if (pos != std::string::npos)
 	{
 		// Grab first part for the listener
-		std::string data = m_ioBuf.substr(0, pos);
+		std::string data = m_recvBuf.substr(0, pos);
 
 		// Remove grabbed part from buffer
-		m_ioBuf.erase(0, pos);
+		m_recvBuf.erase(0, pos);
 
 		// Remove all subsequent newlines
-		m_ioBuf.erase(0, m_ioBuf.find_first_not_of(newLine));
+		m_recvBuf.erase(0, m_recvBuf.find_first_not_of(newLine));
 
 		return data;
 	}
@@ -78,11 +75,11 @@ const std::string Socket::readLine()
 
 void Socket::fillBuffer(const std::string data)
 {
-	if (m_ioBuf.size())
-		m_ioBuf.append(data);
+	if (m_recvBuf.size())
+		m_recvBuf.append(data);
 	else
 	{
-		m_ioBuf.erase();
-		m_ioBuf.append(data);
+		m_recvBuf.erase();
+		m_recvBuf.append(data);
 	}
 }

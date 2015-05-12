@@ -48,7 +48,7 @@ public:
 	void setType(Type type) { m_type = type; }
 	Type type() { return m_type; }
 
-	ssize_t ioWrite(const std::string data);
+	void ioWrite(const std::string data);
 	bool hasReadLine();
 	const std::string readLine();
 	void fillBuffer(const std::string data);
@@ -64,7 +64,7 @@ private:
 	Status m_status;
 	Type m_type;
 	int m_fd;
-	std::string m_ipAddr, m_ioBuf;
+	std::string m_ipAddr, m_recvBuf;
 	struct addrinfo *m_addrinfoNext;
 };
 
