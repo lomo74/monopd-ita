@@ -87,24 +87,37 @@ void Player::identify(int id) {
 	m_identified = true;
 }
 
-void Player::ioWrite(const char *fmt, va_list args)
-{
-	if (!m_socket)
-		return;
-
-	m_socket->ioWrite(fmt, args);
-}
-
 void Player::ioWrite(const char *fmt, ...)
 {
+	int n, size = 256;
+	char *buf = new char[size];
+	static std::string ioStr;
 	va_list arg;
 
-	if (!m_socket)
-		return;
+	buf[0] = 0;
 
-	va_start(arg, fmt);
-	m_socket->ioWrite(fmt, arg);
-	va_end(arg);
+	while (1)
+	{
+		va_start(arg, fmt);
+		n = vsnprintf(buf, size, fmt, arg);
+		va_end(arg);
+
+		if (n > -1 && n < size)
+		{
+			ioStr = buf;
+			delete[] buf;
+			ioWrite(ioStr);
+			return;
+		}
+
+		if (n > -1)
+			size = n+1;
+		else
+			size *= 2;
+
+		delete[] buf;
+		buf = new char[size];
+	}
 }
 
 void Player::ioWrite(std::string data)

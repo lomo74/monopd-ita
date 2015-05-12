@@ -48,8 +48,6 @@ public:
 	void setType(Type type) { m_type = type; }
 	Type type() { return m_type; }
 
-	ssize_t ioWrite(const char *fmt, va_list args);
-	ssize_t ioWrite(const char *fmt, ...);
 	ssize_t ioWrite(const std::string data);
 	bool hasReadLine();
 	const std::string readLine();
