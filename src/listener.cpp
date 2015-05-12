@@ -115,6 +115,8 @@ void Listener::checkActivity()
 	{
 		if ( (*it)->status() == Socket::Ok ) {
 			FD_SET( (*it)->fd(), &m_readfdset );
+			if ((*it)->sendBufNotEmpty())
+				FD_SET( (*it)->fd(), &m_writefdset );
 			if ( (*it)->fd() > highestFd )
 				highestFd = (*it)->fd();
 		}
@@ -181,7 +183,10 @@ void Listener::checkActivity()
 		}
 
 		if ( FD_ISSET( (*it)->fd(), &m_writefdset ) ) {
-			if ( (*it)->status() == Socket::Connect ) {
+			if ( (*it)->status() == Socket::Ok ) {
+				(*it)->sendMore();
+			}
+			else if ( (*it)->status() == Socket::Connect ) {
 				int err;
 				int sockerr;
 				socklen_t len = sizeof(sockerr);

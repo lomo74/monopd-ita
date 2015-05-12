@@ -40,8 +40,57 @@ Socket::Socket( int fd )
 
 void Socket::ioWrite(const std::string data)
 {
-	if (m_status == New || m_status == Ok)
-		write(m_fd, data.c_str(), strlen(data.c_str()));
+	if (!(m_status == New || m_status == Ok)) {
+		return;
+	}
+
+	if (m_sendBuf.size() == 0) {
+		ssize_t len = strlen(data.c_str());
+		ssize_t written = write(m_fd, data.c_str(), len);
+		if (written == len) {
+			return;
+		}
+
+		if (written < 0) {
+			switch(errno)  {
+			case EAGAIN:
+			case EINTR:
+				m_sendBuf.append(data);
+				break;
+			default:
+				setStatus(Socket::Close);
+			}
+			return;
+		}
+
+		m_sendBuf.append(data.substr(written, len - written));
+		return;
+	}
+
+	m_sendBuf.append(data);
+}
+
+void Socket::sendMore()
+{
+	ssize_t len = strlen(m_sendBuf.c_str());
+	ssize_t written = write(m_fd, m_sendBuf.c_str(), len);
+	if (written == len) {
+		m_sendBuf.erase();
+		return;
+	}
+
+	if (written < 0) {
+		switch(errno)  {
+		case EAGAIN:
+		case EINTR:
+			return;
+		default:
+			setStatus(Socket::Close);
+		}
+		return;
+	}
+
+	m_sendBuf.erase(0, written);
 }
 
 bool Socket::hasReadLine()

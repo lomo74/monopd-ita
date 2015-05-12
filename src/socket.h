@@ -49,9 +49,11 @@ public:
 	Type type() { return m_type; }
 
 	void ioWrite(const std::string data);
+	void sendMore();
 	bool hasReadLine();
 	const std::string readLine();
 	void fillBuffer(const std::string data);
+	bool sendBufNotEmpty() { return (m_sendBuf.size() > 0); };
 
 	void setFd(int _fd) { m_fd = _fd; }
 	int fd() const { return m_fd; }
@@ -64,7 +66,7 @@ private:
 	Status m_status;
 	Type m_type;
 	int m_fd;
-	std::string m_ipAddr, m_recvBuf;
+	std::string m_ipAddr, m_recvBuf, m_sendBuf;
 	struct addrinfo *m_addrinfoNext;
 };
 
