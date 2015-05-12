@@ -714,7 +714,12 @@ void MonopdServer::welcomeMetaserver(Socket *socket)
 
 	/* we can't set socket to Close state here, Listener is going to change state from New to Ok */
 	Event *socketTimeout = newEvent(Event::SocketTimeout, 0, socket->fd());
-	socketTimeout->setLaunchTime(time(0));
+	/*
+	 * sockets are not blocking, write() may be delayed and data buffered so wait a little
+	 * bit before closing the session. Sure this is not perfect, we don't have a close when
+	 * output buffer empty trigger yet, is it worth complicating this?
+	 */
+	socketTimeout->setLaunchTime(time(0) + 2);
 }
 
 void MonopdServer::closedMetaserver(Socket *socket)
