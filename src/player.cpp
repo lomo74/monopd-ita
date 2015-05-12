@@ -87,12 +87,12 @@ void Player::identify(int id) {
 	m_identified = true;
 }
 
-void Player::ioWriteVaList(const char *fmt, va_list args)
+void Player::ioWrite(const char *fmt, va_list args)
 {
 	if (!m_socket)
 		return;
 
-	m_socket->ioWriteVaList(fmt, args);
+	m_socket->ioWrite(fmt, args);
 }
 
 void Player::ioWrite(const char *fmt, ...)
@@ -103,7 +103,7 @@ void Player::ioWrite(const char *fmt, ...)
 		return;
 
 	va_start(arg, fmt);
-	m_socket->ioWriteVaList(fmt, arg);
+	m_socket->ioWrite(fmt, arg);
 	va_end(arg);
 }
 

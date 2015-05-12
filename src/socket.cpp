@@ -38,7 +38,7 @@ Socket::Socket( int fd )
 {
 }
 
-ssize_t Socket::ioWriteVaList(const char *fmt, va_list args)
+ssize_t Socket::ioWrite(const char *fmt, va_list args)
 {
 	int n, size = 256;
 	char *buf = new char[size];
@@ -74,7 +74,7 @@ ssize_t Socket::ioWrite(const char *fmt, ...)
 	ssize_t s;
 
 	va_start(arg, fmt);
-	s = ioWriteVaList(fmt, arg);
+	s = ioWrite(fmt, arg);
 	va_end(arg);
 	return s;
 }

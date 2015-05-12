@@ -233,7 +233,7 @@ void Trade::ioWrite(const char *fmt, ...)
 	/* Socket::ioWrite is doing a va_copy(), we don't need to va_start()/va_end() on each iteration */
 	va_start(arg, fmt);
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (*it) ; ++it)
-		(*it)->ioWriteVaList(fmt, arg);
+		(*it)->ioWrite(fmt, arg);
 	va_end(arg);
 }
 
