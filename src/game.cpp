@@ -1003,21 +1003,15 @@ void Game::delTrade(Trade *trade)
 
 void Game::acceptTrade(Player *pInput, char *data)
 {
-	bool ignoreRevision = false;
 	int tradeId = 0, revision = 0;
-	// data looks like "1:1", tradeid, revision
+
 	if (!strstr(data, ":"))
 	{
-//		ioError("Invalid input for .Ta, no separator after tradeId");
-//		return;
-		ignoreRevision = true; // backwards compatibility
-		tradeId = atoi(data);
+		ioError("Invalid input for .Ta, no separator after tradeId");
+		return;
 	}
-	else
-	{
-		tradeId = atoi(strsep(&data, ":"));
-		revision = atoi(data);
-	}
+	tradeId = atoi(strsep(&data, ":"));
+	revision = atoi(data);
 
 	Trade *trade = findTrade(tradeId);
 	if (!trade)
@@ -1030,7 +1024,7 @@ void Game::acceptTrade(Player *pInput, char *data)
 		pInput->ioError("You are not part of trade %d.", tradeId);
 		return;
 	}
-	if (!ignoreRevision && revision != trade->getIntProperty("revision"))
+	if (revision != trade->getIntProperty("revision"))
 	{
 		pInput->ioError("Ignored accept for trade %d because it was changed.", tradeId);
 		return;

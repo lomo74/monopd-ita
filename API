@@ -149,9 +149,6 @@ server.
 .Te$1:$2:$3    : Set target owner of estate $2 to player $3 in trade $1.
 .Tm$1:$2:$3:$4 : Player $2 gives $3 an amount of $4 as part of trade $1.
 .Ta$1:$2       : Accept current (revision $2) terms of trade with tradeid $1.
-.Ta$1          : Accept current terms of trade with tradeid $1. (WARNING:
-                 deprecated. Exists for backwards compatibility but clients
-                 are encouraged to use the above command instead)
 .Tr$1          : Reject trade $1.
 
 - movement commands
