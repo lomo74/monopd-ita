@@ -83,7 +83,7 @@ private:
 	void loadGameTemplates();
 	void ioWrite(const char *data, ...);
 	void ioWrite(const std::string &data, const bool &noGameOnly = false);
-	void sendGameList(Player *player, const bool &sendTemplates = false);
+	void sendGameTemplateList(Player *player, const bool &sendTemplates = false);
 	void processCommands(Player *pInput, const std::string data);
 	void sendXMLUpdates();
 	void sendXMLUpdate(Player *player, bool fullUpdate = false, bool excludeSelf = false);
