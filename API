@@ -256,18 +256,6 @@ If estateid is -1, clients should clear the display.
 
 --------------------
 
-WARNING: DEPRECATED, see <gameupdate> and <deletegame>.
-
- <updategamelist type="$1">
-	<game id="$2" players="$3" gametype="$4" name="$5" description="$6"
-	 canbejoined="$7"/>
-	...
- </updategamelist>
-
-WARNING: DEPRECATED, see <gameupdate> and <deletegame>.
-
---------------------
-
  <playerupdate playerid="int" game="int" name="string" image="string"
     money="int" location="int" jailed="bool" directmove="bool"
     bankrupt="bool" hasturn="bool" can_roll="bool" can_buyestate="bool"

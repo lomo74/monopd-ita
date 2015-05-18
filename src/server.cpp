@@ -146,9 +146,6 @@ void MonopdServer::newGame(Player *player, const std::string gameType)
 
 	game->addPlayer(player, true);
 
-	// FIXME: DEPRECATED 1.0
-	ioWrite(std::string("<monopd><updategamelist type=\"add\"><game id=\"") + itoa(game->id()) + "\" players=\"1\" gametype=\"" + game->gameType() + "\" name=\"" + game->name() + "\" description=\"" + game->getStringProperty("description") + "\" canbejoined=\"" + itoa(game->getBoolProperty("canbejoined")) + "\"/></updategamelist></monopd>\n");
-
 	updateSystemdStatus();
 }
 
@@ -188,9 +185,6 @@ void MonopdServer::joinGame(Player *pInput, unsigned int gameId, const bool &spe
 	}
 
 	game->addPlayer(pInput);
-
-	// FIXME: DEPRECATED 1.0
-	ioWrite(std::string("<monopd><updategamelist type=\"edit\"><game id=\"") + itoa(game->id()) + "\" players=\"" + itoa(game->players()) + "\" canbejoined=\"" + itoa(game->getBoolProperty("canbejoined")) + "\"/></updategamelist></monopd>\n");
 }
 
 void MonopdServer::exitGame(Game *game, Player *pInput)
@@ -249,9 +243,6 @@ void MonopdServer::delGame(Game *game, bool verbose)
 	for(std::vector<Game *>::iterator it = m_games.begin(); it != m_games.end() && (*it) ; ++it)
 		if (*it == game)
 		{
-			// FIXME: DEPRECATED 1.0
-			if (verbose)
-				ioWrite(std::string("<monopd><updategamelist type=\"del\"><game id=\"") + itoa(game->id()) + "\"/></updategamelist></monopd>\n");
 			syslog( LOG_INFO, "del game: id=[%d], games=[%d]", game->id(), (int)m_games.size() - 1 );
 			m_games.erase(it);
 			break;
@@ -267,9 +258,6 @@ void MonopdServer::setGameDescription(Player *pInput, const std::string data)
 	if (pInput == game->master())
 	{
 		game->setProperty("description", data);
-
-		// FIXME: DEPRECATED 1.0
-		ioWrite("<monopd><updategamelist type=\"edit\"><game id=\"" + itoa(game->id()) + "\" gametype=\"" + game->gameType() + "\" name=\"" + game->name() + "\" description=\"" + game->getStringProperty("description") + "\"/></updategamelist></monopd>\n");
 	}
 	else
 		pInput->ioError("Only the master can set the game description!");
@@ -781,23 +769,6 @@ void MonopdServer::sendGameList(Player *pInput, const bool &sendTemplates)
 		for(std::vector<GameConfig *>::iterator it = m_gameConfigs.begin() ; it != m_gameConfigs.end() && (gcTmp = *it) ; ++it )
 			pInput->ioWrite("<gameupdate gameid=\"-1\" gametype=\"%s\" name=\"%s\" description=\"%s\"/>", gcTmp->id().c_str(), gcTmp->name().c_str(), gcTmp->description().c_str());
 
-	// FIXME: DEPRECATED 1.0
-	pInput->ioWrite("<updategamelist type=\"full\">");
-
-	// Supported game types for new games (always send, type=full)
-	gcTmp = 0;
-	for(std::vector<GameConfig *>::iterator it = m_gameConfigs.begin() ; it != m_gameConfigs.end() && (gcTmp = *it) ; ++it )
-		pInput->ioWrite("<game id=\"-1\" gametype=\"%s\" name=\"%s\" description=\"%s\"/>", gcTmp->id().c_str(), gcTmp->name().c_str(), gcTmp->description().c_str());
-
-	// Games currently under configuration, we can join these
-	Game *gTmp = 0;
-	for(std::vector<Game *>::iterator it = m_games.begin(); it != m_games.end() && (gTmp = *it) ; ++it)
-		if (gTmp->status() == Game::Config)
-			pInput->ioWrite("<game id=\"%d\" players=\"%d\" gametype=\"%s\" name=\"%s\" description=\"%s\" canbejoined=\"%d\"/>", gTmp->id(), gTmp->players(), gTmp->gameType().c_str(), gTmp->name().c_str(), gTmp->getStringProperty("description").c_str(), gTmp->getBoolProperty("canbejoined"));
-
-	pInput->ioWrite("</updategamelist>");
-	// END FIXME: DEPRECATED 1.0
-
 	pInput->ioWrite("</monopd>\n");
 }
 
@@ -1182,10 +1153,6 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 					return;
 				case 's':
 					game->start(pInput);
-
-					// FIXME: DEPRECATED 1.0
-					if (game->status() == Game::Run)
-						ioWrite("<monopd><updategamelist type=\"del\"><game id=\"" + itoa(game->id()) + "\"/></updategamelist></monopd>\n");
 					return;
 				default:
 					pInput->ioNoSuchCmd();
@@ -1276,12 +1243,4 @@ void MonopdServer::setPlayerName(Player *player, const std::string &name)
 			useName = ( name.size() ? name : "anonymous" ) + itoa( ++i );
 
 		player->setProperty("name", useName, this);
-
-		Game *game = player->game();
-		if (game)
-		{
-			// FIXME: DEPRECATED 1.0
-			if (game->status() == Game::Config && player == game->master())
-				ioWrite(std::string("<monopd><updategamelist type=\"edit\"><game id=\"") + itoa(game->id()) + "\" players=\"" + itoa(game->getIntProperty("players")) + "\" gametype=\"" + game->gameType() + "\" name=\"" + game->name() + "\" description=\"" + game->getStringProperty("description") + "\" canbejoined=\"" + itoa(game->getBoolProperty("canbejoined")) + "\"/></updategamelist></monopd>\n");
-		}
 }
