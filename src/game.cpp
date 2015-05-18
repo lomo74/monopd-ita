@@ -1414,7 +1414,6 @@ Player *Game::addPlayer(Player *p, const bool &isMaster, const bool &isSpectator
 	p->setBoolProperty("jailed", false, this);
 	p->setBoolProperty("hasturn", 0, this);
 	p->setBoolProperty("spectator", isSpectator, this);
-	p->setBoolProperty("master", isMaster, this); // FIXME: DEPRECATED 1.0
 
 	if (isMaster)
 	{
@@ -1486,10 +1485,8 @@ void Game::removePlayer(Player *p)
 
 	if (p == m_master && m_players.size() > 0)
 	{
-		m_master->setBoolProperty("master", false); // FIXME: DEPRECATED 1.0
 		m_master = m_players[0];
 		setProperty( "master", m_master->id() );
-		m_master->setBoolProperty("master", true); // FIXME: DEPRECATED 1.0
 
 		if (m_status == Config)
 			sendConfiguration(m_master);

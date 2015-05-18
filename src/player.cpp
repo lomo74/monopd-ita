@@ -71,7 +71,6 @@ void Player::reset(bool removeProperties)
 		removeProperty("canauction");
 		removeProperty("location");
 		removeProperty("directmove");
-		removeProperty("master"); // FIXME: DEPRECATED 1.0
 	}
 	m_requestedUpdate = false;
 

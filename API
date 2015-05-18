@@ -267,8 +267,6 @@ jail"). Master is 1 or 0 depending on whether the player is the controlling
 player in a game and spectator indicates whether a player is participating
 in the game or just watching it.
 
-WARNING: master attribute is DEPRECATED, see <gameupdate>.
-
 --------------------
 
 <deleteplayer playerid="int"/>
