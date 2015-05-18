@@ -1146,9 +1146,6 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 				case 'u':
 					game->upgradePlayer( pInput, atoi(data+2) );
 					return;
-				case 'p':
-					// FIXME: DEPRECATED 1.0
-					return;
 				case 's':
 					game->start(pInput);
 					return;
