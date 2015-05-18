@@ -381,22 +381,6 @@ Delete a game object.
 
 --------------------
 
-WARNING: Deprecated.
-
-  <commandlist type="$1">
-    <command id="$2" syntax="$3" description="$4">
-    ...
-  </commandlist>
-
-Informs clients about what commands are currently available.  Type can be
-"add", "del", or "full".
-
-WARNING: Commandlist is deprecated and all of its features will be replaced
-by better estateupdate and playerupdate messages, such as playerupdate
-can_roll or estateupdate can_toggle_mortgage.
-
---------------------
-
 <configupdate gameid="$1">
   <option title="$2" type="$3" value="$4" command="$6" edit="$5"/>
   ...
