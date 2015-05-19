@@ -54,7 +54,6 @@ Game::Game(int id)
 	m_isValid = m_pausedForDialog = false;
 	m_auction = 0;
 	m_auctionDebt = 0;
-	setBoolProperty("collectfines", false, this);
 	setBoolProperty("doublepassmoney", false, this);
 	setBoolProperty("alwaysshuffle", false, this);
 	setBoolProperty("unlimitedhouses", false, this);
@@ -70,6 +69,7 @@ Game::Game(int id)
 
 	m_nextCardGroupId = m_nextEstateId = m_nextEstateGroupId = m_nextTradeId = m_nextAuctionId = 0;
 
+	addBoolConfigOption( "collectfines", "Free Parking collects fines", false, true );
 	addBoolConfigOption( "automatetax", "Automate tax decisions", false, true );
 	addBoolConfigOption( "allowspectators", "Allow spectators", false, true );
 }
@@ -430,9 +430,6 @@ void Game::editConfig(Player *pInput, char *data)
 		case 'a':
 			setAuctionsEnabled(atoi(data+1));
 			break;
-		case 'f':
-			setCollectFines(atoi(data+1));
-			break;
 		case 'l':
 			setUnlimitedHouses(atoi(data+1));
 			break;
@@ -498,6 +495,12 @@ GameObject *Game::findConfigOption(const std::string &name)
 		if ( (*it)->getStringProperty("name") == name )
 			return (*it);
 	return 0;
+}
+
+bool Game::getBoolConfigOption(const std::string &name)
+{
+	GameObject *config = findConfigOption(name);
+	return (config && config->getBoolProperty("value"));
 }
 
 void Game::start(Player *pInput)
@@ -796,7 +799,7 @@ bool Game::solveDebt( Debt *debt )
 	Estate *eCreditor = 0;
 	if ((pCreditor = debt->toPlayer()))
 		pCreditor->addMoney(payAmount);
-	else if ( ( eCreditor = debt->toEstate() )  && getBoolProperty("collectfines") )
+	else if ( ( eCreditor = debt->toEstate() )  && getBoolConfigOption("collectfines") )
 		eCreditor->addMoney(payAmount);
 
 	setDisplay(m_pTurn->estate(), false, false, "%s pays off a %d debt to %s.", pFrom->getStringProperty("name").c_str(), debt->amount(), (pCreditor ? pCreditor->getStringProperty("name").c_str() : "Bank"));
@@ -864,7 +867,7 @@ void Game::enforceDebt(Player *pBroke, Debt *debt)
 
 	if (pCreditor)
 		pCreditor->addMoney(payAmount);
-	else if (eCreditor && getBoolProperty("collectfines"))
+	else if (eCreditor && getBoolConfigOption("collectfines"))
 		eCreditor->addMoney(payAmount);
 
 	if (debt)
@@ -1696,7 +1699,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 				newDebt(pTurn, 0, ePayTarget, estateMoney);
 				return true;
 			}
-			else if (ePayTarget && getBoolProperty("collectfines"))
+			else if (ePayTarget && getBoolConfigOption("collectfines"))
 				ePayTarget->addMoney(estateMoney);
 
 			setDisplay(es, false, false, "%s pays %d.", pTurn->getStringProperty("name").c_str(), estateMoney);
@@ -1755,7 +1758,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 			newDebt(pTurn, 0, ePayTarget, payAmount);
 			return true;
 		}
-		else if (ePayTarget && getBoolProperty("collectfines"))
+		else if (ePayTarget && getBoolConfigOption("collectfines"))
 			ePayTarget->addMoney(payAmount);
 		setDisplay(es, false, false, "%s pays %d.", pTurn->getStringProperty("name").c_str(), payAmount);
 	}
@@ -1859,7 +1862,7 @@ bool Game::giveCard(Player *pTurn, Estate *estate, Card *card)
 				newDebt(pTurn, 0, ePayTarget, payAmount);
 				return false;
 			}
-			else if (ePayTarget && getBoolProperty("collectfines"))
+			else if (ePayTarget && getBoolConfigOption("collectfines"))
 				ePayTarget->addMoney(payAmount);
 		}
 		else if (payAmount < 0)
@@ -1928,7 +1931,7 @@ bool Game::giveCard(Player *pTurn, Estate *estate, Card *card)
 				newDebt(pTurn, 0, ePayTarget, payAmount);
 				return false;
 			}
-			else if (ePayTarget && getBoolProperty("collectfines"))
+			else if (ePayTarget && getBoolConfigOption("collectfines"))
 				ePayTarget->addMoney(payAmount);
 		}
 		else if (payAmount < 0)
@@ -2184,23 +2187,11 @@ void Game::sendConfiguration(Player *p)
 {
 	bool edit = (p == m_master);
 	p->ioWrite("<monopd>");
-	p->ioWrite("<configupdate gameid=\"%d\"><option type=\"bool\" title=\"Free Parking collects fines\" command=\".gef\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Always shuffle decks before taking a card\" command=\".ges\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Enable auctions\" value=\"%d\" command=\".gea\" edit=\"%d\"/><option type=\"bool\" title=\"Double pass money on exact landings\" command=\".gep\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Bank provides unlimited amount of houses/hotels\" command=\".gel\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Players in Jail get no rent\" command=\".ger\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Allow estates to be sold back to Bank\" command=\".geS\" value=\"%d\" edit=\"%d\"/></configupdate>", m_id, getBoolProperty("collectfines"), edit, getBoolProperty("alwaysshuffle"), edit, getBoolProperty("auctionsenabled"), edit, getBoolProperty("doublepassmoney"), edit, getBoolProperty("unlimitedhouses"), edit, getBoolProperty("norentinjail"), edit, getBoolProperty("allowestatesales"), edit);
+	p->ioWrite("<configupdate gameid=\"%d\"><option type=\"bool\" title=\"Always shuffle decks before taking a card\" command=\".ges\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Enable auctions\" value=\"%d\" command=\".gea\" edit=\"%d\"/><option type=\"bool\" title=\"Double pass money on exact landings\" command=\".gep\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Bank provides unlimited amount of houses/hotels\" command=\".gel\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Players in Jail get no rent\" command=\".ger\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Allow estates to be sold back to Bank\" command=\".geS\" value=\"%d\" edit=\"%d\"/></configupdate>", m_id, getBoolProperty("alwaysshuffle"), edit, getBoolProperty("auctionsenabled"), edit, getBoolProperty("doublepassmoney"), edit, getBoolProperty("unlimitedhouses"), edit, getBoolProperty("norentinjail"), edit, getBoolProperty("allowestatesales"), edit);
 
 	for(std::vector<GameObject *>::iterator it = m_configOptions.begin(); it != m_configOptions.end() && (*it) ; ++it)
 		p->ioWrite( (*it)->oldXMLUpdate(p, true) );
 	p->ioWrite("</monopd>\n");
-}
-
-void Game::setCollectFines(const bool collectFines)
-{
-	if (getBoolProperty("collectfines") != collectFines)
-	{
-		setBoolProperty("collectfines", collectFines);
-
-		Player *pTmp = 0;
-		for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
-			sendConfiguration(pTmp);
-	}
 }
 
 void Game::setAuctionsEnabled(const bool auctionsEnabled)

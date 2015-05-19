@@ -49,6 +49,7 @@ class Game : public GameObject
 		void loadGameType(const std::string &gameType);
 
 		GameObject *findConfigOption(const std::string &name);
+		bool getBoolConfigOption(const std::string &name);
 		void editConfiguration(Player *pInput, char *data);
 		void editConfig(Player *pInput, char *data);
 		void start(Player *pInput);
@@ -64,7 +65,6 @@ class Game : public GameObject
 		void setDescription(const std::string data);
 		void setHouses(int _h) { m_houses = _h; }
 		void setHotels(int _h) { m_hotels = _h; }
-		void setCollectFines(const bool collectFines);
 		void setAuctionsEnabled(const bool auctionsEnabled);
 		void setDoublePassMoney(bool doublePassMoney);
 		void setAlwaysShuffle(bool alwaysShuffle);

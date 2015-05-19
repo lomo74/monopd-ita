@@ -367,7 +367,7 @@ void Player::payJail()
 		ioError("Leaving jail costs %d, you only have %d.", payAmount, getIntProperty("money"));
 		return;
 	}
-	else if (m_game->getBoolProperty("collectfines"))
+	else if (m_game->getBoolConfigOption("collectfines"))
 	{
 		Estate * const ePayTarget = m_estate->payTarget();
 		if (ePayTarget)
@@ -420,7 +420,7 @@ void Player::rollJail()
 		return;
 	}
 
-	if (ePayTarget && m_game->getBoolProperty("collectfines"))
+	if (ePayTarget && m_game->getBoolConfigOption("collectfines"))
 		ePayTarget->addMoney(payAmount);
 	setBoolProperty("can_roll", true);
 }
@@ -571,7 +571,7 @@ void Player::payTax(const bool percentage)
 		return;
 	}
 
-	if (ePayTarget && m_game->getBoolProperty("collectfines"))
+	if (ePayTarget && m_game->getBoolConfigOption("collectfines"))
 		ePayTarget->addMoney(payAmount);
 
 	endTurn();
