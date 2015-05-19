@@ -67,7 +67,6 @@ class Game : public GameObject
 		void setHotels(int _h) { m_hotels = _h; }
 		void setAuctionsEnabled(const bool auctionsEnabled);
 		void setDoublePassMoney(bool doublePassMoney);
-		void setAlwaysShuffle(bool alwaysShuffle);
 		void setUnlimitedHouses(bool unlimitedHouses);
 		void setNoRentInJail(bool noRentInJail);
 		void setAllowEstateSales(bool allowEstateSales);
