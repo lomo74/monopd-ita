@@ -378,25 +378,15 @@ Delete a game object.
 
 --------------------
 
-<configupdate gameid="$1">
-  <option title="$2" type="$3" value="$4" command="$6" edit="$5"/>
-  ...
-</configupdate>
-
-Allows clients to view/configure options (editing might only be available
-before the game starts!). Supported types are: bool. Edit is a boolean to tell
-clients whether this option can be edited or not. Commands should be
-postfixed with the configuration value: for bools 0 or 1, such as .geaf1
-
-WARNING: DEPRECATED for updated configupdate:
-
 <configupdate configid="int" gameid="int" name="string" title="string"
   type="string" value="string|int|bool" edit="bool"/>
 
-Each configuration option has its own unique ID during a game and can be
-edited by sending the .gc$1:$2 where $1 is the configId and $2 the new
-value, which can be string, int(eger) or bool(ean) as defined by type.
-Edit tells clients whether the master can edit this property.
+Allows clients to view/configure options (editing might only be available
+before the game starts!). Each configuration option has its own unique ID
+during a game and can be edited by sending the .gc$1:$2 where $1 is the
+configId and $2 the new value, which can be string, int(eger) or bool(ean)
+as defined by type. Edit tells clients whether the master can edit this
+property.
 
 Note that this behavior changed from monopd versions prior to 0.9.0 where
 edit indicated whether the client itself could edit a property. Monopd will

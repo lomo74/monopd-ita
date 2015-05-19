@@ -51,7 +51,6 @@ class Game : public GameObject
 		GameObject *findConfigOption(const std::string &name);
 		bool getBoolConfigOption(const std::string &name);
 		void editConfiguration(Player *pInput, char *data);
-		void editConfig(Player *pInput, char *data);
 		void start(Player *pInput);
 
 		void setTokenLocation(Player *pInput, unsigned int estateId);

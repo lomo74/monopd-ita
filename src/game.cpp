@@ -410,28 +410,6 @@ void Game::editConfiguration(Player *pInput, char *data)
 		configOption->setBoolProperty( "value", atoi(newValue.c_str()) );
 }
 
-void Game::editConfig(Player *pInput, char *data)
-{
-	if (pInput != m_master)
-	{
-		pInput->ioError("Only the master can edit the game configuration.");
-		return;
-	}
-	if (m_status != Config)
-	{
-		pInput->ioError("This game has already been started.");
-		return;
-	}
-
-//	(*m_configOptions.begin())->setProperty( "value", "teststringupdated" );
-
-	switch(data[0])
-	{
-		default:
-			pInput->ioError("No such game configuration command.");
-	}
-}
-
 GameObject *Game::newConfigOption(const std::string &name, const std::string &description, bool editable)
 {
 	GameObject *config = new GameObject( m_configOptions.size()+1 , ConfigOption, this);
@@ -2167,10 +2145,7 @@ void Game::sendFullUpdate(Player *p, const bool userRequest)
 
 void Game::sendConfiguration(Player *p)
 {
-	bool edit = (p == m_master);
 	p->ioWrite("<monopd>");
-	p->ioWrite("<configupdate gameid=\"%d\"></configupdate>", m_id);
-
 	for(std::vector<GameObject *>::iterator it = m_configOptions.begin(); it != m_configOptions.end() && (*it) ; ++it)
 		p->ioWrite( (*it)->oldXMLUpdate(p, true) );
 	p->ioWrite("</monopd>\n");

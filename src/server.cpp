@@ -1134,9 +1134,6 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 				case 'c':
 					game->editConfiguration( pInput, data+2 );
 					return;
-				case 'e':
-					game->editConfig(pInput, data+2);
-					return;
 				case 'k':
 					Player *pKick;
 					pKick = game->kickPlayer( pInput, atoi(data+2) );
