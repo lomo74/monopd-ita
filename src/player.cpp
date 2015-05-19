@@ -465,7 +465,7 @@ void Player::buyEstate()
 
 void Player::sellEstate(int estateId)
 {
-	if (!m_game->getBoolProperty("allowestatesales"))
+	if (!m_game->getBoolConfigOption("allowestatesales"))
 	{
 		ioError("Selling estates has been disabled in the configuration.");
 		return;

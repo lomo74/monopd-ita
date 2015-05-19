@@ -54,7 +54,6 @@ Game::Game(int id)
 	m_isValid = m_pausedForDialog = false;
 	m_auction = 0;
 	m_auctionDebt = 0;
-	setBoolProperty("allowestatesales", false, this);
 	dice[0]=0;
 	dice[1]=0;
 
@@ -70,6 +69,7 @@ Game::Game(int id)
 	addBoolConfigOption( "doublepassmoney", "Double pass money on exact landings", false, true );
 	addBoolConfigOption( "unlimitedhouses", "Bank provides unlimited amount of houses/hotels", false, true );
 	addBoolConfigOption( "norentinjail", "Players in Jail get no rent", false, true );
+	addBoolConfigOption( "allowestatesales", "Allow estates to be sold back to Bank", false, true );
 	addBoolConfigOption( "automatetax", "Automate tax decisions", false, true );
 	addBoolConfigOption( "allowspectators", "Allow spectators", false, true );
 }
@@ -427,9 +427,6 @@ void Game::editConfig(Player *pInput, char *data)
 
 	switch(data[0])
 	{
-		case 'S':
-			setAllowEstateSales(atoi(data+1));
-			break;
 		default:
 			pInput->ioError("No such game configuration command.");
 	}
@@ -2172,23 +2169,11 @@ void Game::sendConfiguration(Player *p)
 {
 	bool edit = (p == m_master);
 	p->ioWrite("<monopd>");
-	p->ioWrite("<configupdate gameid=\"%d\"><option type=\"bool\" title=\"Allow estates to be sold back to Bank\" command=\".geS\" value=\"%d\" edit=\"%d\"/></configupdate>", m_id, getBoolProperty("allowestatesales"), edit);
+	p->ioWrite("<configupdate gameid=\"%d\"></configupdate>", m_id);
 
 	for(std::vector<GameObject *>::iterator it = m_configOptions.begin(); it != m_configOptions.end() && (*it) ; ++it)
 		p->ioWrite( (*it)->oldXMLUpdate(p, true) );
 	p->ioWrite("</monopd>\n");
-}
-
-void Game::setAllowEstateSales(bool allowEstateSales)
-{
-	if (getBoolProperty("allowestatesales") != allowEstateSales)
-	{
-		setBoolProperty("allowestatesales", allowEstateSales);
-
-		Player *pTmp = 0;
-		for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
-			sendConfiguration(pTmp);
-	}
 }
 
 const std::string Game::statusLabel()
