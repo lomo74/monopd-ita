@@ -58,7 +58,6 @@ Game::Game(int id)
 	setBoolProperty("unlimitedhouses", false, this);
 	setBoolProperty("norentinjail", false, this);
 	setBoolProperty("allowestatesales", false, this);
-	setBoolProperty("auctionsenabled", true, this);
 	dice[0]=0;
 	dice[1]=0;
 
@@ -70,6 +69,7 @@ Game::Game(int id)
 
 	addBoolConfigOption( "collectfines", "Free Parking collects fines", false, true );
 	addBoolConfigOption( "alwaysshuffle", "Always shuffle decks before taking a card", false, true );
+	addBoolConfigOption( "auctionsenabled", "Enable auctions", true, true );
 	addBoolConfigOption( "automatetax", "Automate tax decisions", false, true );
 	addBoolConfigOption( "allowspectators", "Allow spectators", false, true );
 }
@@ -427,9 +427,6 @@ void Game::editConfig(Player *pInput, char *data)
 
 	switch(data[0])
 	{
-		case 'a':
-			setAuctionsEnabled(atoi(data+1));
-			break;
 		case 'l':
 			setUnlimitedHouses(atoi(data+1));
 			break;
@@ -873,7 +870,7 @@ void Game::enforceDebt(Player *pBroke, Debt *debt)
 
 void Game::newAuction(Player *pInput)
 {
-	if (!getBoolProperty("auctionsenabled") || !totalAssets())
+	if (!getBoolConfigOption("auctionsenabled") || !totalAssets())
 	{
 		pInput->ioError("Auctions are not enabled.");
 		return;
@@ -1810,13 +1807,13 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 
 			pTurn->setDisplay(es, "For sale.");
 			pTurn->addDisplayButton(".eb", "Buy", 1);
-			pTurn->addDisplayButton(".ea", "Auction", (getBoolProperty("auctionsenabled") && totalAssets()));
-			pTurn->addDisplayButton(".E", "End Turn", !getBoolProperty("auctionsenabled"));
+			pTurn->addDisplayButton(".ea", "Auction", (getBoolConfigOption("auctionsenabled") && totalAssets()));
+			pTurn->addDisplayButton(".E", "End Turn", !getBoolConfigOption("auctionsenabled"));
 			pTurn->sendDisplayMsg();
 
 			pTurn->setBoolProperty("can_roll", false);
 			pTurn->setBoolProperty("can_buyestate", true);
-			pTurn->setBoolProperty("canauction", (getBoolProperty("auctionsenabled") && totalAssets()));
+			pTurn->setBoolProperty("canauction", (getBoolConfigOption("auctionsenabled") && totalAssets()));
 
 			return false;
 		}
@@ -2184,23 +2181,11 @@ void Game::sendConfiguration(Player *p)
 {
 	bool edit = (p == m_master);
 	p->ioWrite("<monopd>");
-	p->ioWrite("<configupdate gameid=\"%d\"><option type=\"bool\" title=\"Enable auctions\" value=\"%d\" command=\".gea\" edit=\"%d\"/><option type=\"bool\" title=\"Double pass money on exact landings\" command=\".gep\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Bank provides unlimited amount of houses/hotels\" command=\".gel\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Players in Jail get no rent\" command=\".ger\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Allow estates to be sold back to Bank\" command=\".geS\" value=\"%d\" edit=\"%d\"/></configupdate>", m_id, getBoolProperty("auctionsenabled"), edit, getBoolProperty("doublepassmoney"), edit, getBoolProperty("unlimitedhouses"), edit, getBoolProperty("norentinjail"), edit, getBoolProperty("allowestatesales"), edit);
+	p->ioWrite("<configupdate gameid=\"%d\"><option type=\"bool\" title=\"Double pass money on exact landings\" command=\".gep\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Bank provides unlimited amount of houses/hotels\" command=\".gel\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Players in Jail get no rent\" command=\".ger\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Allow estates to be sold back to Bank\" command=\".geS\" value=\"%d\" edit=\"%d\"/></configupdate>", m_id, getBoolProperty("doublepassmoney"), edit, getBoolProperty("unlimitedhouses"), edit, getBoolProperty("norentinjail"), edit, getBoolProperty("allowestatesales"), edit);
 
 	for(std::vector<GameObject *>::iterator it = m_configOptions.begin(); it != m_configOptions.end() && (*it) ; ++it)
 		p->ioWrite( (*it)->oldXMLUpdate(p, true) );
 	p->ioWrite("</monopd>\n");
-}
-
-void Game::setAuctionsEnabled(const bool auctionsEnabled)
-{
-	if (getBoolProperty("auctionsenabled") != auctionsEnabled)
-	{
-		setBoolProperty("auctionsenabled", auctionsEnabled);
-
-		Player *pTmp = 0;
-		for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
-			sendConfiguration(pTmp);
-	}
 }
 
 void Game::setDoublePassMoney(bool doublePassMoney)

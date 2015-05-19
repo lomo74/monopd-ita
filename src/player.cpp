@@ -312,7 +312,7 @@ void Player::endTurn(bool userRequest)
 
 	if (getBoolProperty("can_buyestate"))
 	{
-		if (m_game->getBoolProperty("auctionsenabled"))
+		if (m_game->getBoolConfigOption("auctionsenabled"))
 		{
 			if (userRequest)
 				ioError("You cannot end your turn, you must either buy or auction the property you are on.");

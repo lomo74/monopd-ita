@@ -65,7 +65,6 @@ class Game : public GameObject
 		void setDescription(const std::string data);
 		void setHouses(int _h) { m_houses = _h; }
 		void setHotels(int _h) { m_hotels = _h; }
-		void setAuctionsEnabled(const bool auctionsEnabled);
 		void setDoublePassMoney(bool doublePassMoney);
 		void setUnlimitedHouses(bool unlimitedHouses);
 		void setNoRentInJail(bool noRentInJail);
