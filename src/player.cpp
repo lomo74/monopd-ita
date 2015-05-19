@@ -617,7 +617,7 @@ void Player::buyHouse(int estateId)
 		return;
 	}
 
-	bool unlimitedHouses = m_game->getBoolProperty("unlimitedhouses");
+	bool unlimitedHouses = m_game->getBoolConfigOption("unlimitedhouses");
 
 	if (!unlimitedHouses)
 	{
@@ -689,7 +689,7 @@ void Player::sellHouse(int estateId)
 		return;
 	}
 
-	bool unlimitedHouses = m_game->getBoolProperty("unlimitedhouses");
+	bool unlimitedHouses = m_game->getBoolConfigOption("unlimitedhouses");
 	if ( !unlimitedHouses && (estate->getIntProperty("houses") == 5) && (m_game->houses() < 4) )
 	{
 		ioError("Hotel cannot be sold, Bank only has %d houses left.", m_game->houses());

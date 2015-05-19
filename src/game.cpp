@@ -54,7 +54,6 @@ Game::Game(int id)
 	m_isValid = m_pausedForDialog = false;
 	m_auction = 0;
 	m_auctionDebt = 0;
-	setBoolProperty("unlimitedhouses", false, this);
 	setBoolProperty("norentinjail", false, this);
 	setBoolProperty("allowestatesales", false, this);
 	dice[0]=0;
@@ -70,6 +69,7 @@ Game::Game(int id)
 	addBoolConfigOption( "alwaysshuffle", "Always shuffle decks before taking a card", false, true );
 	addBoolConfigOption( "auctionsenabled", "Enable auctions", true, true );
 	addBoolConfigOption( "doublepassmoney", "Double pass money on exact landings", false, true );
+	addBoolConfigOption( "unlimitedhouses", "Bank provides unlimited amount of houses/hotels", false, true );
 	addBoolConfigOption( "automatetax", "Automate tax decisions", false, true );
 	addBoolConfigOption( "allowspectators", "Allow spectators", false, true );
 }
@@ -427,9 +427,6 @@ void Game::editConfig(Player *pInput, char *data)
 
 	switch(data[0])
 	{
-		case 'l':
-			setUnlimitedHouses(atoi(data+1));
-			break;
 		case 'r':
 			setNoRentInJail(atoi(data+1));
 			break;
@@ -827,7 +824,7 @@ void Game::enforceDebt(Player *pBroke, Debt *debt)
 				int returnValue = eTmpHouses * eTmp->housePrice() / 2;
 				pBroke->addMoney(returnValue);
 
-				if (!getBoolProperty("unlimitedhouses"))
+				if (!getBoolConfigOption("unlimitedhouses"))
 				{
 					// Make houses available again
 					if ( eTmpHouses == 5 )
@@ -2178,23 +2175,11 @@ void Game::sendConfiguration(Player *p)
 {
 	bool edit = (p == m_master);
 	p->ioWrite("<monopd>");
-	p->ioWrite("<configupdate gameid=\"%d\"><option type=\"bool\" title=\"Bank provides unlimited amount of houses/hotels\" command=\".gel\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Players in Jail get no rent\" command=\".ger\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Allow estates to be sold back to Bank\" command=\".geS\" value=\"%d\" edit=\"%d\"/></configupdate>", m_id, getBoolProperty("unlimitedhouses"), edit, getBoolProperty("norentinjail"), edit, getBoolProperty("allowestatesales"), edit);
+	p->ioWrite("<configupdate gameid=\"%d\"><option type=\"bool\" title=\"Players in Jail get no rent\" command=\".ger\" value=\"%d\" edit=\"%d\"/><option type=\"bool\" title=\"Allow estates to be sold back to Bank\" command=\".geS\" value=\"%d\" edit=\"%d\"/></configupdate>", m_id, getBoolProperty("norentinjail"), edit, getBoolProperty("allowestatesales"), edit);
 
 	for(std::vector<GameObject *>::iterator it = m_configOptions.begin(); it != m_configOptions.end() && (*it) ; ++it)
 		p->ioWrite( (*it)->oldXMLUpdate(p, true) );
 	p->ioWrite("</monopd>\n");
-}
-
-void Game::setUnlimitedHouses(bool unlimitedHouses)
-{
-	if (getBoolProperty("unlimitedhouses") != unlimitedHouses)
-	{
-		setBoolProperty("unlimitedhouses", unlimitedHouses);
-
-		Player *pTmp = 0;
-		for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
-			sendConfiguration(pTmp);
-	}
 }
 
 void Game::setNoRentInJail(bool noRentInJail)
