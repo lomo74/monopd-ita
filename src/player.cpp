@@ -206,6 +206,11 @@ void Player::setDisplayClearButtons(bool clearButtons)
 	m_display->setClearButtons(clearButtons);
 }
 
+void Player::resetDisplayButtons()
+{
+	m_display->resetButtons();
+}
+
 void Player::addDisplayButton(const std::string command, const std::string caption, const bool enabled)
 {
 	m_display->addButton(command, caption, enabled);
@@ -946,6 +951,7 @@ void Player::setTurn(const bool &turn)
 		if (getBoolProperty("jailed"))
 		{
 			setDisplay(m_estate, "You are in jail, turn %d.", getIntProperty("jailcount"));
+			resetDisplayButtons();
 			addDisplayButton(".jp", "Pay", true);
 			addDisplayButton(".jc", "Use card", findOutOfJailCard());
 			setBoolProperty("canusecard", findOutOfJailCard());

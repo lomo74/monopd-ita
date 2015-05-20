@@ -1694,9 +1694,9 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 					}
 
 				pTurn->setDisplay(es, "Pay either %d or %d percent of your assets.", tax, taxPercentage);
+				pTurn->resetDisplayButtons();
 				pTurn->addDisplayButton(".T$", std::string("Pay ") + itoa(tax), 1);\
 				pTurn->addDisplayButton(".T%", std::string("Pay ") + itoa(taxPercentage) + " Percent", 1);
-
 				pTurn->sendDisplayMsg();
 
 				// TODO: port this into a blocking bool in Display which we can check, will be more generic
@@ -1772,6 +1772,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 				}
 
 			pTurn->setDisplay(es, "For sale.");
+			pTurn->resetDisplayButtons();
 			pTurn->addDisplayButton(".eb", "Buy", 1);
 			pTurn->addDisplayButton(".ea", "Auction", (getBoolConfigOption("auctionsenabled") && totalAssets()));
 			pTurn->addDisplayButton(".E", "End Turn", !getBoolConfigOption("auctionsenabled"));
@@ -1972,6 +1973,7 @@ void Game::bankruptPlayer(Player *pBroke)
 			if (pTmp)
 			{
 				pTmp->setDisplay(m_pWinner->estate(), "The game has ended! %s wins with a fortune of %d!", m_pWinner->getStringProperty("name").c_str(), m_pWinner->assets());
+				pTmp->resetDisplayButtons();
 				pTmp->addDisplayButton(".gx", "New Game", true);
 				pTmp->sendDisplayMsg();
 				sendStatus(pTmp);

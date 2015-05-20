@@ -77,7 +77,6 @@ void Display::addButton(const std::string command, const std::string caption, co
 {
 	DisplayButton *button = new DisplayButton(command, caption, enabled);
 	m_buttons.push_back(button);
-	m_clearButtons = false;
 }
 
 void Display::resetButtons()
