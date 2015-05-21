@@ -1101,6 +1101,9 @@ void Game::completeAuction()
 		m_pTurn->setBoolProperty("canrollagain", false);
 		m_pTurn->setBoolProperty("can_roll", true);
 		setDisplay(estate, false, false, "%s may roll again.", m_pTurn->getStringProperty("name").c_str());
+		m_pTurn->resetDisplayButtons();
+		m_pTurn->addDisplayButton(".r", "Roll", true);
+		m_pTurn->sendDisplayMsg();
 	}
 	else
 		updateTurn();

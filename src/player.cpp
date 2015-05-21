@@ -272,7 +272,7 @@ void Player::rollDice()
 	}
 
 	m_game->rollDice();
-	m_game->setDisplay(0, true, false, "%s rolls %d and %d.", getStringProperty("name").c_str(), m_game->dice[0], m_game->dice[1]);
+	m_game->setDisplay(0, true, true, "%s rolls %d and %d.", getStringProperty("name").c_str(), m_game->dice[0], m_game->dice[1]);
 
 	// Take away many privileges
 	setBoolProperty("can_roll", false);
@@ -338,6 +338,10 @@ void Player::endTurn(bool userRequest)
 
 		setBoolProperty("can_roll", true);
 		setBoolProperty("canrollagain", false);
+
+		resetDisplayButtons();
+		addDisplayButton(".r", "Roll", true);
+		sendDisplayMsg();
 		return;
 	}
 	else if (getBoolProperty("can_roll"))
@@ -390,6 +394,9 @@ void Player::payJail()
 	setBoolProperty("canusecard", false);
 	setProperty("jailcount", 0);
 	m_game->setDisplay(m_estate, false, true, "%s paid %d and has left jail, can roll now.", getStringProperty("name").c_str(), payAmount);
+	resetDisplayButtons();
+	addDisplayButton(".r", "Roll", true);
+	sendDisplayMsg();
 }
 
 void Player::rollJail()
@@ -434,6 +441,9 @@ void Player::rollJail()
 	if (ePayTarget && m_game->getBoolConfigOption("collectfines"))
 		ePayTarget->addMoney(payAmount);
 	setBoolProperty("can_roll", true);
+	resetDisplayButtons();
+	addDisplayButton(".r", "Roll", true);
+	sendDisplayMsg();
 }
 
 void Player::useJailCard()
@@ -451,6 +461,9 @@ void Player::useJailCard()
 	setBoolProperty("canusecard", false);
 	setProperty("jailcount", 0);
 	m_game->setDisplay(0, false, true, "%s used card and has left jail, can roll now.", getStringProperty("name").c_str());
+	resetDisplayButtons();
+	addDisplayButton(".r", "Roll", true);
+	sendDisplayMsg();
 }
 
 void Player::buyEstate()
@@ -964,8 +977,12 @@ void Player::setTurn(const bool &turn)
 			addDisplayButton(".jr", "Roll", true);
 			sendDisplayMsg();
 		}
-		else
+		else {
 			setBoolProperty("can_roll", true);
+			resetDisplayButtons();
+			addDisplayButton(".r", "Roll", true);
+			sendDisplayMsg();
+		}
 	}
 	else
 	{
