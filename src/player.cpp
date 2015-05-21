@@ -311,6 +311,9 @@ void Player::rollDice()
 
 void Player::endTurn(bool userRequest)
 {
+	if (m_game->status() == Game::End)
+		return;
+
 	if (!getBoolProperty("hasturn"))
 		return;
 

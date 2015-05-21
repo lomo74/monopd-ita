@@ -1533,6 +1533,9 @@ unsigned int Game::playerAssets(Player *player)
 
 void Game::updateTurn()
 {
+	if (m_status == Game::End)
+		return;
+
 	Player *pOldTurn = m_pTurn;
 	// Disable turn, roll and buy.
 	pOldTurn->setTurn(false);
