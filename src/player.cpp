@@ -218,24 +218,30 @@ void Player::addDisplayButton(const std::string command, const std::string capti
 
 void Player::sendDisplayMsg()
 {
-	Estate *estate = m_display->estate();
-	if (estate)
-	{
-		std::vector<DisplayButton *> buttons = m_display->buttons();
-		if (buttons.size() > 0)
-		{
-			ioWrite("<monopd><display estateid=\"%d\" text=\"%s\" cleartext=\"%d\" clearbuttons=\"%d\">", estate->id(), m_display->text().c_str(), m_display->clearText(), m_display->clearButtons());
-			DisplayButton *button = 0;
-			for (std::vector<DisplayButton *>::iterator it = buttons.begin() ; it != buttons.end() && (button = *it) ; ++it)
-				ioWrite("<button command=\"%s\" caption=\"%s\" enabled=\"%d\"/>", button->command().c_str(), button->caption().c_str(), button->enabled());
-			ioWrite("</display></monopd>\n", estate->id(), m_display->text().c_str());
-		}
-		else
-			ioWrite("<monopd><display estateid=\"%d\" text=\"%s\" cleartext=\"%d\" clearbuttons=\"%d\"/></monopd>\n", estate->id(), m_display->text().c_str(), m_display->clearText(), m_display->clearButtons());
+	std::string text;
+	if (m_display->text().size()) {
+		text = "text=\"" + m_display->text() + "\" ";
+	}
+
+	int estateid = -1;
+	if (m_display->estate()) {
+		estateid = m_display->estate()->id();
+	}
+
+	ioWrite("<monopd><display estateid=\"%d\" %scleartext=\"%d\" clearbuttons=\"%d\"", estateid, text.c_str(), m_display->clearText(), m_display->clearButtons());
+
+	std::vector<DisplayButton *> buttons = m_display->buttons();
+	if (buttons.size() > 0) {
+		ioWrite(">");
+		DisplayButton *button;
+		for (std::vector<DisplayButton *>::iterator it = buttons.begin() ; it != buttons.end() && (button = *it) ; ++it)
+			ioWrite("<button command=\"%s\" caption=\"%s\" enabled=\"%d\"/>", button->command().c_str(), button->caption().c_str(), button->enabled());
+		ioWrite("</display></monopd>\n");
 	}
 	else
-		ioWrite("<monopd><display estateid=\"-1\" text=\"%s\" cleartext=\"%d\" clearbuttons=\"%d\"/></monopd>\n", m_display->text().c_str(), m_display->clearText(), m_display->clearButtons());
+		ioWrite("/></monopd>\n");
 
+	m_display->resetText();
 	m_display->setClearText(false);
 	m_display->setClearButtons(false);
 }

@@ -68,6 +68,11 @@ void Display::setText(const std::string text)
 	m_text = text;
 }
 
+void Display::resetText()
+{
+	m_text = "";
+}
+
 const std::string Display::text()
 {
 	return escapeXML(m_text);
