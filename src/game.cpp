@@ -1660,7 +1660,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 				// Estates because that's basically what tax estates are.
 				setDisplay(es, false, false, "%s has to pay %d but is not solvent. Game paused, %s is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), estateMoney, pTurn->getStringProperty("name").c_str(), (estateMoney - pTurn->getIntProperty("money")));
 				newDebt(pTurn, 0, ePayTarget, estateMoney);
-				return true;
+				return false;
 			}
 			else if (ePayTarget && getBoolConfigOption("collectfines"))
 				ePayTarget->addMoney(estateMoney);
@@ -1719,7 +1719,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 			// ever.
 			setDisplay(es, false, false, "Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), payAmount, (payAmount - pTurn->getIntProperty("money")));
 			newDebt(pTurn, 0, ePayTarget, payAmount);
-			return true;
+			return false;
 		}
 		else if (ePayTarget && getBoolConfigOption("collectfines"))
 			ePayTarget->addMoney(payAmount);
@@ -1757,7 +1757,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 				{
 					setDisplay(es, false, false, "Game paused, %s owes %d to %s but is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), payAmount, pOwner->getStringProperty("name").c_str(), (payAmount - pTurn->getIntProperty("money")));
 					newDebt(pTurn, pOwner, 0, payAmount);
-					return true;
+					return false;
 				}
 				setDisplay(es, false, false, "%s pays %d rent to %s.", pTurn->getStringProperty("name").c_str(), payAmount, pOwner->getStringProperty("name").c_str());
 				pOwner->addMoney(payAmount);
