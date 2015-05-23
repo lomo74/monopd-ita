@@ -96,7 +96,8 @@ class Game : public GameObject
 		void sendStatus(Player *player);
 		void sendEstateList(Player *player);
 		void sendEstateGroupList(Player *player);
-		void sendPlayerList(Player *player, bool includeCards = false);
+		void sendPlayerList(Player *player);
+		void sendCardList(Player *pOut);
 		void sendFullUpdate(Player *player, bool userRequest = false);
 
 		int debts();

@@ -2120,16 +2120,20 @@ void Game::sendEstateGroupList(Player *p)
 		p->ioWrite("<estategroupupdate groupid=\"%d\" name=\"%s\"/>", egTmp->id(), egTmp->name().c_str());
 }
 
-void Game::sendPlayerList(Player *pOut, bool includeCards)
+void Game::sendPlayerList(Player *pOut)
 {
 	Player *pTmp = 0;
 	for(std::vector<Player *>::iterator it = m_players.begin() ; it != m_players.end() && (pTmp = *it) ; ++it)
 	{
 		pOut->ioWrite("<playerupdate playerid=\"%d\" name=\"%s\" location=\"%d\" jailed=\"%d\" directmove=\"%d\" hasturn=\"%d\" can_roll=\"%d\"/>", pTmp->id(), pTmp->name().c_str(), pTmp->getIntProperty("location"), pTmp->getBoolProperty("jailed"), 1, pTmp->getBoolProperty("hasturn"), pTmp->getBoolProperty("can_roll"));
 		pOut->ioWrite(pTmp->oldXMLUpdate(pOut, true));
+	}
+}
 
-		if (includeCards)
-			pTmp->sendCardList(pOut);
+void Game::sendCardList(Player *pOut)
+{
+	for(std::vector<Player *>::iterator it = m_players.begin() ; it != m_players.end() && (*it) ; ++it) {
+		(*it)->sendCardList(pOut);
 	}
 }
 
@@ -2151,9 +2155,10 @@ void Game::sendFullUpdate(Player *p, const bool userRequest)
 	else if (m_status == Init || m_status == Run)
 	{
 		p->ioWrite("<monopd>");
-		sendPlayerList(p, true); // includeCards
+		sendPlayerList(p);
 		sendEstateGroupList(p);
 		sendEstateList(p);
+		sendCardList(p);
 		p->ioWrite("</monopd>\n");
 	}
 }
