@@ -516,6 +516,8 @@ void Game::start(Player *pInput)
 	m_status = Run;
 	ioWrite("<monopd><gameupdate gameid=\"%d\" status=\"%s\"/></monopd>\n", m_id, statusLabel().c_str());
 
+	setDisplay(0, true, true, "Game started!");
+
 	// Turn goes to first player
 	m_pTurn = *m_players.begin();
 	m_pTurn->setTurn(true);
