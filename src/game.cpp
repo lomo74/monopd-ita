@@ -2155,7 +2155,6 @@ void Game::sendFullUpdate(Player *p, const bool userRequest)
 		sendEstateGroupList(p);
 		sendEstateList(p);
 		p->ioWrite("</monopd>\n");
-		p->sendDisplayMsg();
 	}
 }
 
