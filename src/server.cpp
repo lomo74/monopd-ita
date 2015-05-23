@@ -1007,6 +1007,28 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 			}
 	}
 
+	// Declaring bankruptcy is only possible when a player is in debt.
+	if (game->debts())
+	{
+		if (game->findDebt(pInput))
+			switch(data[0])
+			{
+				case 'D':
+					game->declareBankrupt(pInput);
+					break;
+				case 'p':
+					game->solveDebts(pInput, true);
+					break;
+				default:
+					pInput->ioNoSuchCmd("there are debts to be settled");
+			}
+		else
+			pInput->ioNoSuchCmd("there are debts to be settled");
+		// The rest of the commands are only available when there
+		// are no debts to be settled.
+		return;
+	}
+
 	// Auctions restrict movement and stuff.
 	Auction *auction = game->auction();
 	if (auction && auction->status() != Auction::Completed)
@@ -1034,28 +1056,6 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 				pInput->ioNoSuchCmd("An auction is in progress.");
 				return;
 			}
-	}
-
-	// Declaring bankruptcy is only possible when a player is in debt.
-	if (game->debts())
-	{
-		if (game->findDebt(pInput))
-			switch(data[0])
-			{
-				case 'D':
-					game->declareBankrupt(pInput);
-					break;
-				case 'p':
-					game->solveDebts(pInput, true);
-					break;
-				default:
-					pInput->ioNoSuchCmd("there are debts to be settled");
-			}
-		else
-			pInput->ioNoSuchCmd("there are debts to be settled");
-		// The rest of the commands are only available when there
-		// are no debts to be settled.
-		return;
 	}
 
 	// These are only available when it's the player's turn
