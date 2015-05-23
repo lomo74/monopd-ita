@@ -675,13 +675,19 @@ Debt *Game::newDebt(Player *from, Player *toPlayer, Estate *toEstate, int amount
 	Debt *d = new Debt(from, toPlayer, toEstate, amount);
 	m_debts.push_back(d);
 
-	from->setBoolProperty("hasdebt", true);
-
 	if (amount > from->assets())
 	{
+		from->setBoolProperty("hasdebt", true);
 		setDisplay(0, false, false, "%s is bankrupt!", from->getStringProperty("name").c_str());
 		bankruptPlayer(from);
 		return 0;
+	}
+
+	if (!from->getBoolProperty("hasdebt")) {
+		from->setBoolProperty("hasdebt", true);
+		from->resetDisplayButtons();
+		from->addDisplayButton(".D", "Declare bankruptcy", true);
+		from->sendDisplayMsg();
 	}
 	return d;
 }
