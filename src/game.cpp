@@ -1320,7 +1320,7 @@ void Game::transferCard(Card *card, Player *player, const bool verbose)
 	else
 		card->group()->pushCard(card);
 
-	ioWrite("<monopd><cardupdate cardid=\"%d\" owner=\"%d\"/></monopd>\n", card->id(), card->owner() ? card->owner()->id() : -1);
+	ioWrite("<monopd><cardupdate cardid=\"%d\" title=\"%s\" owner=\"%d\"/></monopd>\n", card->id(), card->name().c_str(), card->owner() ? card->owner()->id() : -1);
 	if (verbose)
 		setDisplay(m_pTurn->estate(), false, false, "%s is now the owner of card %d.", player->getStringProperty("name").c_str(), card->id());
 }
