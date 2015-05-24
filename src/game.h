@@ -92,7 +92,7 @@ class Game : public GameObject
 		void declareBankrupt(Player *player);
 		void bankruptPlayer(Player *player);
 		void resetDisplayText();
-		void setDisplay(Estate *estate, bool clearText, const char *data, ...);
+		void setDisplay(Estate *estate, const char *data, ...);
 		void sendMsgEstateUpdate(Estate *);
 		void sendStatus(Player *player);
 		void sendEstateList(Player *player);
