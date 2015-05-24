@@ -69,9 +69,9 @@ class Player : public GameObject
 		void setDisplay(Estate *estate);
 		void setDisplay(Estate *estate, const char *data, ...);
 		void setDisplay(Estate *estate, const std::string);
+		void resetDisplayText();
 		void resetDisplayButtons();
 		void addDisplayButton(const std::string command, const std::string caption, const bool enabled);
-		void setDisplayClearText(bool clearText);
 		void setGame(Game *game);
 		void setEstate(Estate *estate);
 		Estate *estate();

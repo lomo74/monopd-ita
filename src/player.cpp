@@ -194,9 +194,9 @@ void Player::setDisplay(Estate *estate, const std::string data)
 	m_display->setText(data);
 }
 
-void Player::setDisplayClearText(bool clearText)
+void Player::resetDisplayText()
 {
-	m_display->setClearText(clearText);
+	m_display->resetText();
 }
 
 void Player::resetDisplayButtons()

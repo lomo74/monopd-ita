@@ -1129,7 +1129,9 @@ void Game::setDisplay(Estate *estate, bool clearText, const char *data, ...)
 	for (std::vector<Player *>::iterator pit = m_players.begin(); pit != m_players.end() && (player = *pit) ; ++pit)
 	{
 		player->setDisplay(estate, std::string(buf));
-		player->setDisplayClearText(clearText);
+		if (clearText) {
+			player->resetDisplayText();
+		}
 		player->sendDisplayMsg();
 	}
 }

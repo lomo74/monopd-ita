@@ -92,9 +92,9 @@ void Display::resetButtons()
 	m_clearButtons = true;
 }
 
-void Display::setClearText(bool clearText)
+void Display::resetText()
 {
-	m_clearText = clearText;
+	m_clearText = true;
 }
 
 bool Display::clearText()

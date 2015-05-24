@@ -48,7 +48,7 @@ public:
 	const std::string text();
 	void addButton(const std::string command, const std::string caption, const bool enabled);
 	void resetButtons();
-	void setClearText(bool clearText);
+	void resetText();
 	bool clearText();
 	bool clearButtons();
 	std::vector<DisplayButton *> buttons();
