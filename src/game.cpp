@@ -754,9 +754,8 @@ void Game::solveDebts(Player *pInput, const bool &verbose)
 	else {
 		pInput->resetDisplayButtons(); /* Remove declare bankruptcy button */
 		setDisplayText("All debts are settled, game continues.");
+		completeAuction();
 	}
-
-	completeAuction();
 
 	if (!clientsMoving() && !m_auction && !m_pausedForDialog)
 		pInput->endTurn();
@@ -1109,15 +1108,7 @@ void Game::completeAuction()
 	transferEstate(estate, pBid);
 	setDisplayText("Purchased by %s in an auction for %d.", pBid->getStringProperty("name").c_str(), bid);
 
-	if (m_pTurn->getBoolProperty("canrollagain"))
-	{
-		m_pTurn->setBoolProperty("canrollagain", false);
-		m_pTurn->setBoolProperty("can_roll", true);
-		m_pTurn->addDisplayButton(".r", "Roll", true);
-		setDisplayText("%s may roll again.", m_pTurn->getStringProperty("name").c_str());
-	}
-	else
-		updateTurn();
+	m_pTurn->endTurn();
 }
 
 void Game::resetDisplayText() {
@@ -1996,7 +1987,7 @@ void Game::bankruptPlayer(Player *pBroke)
 		for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
 			if (pTmp)
 			{
-				pTmp->resetDisplayButtons(); /* Reset any button, game might end if a player leaved while we were asked to buy an estate for example */
+				pTmp->resetDisplayButtons(); /* Reset any button, game might end if a player left while we were asked to buy an estate for example */
 				pTmp->setDisplayText("The game has ended! %s wins with a fortune of %d!", m_pWinner->getStringProperty("name").c_str(), m_pWinner->assets());
 				pTmp->addDisplayButton(".gx", "New Game", true);
 				pTmp->sendDisplayMsg();
