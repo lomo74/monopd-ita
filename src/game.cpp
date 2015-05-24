@@ -687,7 +687,6 @@ Debt *Game::newDebt(Player *from, Player *toPlayer, Estate *toEstate, int amount
 
 	if (!from->getBoolProperty("hasdebt")) {
 		from->setBoolProperty("hasdebt", true);
-		from->resetDisplayButtons();
 		from->addDisplayButton(".D", "Declare bankruptcy", true);
 		from->sendDisplayMsg();
 	}
@@ -863,6 +862,7 @@ void Game::newAuction(Player *pInput)
 
 	pInput->setBoolProperty("can_buyestate", false);
 	pInput->setBoolProperty("canauction", false);
+	pInput->resetDisplayButtons(); /* Remove buy estate buttons: Buy, Auction, End Turn */
 	setDisplay(estate, true, true, "%s chooses to auction %s.", pInput->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
 	ioWrite("<monopd><auctionupdate auctionid=\"%d\" actor=\"%d\" estateid=\"%d\" status=\"0\"/></monopd>\n", m_auction->id(), pInput->id(), estate->id());
 }
@@ -1108,10 +1108,8 @@ void Game::completeAuction()
 	{
 		m_pTurn->setBoolProperty("canrollagain", false);
 		m_pTurn->setBoolProperty("can_roll", true);
-		setDisplay(estate, false, false, "%s may roll again.", m_pTurn->getStringProperty("name").c_str());
-		m_pTurn->resetDisplayButtons();
 		m_pTurn->addDisplayButton(".r", "Roll", true);
-		m_pTurn->sendDisplayMsg();
+		setDisplay(estate, false, false, "%s may roll again.", m_pTurn->getStringProperty("name").c_str());
 	}
 	else
 		updateTurn();
@@ -1708,7 +1706,6 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 					}
 
 				pTurn->setDisplay(es, "Pay either %d or %d percent of your assets.", tax, taxPercentage);
-				pTurn->resetDisplayButtons();
 				pTurn->addDisplayButton(".T$", std::string("Pay ") + itoa(tax), 1);\
 				pTurn->addDisplayButton(".T%", std::string("Pay ") + itoa(taxPercentage) + " Percent", 1);
 				pTurn->sendDisplayMsg();
@@ -1777,24 +1774,14 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 		else
 		{
 			// Unowned, thus for sale.
-			Player *pTmp = 0;
-			for (std::vector<Player *>::iterator it = m_players.begin() ; it != m_players.end() && (pTmp = *it) ; ++it)
-				if (pTmp != pTurn)
-				{
-					pTmp->setDisplay(es, "For sale.");
-					pTmp->sendDisplayMsg();
-				}
-
-			pTurn->setDisplay(es, "For sale.");
-			pTurn->resetDisplayButtons();
-			pTurn->addDisplayButton(".eb", "Buy", 1);
-			pTurn->addDisplayButton(".ea", "Auction", (getBoolConfigOption("auctionsenabled") && totalAssets()));
-			pTurn->addDisplayButton(".E", "End Turn", !getBoolConfigOption("auctionsenabled"));
-			pTurn->sendDisplayMsg();
-
 			pTurn->setBoolProperty("can_roll", false);
 			pTurn->setBoolProperty("can_buyestate", true);
 			pTurn->setBoolProperty("canauction", (getBoolConfigOption("auctionsenabled") && totalAssets()));
+
+			pTurn->addDisplayButton(".eb", "Buy", 1);
+			pTurn->addDisplayButton(".ea", "Auction", (getBoolConfigOption("auctionsenabled") && totalAssets()));
+			pTurn->addDisplayButton(".E", "End Turn", !getBoolConfigOption("auctionsenabled"));
+			setDisplay(es, false, false, "For sale.");
 
 			return false;
 		}
@@ -1987,7 +1974,6 @@ void Game::bankruptPlayer(Player *pBroke)
 			if (pTmp)
 			{
 				pTmp->setDisplay(m_pWinner->estate(), "The game has ended! %s wins with a fortune of %d!", m_pWinner->getStringProperty("name").c_str(), m_pWinner->assets());
-				pTmp->resetDisplayButtons();
 				pTmp->addDisplayButton(".gx", "New Game", true);
 				pTmp->sendDisplayMsg();
 				sendStatus(pTmp);

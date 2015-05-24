@@ -50,7 +50,15 @@ Display::Display()
 
 Display::~Display()
 {
-	resetButtons();
+	reset();
+}
+
+void Display::reset()
+{
+	m_text = "";
+	m_clearButtons = false;
+	m_clearText = false;
+	while (!m_buttons.empty()) { delete *m_buttons.begin(); m_buttons.erase(m_buttons.begin()); }
 }
 
 void Display::setEstate(Estate *estate)
@@ -68,11 +76,6 @@ void Display::setText(const std::string text)
 	m_text = text;
 }
 
-void Display::resetText()
-{
-	m_text = "";
-}
-
 const std::string Display::text()
 {
 	return escapeXML(m_text);
@@ -86,7 +89,6 @@ void Display::addButton(const std::string command, const std::string caption, co
 
 void Display::resetButtons()
 {
-	while (!m_buttons.empty()) { delete *m_buttons.begin(); m_buttons.erase(m_buttons.begin()); }
 	m_clearButtons = true;
 }
 

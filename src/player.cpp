@@ -172,7 +172,6 @@ void Player::ioNoSuchCmd(const std::string data)
 void Player::setDisplay(Estate *estate)
 {
 	m_display->setEstate(estate);
-	m_display->resetButtons();
 }
 
 void Player::setDisplay(Estate *estate, const char *data, ...)
@@ -185,14 +184,13 @@ void Player::setDisplay(Estate *estate, const char *data, ...)
 	va_end(arg);
 	buf[sizeof(buf)-1] = 0;
 
-	setDisplay(estate);
+	m_display->setEstate(estate);
 	m_display->setText(std::string(buf));
-	m_display->resetButtons();
 }
 
 void Player::setDisplay(Estate *estate, const std::string data)
 {
-	setDisplay(estate);
+	m_display->setEstate(estate);
 	m_display->setText(data);
 }
 
@@ -241,9 +239,7 @@ void Player::sendDisplayMsg()
 	else
 		ioWrite("/></monopd>\n");
 
-	m_display->resetText();
-	m_display->setClearText(false);
-	m_display->setClearButtons(false);
+	m_display->reset();
 }
 
 void Player::sendClientMsg()
@@ -272,6 +268,7 @@ void Player::rollDice()
 	}
 
 	m_game->rollDice();
+	resetDisplayButtons(); /* Remove Roll button */
 	m_game->setDisplay(0, true, true, "%s rolls %d and %d.", getStringProperty("name").c_str(), m_game->dice[0], m_game->dice[1]);
 
 	// Take away many privileges
@@ -337,14 +334,11 @@ void Player::endTurn(bool userRequest)
 	}
 	else if (getBoolProperty("canrollagain"))
 	{
+		addDisplayButton(".r", "Roll", true);
 		m_game->setDisplay(m_estate, false, false, "%s may roll again.", getStringProperty("name").c_str());
 
 		setBoolProperty("can_roll", true);
 		setBoolProperty("canrollagain", false);
-
-		resetDisplayButtons();
-		addDisplayButton(".r", "Roll", true);
-		sendDisplayMsg();
 		return;
 	}
 	else if (getBoolProperty("can_roll"))
@@ -367,10 +361,9 @@ void Player::endTurn(bool userRequest)
 		return;
 	}
 
-	if (userRequest && m_display)
-	{
-		m_display->resetButtons();
-		sendDisplayMsg();
+	if (userRequest) {
+		resetDisplayButtons(); /* Remove buy estate buttons: Buy, Auction, End Turn */
+		/* Game::updateTurn() is going to send something, we don't need to send something now */
 	}
 
 	// Turn goes to next player
@@ -396,15 +389,15 @@ void Player::payJail()
 	setBoolProperty("can_roll", true);
 	setBoolProperty("canusecard", false);
 	setProperty("jailcount", 0);
-	m_game->setDisplay(m_estate, false, true, "%s paid %d and has left jail, can roll now.", getStringProperty("name").c_str(), payAmount);
-	resetDisplayButtons();
+	resetDisplayButtons(); /* Remove jail buttons: Pay, Use card, Roll */
 	addDisplayButton(".r", "Roll", true);
-	sendDisplayMsg();
+	m_game->setDisplay(m_estate, false, true, "%s paid %d and has left jail, can roll now.", getStringProperty("name").c_str(), payAmount);
 }
 
 void Player::rollJail()
 {
 	m_game->rollDice();
+	resetDisplayButtons(); /* Remove jail buttons: Pay, Use card, Roll */
 
 	// Leave jail for free when doubles are rolled
 	if (m_game->dice[0] == m_game->dice[1])
@@ -444,7 +437,6 @@ void Player::rollJail()
 	if (ePayTarget && m_game->getBoolConfigOption("collectfines"))
 		ePayTarget->addMoney(payAmount);
 	setBoolProperty("can_roll", true);
-	resetDisplayButtons();
 	addDisplayButton(".r", "Roll", true);
 	sendDisplayMsg();
 }
@@ -463,10 +455,9 @@ void Player::useJailCard()
 	setBoolProperty("jailed", false);
 	setBoolProperty("canusecard", false);
 	setProperty("jailcount", 0);
-	m_game->setDisplay(0, false, true, "%s used card and has left jail, can roll now.", getStringProperty("name").c_str());
-	resetDisplayButtons();
+	resetDisplayButtons(); /* Remove jail buttons: Pay, Use card, Roll */
 	addDisplayButton(".r", "Roll", true);
-	sendDisplayMsg();
+	m_game->setDisplay(0, false, true, "%s used card and has left jail, can roll now.", getStringProperty("name").c_str());
 }
 
 void Player::buyEstate()
@@ -484,6 +475,7 @@ void Player::buyEstate()
 	}
 
 	m_game->transferEstate(m_estate, this);
+	resetDisplayButtons(); /* Remove buy estate buttons: Buy, Auction, End Turn */
 	m_game->setDisplay(m_estate, false, true, "Purchased by %s for %d.", getStringProperty("name").c_str(), m_estate->price());
 	setBoolProperty("can_buyestate", false);
 	setBoolProperty("canauction", false);
@@ -579,6 +571,8 @@ void Player::payTax(const bool percentage)
 {
 	if (!getBoolProperty("hasturn"))
 		return;
+
+	resetDisplayButtons(); /* Remove pay tax buttons: Pay 200, Pay 10 Percent */
 
 	m_game->setPausedForDialog(false);
 
@@ -973,7 +967,6 @@ void Player::setTurn(const bool &turn)
 		if (getBoolProperty("jailed"))
 		{
 			setDisplay(m_estate, "You are in jail, turn %d.", getIntProperty("jailcount"));
-			resetDisplayButtons();
 			addDisplayButton(".jp", "Pay", true);
 			addDisplayButton(".jc", "Use card", findOutOfJailCard());
 			setBoolProperty("canusecard", findOutOfJailCard());
@@ -982,7 +975,6 @@ void Player::setTurn(const bool &turn)
 		}
 		else {
 			setBoolProperty("can_roll", true);
-			resetDisplayButtons();
 			addDisplayButton(".r", "Roll", true);
 			sendDisplayMsg();
 		}
