@@ -49,15 +49,17 @@ public:
 	void addButton(const std::string command, const std::string caption, const bool enabled);
 	void resetButtons();
 	void resetText();
-	bool clearText();
+	void resetEstate();
 	bool clearButtons();
+	bool clearText();
+	bool clearEstate();
 	std::vector<DisplayButton *> buttons();
 
 private:
 	Estate *m_estate;
 	std::string m_text;
 	std::vector<DisplayButton *> m_buttons;
-	bool m_clearText, m_clearButtons;
+	bool m_clearText, m_clearButtons, m_clearEstate;
 };
 
 

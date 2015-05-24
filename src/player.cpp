@@ -211,17 +211,18 @@ void Player::addDisplayButton(const std::string command, const std::string capti
 
 void Player::sendDisplayMsg()
 {
-	std::string text;
+	std::string text, estate;
 	if (m_display->text().size()) {
 		text = "text=\"" + m_display->text() + "\" ";
 	}
 
-	int estateid = -1;
-	if (m_display->estate()) {
-		estateid = m_display->estate()->id();
+	if (m_display->clearEstate()) {
+		estate = "estateid=\"-1\" ";
+	} else if (m_display->estate()) {
+		estate = "estateid=\"" + itoa(m_display->estate()->id()) + "\" ";
 	}
 
-	ioWrite("<monopd><display estateid=\"%d\" %scleartext=\"%d\" clearbuttons=\"%d\"", estateid, text.c_str(), m_display->clearText(), m_display->clearButtons());
+	ioWrite("<monopd><display %s%scleartext=\"%d\" clearbuttons=\"%d\"", estate.c_str(), text.c_str(), m_display->clearText(), m_display->clearButtons());
 
 	std::vector<DisplayButton *> buttons = m_display->buttons();
 	if (buttons.size() > 0) {

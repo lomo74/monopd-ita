@@ -43,9 +43,9 @@ bool DisplayButton::enabled()
 
 Display::Display()
 {
-	m_estate = 0;
+	m_estate = NULL;
 	m_text = "";
-	m_clearText = m_clearButtons = false;
+	m_clearText = m_clearButtons = m_clearEstate = false;
 }
 
 Display::~Display()
@@ -56,8 +56,10 @@ Display::~Display()
 void Display::reset()
 {
 	m_text = "";
+	m_estate = NULL;
 	m_clearButtons = false;
 	m_clearText = false;
+	m_clearEstate = false;
 	while (!m_buttons.empty()) { delete *m_buttons.begin(); m_buttons.erase(m_buttons.begin()); }
 }
 
@@ -97,14 +99,24 @@ void Display::resetText()
 	m_clearText = true;
 }
 
-bool Display::clearText()
+void Display::resetEstate()
 {
-	return m_clearText;
+	m_clearEstate = true;
 }
 
 bool Display::clearButtons()
 {
 	return m_clearButtons;
+}
+
+bool Display::clearText()
+{
+	return m_clearText;
+}
+
+bool Display::clearEstate()
+{
+	return m_clearEstate;
 }
 
 std::vector<DisplayButton *> Display::buttons()
