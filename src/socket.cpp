@@ -27,6 +27,9 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 
 #include "socket.h"
 
@@ -48,6 +51,12 @@ void Socket::ioWrite(const std::string data)
 		ssize_t len = strlen(data.c_str());
 		ssize_t written = write(m_fd, data.c_str(), len);
 		if (written == len) {
+			if (data.at(len -1) == '\n') {
+				int flag = 1;
+				setsockopt(m_fd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
+				flag = 0;
+				setsockopt(m_fd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
+			}
 			return;
 		}
 
@@ -73,8 +82,19 @@ void Socket::ioWrite(const std::string data)
 void Socket::sendMore()
 {
 	ssize_t len = strlen(m_sendBuf.c_str());
+	if (len <= 0) {
+		m_sendBuf.erase();
+		return;
+	}
+
 	ssize_t written = write(m_fd, m_sendBuf.c_str(), len);
 	if (written == len) {
+		if (m_sendBuf.at(len -1) == '\n') {
+			int flag = 1;
+			setsockopt(m_fd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
+			flag = 0;
+			setsockopt(m_fd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
+		}
 		m_sendBuf.erase();
 		return;
 	}
