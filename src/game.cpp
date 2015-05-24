@@ -516,6 +516,7 @@ void Game::start(Player *pInput)
 	m_status = Run;
 	ioWrite("<monopd><gameupdate gameid=\"%d\" status=\"%s\"/></monopd>\n", m_id, statusLabel().c_str());
 
+	resetDisplayText();
 	setDisplay(0, true, "Game started!");
 
 	// Turn goes to first player
@@ -1113,6 +1114,12 @@ void Game::completeAuction()
 	}
 	else
 		updateTurn();
+}
+
+void Game::resetDisplayText() {
+	for (std::vector<Player *>::iterator pit = m_players.begin(); pit != m_players.end() && (*pit) ; ++pit) {
+		(*pit)->resetDisplayText();
+	}
 }
 
 void Game::setDisplay(Estate *estate, bool clearText, const char *data, ...)

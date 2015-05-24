@@ -91,6 +91,7 @@ class Game : public GameObject
 		bool giveCard(Player *player, Estate *estate, Card *card);
 		void declareBankrupt(Player *player);
 		void bankruptPlayer(Player *player);
+		void resetDisplayText();
 		void setDisplay(Estate *estate, bool clearText, const char *data, ...);
 		void sendMsgEstateUpdate(Estate *);
 		void sendStatus(Player *player);

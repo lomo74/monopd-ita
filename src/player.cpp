@@ -264,6 +264,7 @@ void Player::rollDice()
 
 	m_game->rollDice();
 	resetDisplayButtons(); /* Remove Roll button */
+	m_game->resetDisplayText();
 	m_game->setDisplay(0, true, "%s rolls %d and %d.", getStringProperty("name").c_str(), m_game->dice[0], m_game->dice[1]);
 
 	// Take away many privileges
