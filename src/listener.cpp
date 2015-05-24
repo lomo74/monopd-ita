@@ -30,6 +30,7 @@
 #include <sys/time.h>
 
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 
 #include <netdb.h>
@@ -216,6 +217,11 @@ void Listener::checkActivity()
 						if (fcntl(socketFd, F_SETFL, flags) < 0)
 							goto non_blocking_failed;
 
+#ifdef TCP_CORK
+						flags = 1;
+						setsockopt(socketFd, IPPROTO_TCP, TCP_CORK, &flags, sizeof(int));
+#endif /* TCP_CORK */
+
 						if (addrinfo->ai_family == AF_INET) {
 							inet_ntop(addrinfo->ai_family, &(((struct sockaddr_in *)addrinfo->ai_addr)->sin_addr), ip_str, INET6_ADDRSTRLEN);
 						} else if(addrinfo->ai_family == AF_INET6) {
@@ -279,6 +285,11 @@ Socket *Listener::acceptSocket(int fd)
 		fcntl(socketFd, F_SETFL, flags);
 	}
 
+#ifdef TCP_CORK
+	flags = 1;
+	setsockopt(socketFd, IPPROTO_TCP, TCP_CORK, &flags, sizeof(int));
+#endif /* TCP_CORK */
+
 	socket->setType( Socket::Player );
 	m_sockets.push_back(socket);
 
@@ -309,6 +320,11 @@ Socket *Listener::connectSocket(struct addrinfo *addrinfo) {
 		flags |= O_NDELAY;
 		if (fcntl(socketFd, F_SETFL, flags) < 0)
 			goto non_blocking_failed;
+
+#ifdef TCP_CORK
+		flags = 1;
+		setsockopt(socketFd, IPPROTO_TCP, TCP_CORK, &flags, sizeof(int));
+#endif /* TCP_CORK */
 
 		if (addrinfo->ai_family == AF_INET) {
 			inet_ntop(addrinfo->ai_family, &(((struct sockaddr_in *)addrinfo->ai_addr)->sin_addr), ip_str, INET6_ADDRSTRLEN);
