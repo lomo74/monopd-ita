@@ -1122,6 +1122,12 @@ void Game::resetDisplayText() {
 	}
 }
 
+void Game::resetDisplayEstate() {
+	for (std::vector<Player *>::iterator pit = m_players.begin(); pit != m_players.end() && (*pit) ; ++pit) {
+		(*pit)->resetDisplayEstate();
+	}
+}
+
 void Game::setDisplay(Estate *estate, const char *data, ...)
 {
 	va_list arg;

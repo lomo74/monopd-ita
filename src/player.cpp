@@ -204,6 +204,11 @@ void Player::resetDisplayButtons()
 	m_display->resetButtons();
 }
 
+void Player::resetDisplayEstate()
+{
+	m_display->resetEstate();
+}
+
 void Player::addDisplayButton(const std::string command, const std::string caption, const bool enabled)
 {
 	m_display->addButton(command, caption, enabled);
