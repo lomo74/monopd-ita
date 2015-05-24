@@ -682,6 +682,7 @@ Debt *Game::newDebt(Player *from, Player *toPlayer, Estate *toEstate, int amount
 	if (amount > from->assets())
 	{
 		from->setBoolProperty("hasdebt", true);
+		from->resetDisplayButtons(); /* Player is bankrupt, removed declare bankruptcy button */
 		setDisplayText("%s is bankrupt!", from->getStringProperty("name").c_str());
 		bankruptPlayer(from);
 		return 0;
@@ -750,8 +751,10 @@ void Game::solveDebts(Player *pInput, const bool &verbose)
 
 	if (unsigned int debts = m_debts.size())
 		setDisplayText("There are still %d debts, game still paused.", debts);
-	else
+	else {
+		pInput->resetDisplayButtons(); /* Remove declare bankruptcy button */
 		setDisplayText("All debts are settled, game continues.");
+	}
 
 	completeAuction();
 
@@ -1939,6 +1942,7 @@ bool Game::giveCard(Player *pTurn, Card *card)
 
 void Game::declareBankrupt(Player *pInput)
 {
+	pInput->resetDisplayButtons(); /* Player declared bankruptcy, removed declare bankruptcy button */
 	setDisplayText("%s declares bankruptcy!", pInput->getStringProperty("name").c_str());
 	bankruptPlayer(pInput);
 }
