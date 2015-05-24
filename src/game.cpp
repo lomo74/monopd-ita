@@ -863,7 +863,7 @@ void Game::newAuction(Player *pInput)
 	pInput->setBoolProperty("can_buyestate", false);
 	pInput->setBoolProperty("canauction", false);
 	pInput->resetDisplayButtons(); /* Remove buy estate buttons: Buy, Auction, End Turn */
-	setDisplay(estate, true, "%s chooses to auction %s.", pInput->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
+	setDisplay(estate, false, "%s chooses to auction %s.", pInput->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
 	ioWrite("<monopd><auctionupdate auctionid=\"%d\" actor=\"%d\" estateid=\"%d\" status=\"0\"/></monopd>\n", m_auction->id(), pInput->id(), estate->id());
 }
 
