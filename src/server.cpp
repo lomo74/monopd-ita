@@ -290,31 +290,34 @@ void MonopdServer::reconnectPlayer(Player *pInput, const std::string &cookie)
 	}
 
 	Game *game = player->game();
-	if (game)
-	{
-		if (player->socket())
-			pInput->ioError("Cannot reconnect, target player already has a socket.");
-		else
-		{
-			pInput->ioInfo("Reconnecting.");
-			player->setSocket(pInput->socket());
-			player->sendClientMsg();
-			if (game->status() == Game::Run)
-			{
-				game->setStatus(Game::Init);
-				game->sendFullUpdate(player);
-				game->setStatus(Game::Run);
-				game->sendStatus(player);
-				player->sendDisplayMsg(); // buttons
-			}
-			else
-				game->sendFullUpdate(player);
-
-			game->ioInfo("%s reconnected.", player->name().c_str());
-			pInput->setSocket(0);
-			delPlayer(pInput);
-		}
+	if (!game) {
+		pInput->ioError("Invalid cookie.");
+		return;
 	}
+
+	if (game->status() != Game::Run) {
+		pInput->ioError("Game is not running.");
+		return;
+	}
+
+	if (player->socket()) {
+		pInput->ioError("Cannot reconnect, target player already has a socket.");
+		return;
+	}
+
+	pInput->ioInfo("Reconnecting.");
+	player->setSocket(pInput->socket());
+	player->sendClientMsg();
+
+	game->setStatus(Game::Init);
+	game->sendFullUpdate(player);
+	game->setStatus(Game::Run);
+	game->sendStatus(player);
+	player->sendDisplayMsg(); // buttons
+
+	game->ioInfo("%s reconnected.", player->name().c_str());
+	pInput->setSocket(0);
+	delPlayer(pInput);
 }
 
 void MonopdServer::delPlayer(Player *player)
