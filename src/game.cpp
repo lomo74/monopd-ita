@@ -517,6 +517,7 @@ void Game::start(Player *pInput)
 	ioWrite("<monopd><gameupdate gameid=\"%d\" status=\"%s\"/></monopd>\n", m_id, statusLabel().c_str());
 
 	resetDisplayText();
+	resetDisplayEstate();
 	setDisplay(0, "Game started!");
 
 	// Turn goes to first player
@@ -1128,6 +1129,12 @@ void Game::resetDisplayEstate() {
 	}
 }
 
+void Game::setDisplayEstate(Estate *estate) {
+	for (std::vector<Player *>::iterator pit = m_players.begin(); pit != m_players.end() && (*pit) ; ++pit) {
+		(*pit)->setDisplay(estate);
+	}
+}
+
 void Game::setDisplay(Estate *estate, const char *data, ...)
 {
 	va_list arg;
@@ -1634,6 +1641,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 	bool endTurn = true;
 	Player *pOwner = 0;
 	Estate *es = pTurn->estate();
+	setDisplayEstate(es);
 
 	if (getBoolConfigOption("doublepassmoney") && es->getIntProperty("passmoney"))
 	{
