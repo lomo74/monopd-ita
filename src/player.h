@@ -66,9 +66,9 @@ class Player : public GameObject
 		void updateTradeMoney(char *data);
 
 		void setTurn(const bool& turn);
-		void setDisplay(Estate *estate);
-		void setDisplay(Estate *estate, const char *data, ...);
-		void setDisplay(Estate *estate, const std::string);
+		void setDisplayEstate(Estate *estate);
+		void setDisplayText(const char *data, ...);
+		void setDisplayText(const std::string);
 		void resetDisplayText();
 		void resetDisplayButtons();
 		void resetDisplayEstate();

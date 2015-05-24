@@ -88,13 +88,13 @@ class Game : public GameObject
 
 		void updateTurn();
 		bool landPlayer(Player *pTurn, const bool directMove, const std::string &rentmath = "");
-		bool giveCard(Player *player, Estate *estate, Card *card);
+		bool giveCard(Player *player, Card *card);
 		void declareBankrupt(Player *player);
 		void bankruptPlayer(Player *player);
 		void resetDisplayText();
 		void resetDisplayEstate();
 		void setDisplayEstate(Estate *estate);
-		void setDisplay(Estate *estate, const char *data, ...);
+		void setDisplayText(const char *data, ...);
 		void sendMsgEstateUpdate(Estate *);
 		void sendStatus(Player *player);
 		void sendEstateList(Player *player);

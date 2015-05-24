@@ -169,12 +169,12 @@ void Player::ioNoSuchCmd(const std::string data)
 		ioError("No such command.");
 }
 
-void Player::setDisplay(Estate *estate)
+void Player::setDisplayEstate(Estate *estate)
 {
 	m_display->setEstate(estate);
 }
 
-void Player::setDisplay(Estate *estate, const char *data, ...)
+void Player::setDisplayText(const char *data, ...)
 {
 	va_list arg;
 	char buf[2048];
@@ -184,13 +184,11 @@ void Player::setDisplay(Estate *estate, const char *data, ...)
 	va_end(arg);
 	buf[sizeof(buf)-1] = 0;
 
-	m_display->setEstate(estate);
 	m_display->setText(std::string(buf));
 }
 
-void Player::setDisplay(Estate *estate, const std::string data)
+void Player::setDisplayText(const std::string data)
 {
-	m_display->setEstate(estate);
 	m_display->setText(data);
 }
 
@@ -272,7 +270,7 @@ void Player::rollDice()
 	resetDisplayButtons(); /* Remove Roll button */
 	m_game->resetDisplayText();
 	m_game->resetDisplayEstate();
-	m_game->setDisplay(0, "%s rolls %d and %d.", getStringProperty("name").c_str(), m_game->dice[0], m_game->dice[1]);
+	m_game->setDisplayText("%s rolls %d and %d.", getStringProperty("name").c_str(), m_game->dice[0], m_game->dice[1]);
 
 	// Take away many privileges
 	setBoolProperty("can_roll", false);
@@ -288,7 +286,7 @@ void Player::rollDice()
 			setBoolProperty("canrollagain", true);
 		else
 		{
-			m_game->setDisplay(m_estate, "%s throws three doubles and is thrown into jail.", getStringProperty("name").c_str());
+			m_game->setDisplayText("%s throws three doubles and is thrown into jail.", getStringProperty("name").c_str());
 
 			if (Estate *eJail = m_game->findNextJailEstate(m_estate))
 				toJail(eJail);
@@ -338,7 +336,7 @@ void Player::endTurn(bool userRequest)
 	else if (getBoolProperty("canrollagain"))
 	{
 		addDisplayButton(".r", "Roll", true);
-		m_game->setDisplay(m_estate, "%s may roll again.", getStringProperty("name").c_str());
+		m_game->setDisplayText("%s may roll again.", getStringProperty("name").c_str());
 
 		setBoolProperty("can_roll", true);
 		setBoolProperty("canrollagain", false);
@@ -394,7 +392,7 @@ void Player::payJail()
 	setProperty("jailcount", 0);
 	resetDisplayButtons(); /* Remove jail buttons: Pay, Use card, Roll */
 	addDisplayButton(".r", "Roll", true);
-	m_game->setDisplay(m_estate, "%s paid %d and has left jail, can roll now.", getStringProperty("name").c_str(), payAmount);
+	m_game->setDisplayText("%s paid %d and has left jail, can roll now.", getStringProperty("name").c_str(), payAmount);
 }
 
 void Player::rollJail()
@@ -406,7 +404,7 @@ void Player::rollJail()
 	if (m_game->dice[0] == m_game->dice[1])
 	{
 		setBoolProperty("jailed", false);
-		m_game->setDisplay(m_estate, "Doubles, leaving jail!");
+		m_game->setDisplayText("Doubles, leaving jail!");
 
 		advance(m_game->dice[0] + m_game->dice[1], false);
 		return;
@@ -416,7 +414,7 @@ void Player::rollJail()
 	int jailCount = getIntProperty("jailcount");
 	if(jailCount < 3)
 	{
-		m_game->setDisplay(m_estate, "No doubles, staying in jail.");
+		m_game->setDisplayText("No doubles, staying in jail.");
 		m_game->updateTurn();
 		setProperty("jailcount", jailCount+1);
 		return;
@@ -427,11 +425,11 @@ void Player::rollJail()
 	setBoolProperty("jailed", false);
 	setBoolProperty("canusecard", false);
 	setProperty("jailcount", 0);
-	m_game->setDisplay(0, "No doubles, %s must pay %d now and leave jail.", getStringProperty("name").c_str(), payAmount);
+	m_game->setDisplayText("No doubles, %s must pay %d now and leave jail.", getStringProperty("name").c_str(), payAmount);
 	Estate * const ePayTarget = m_estate->payTarget();
 	if (!payMoney(payAmount))
 	{
-		m_game->setDisplay(m_estate, "Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", getStringProperty("name").c_str(), payAmount, (payAmount - getIntProperty("money")));
+		m_game->setDisplayText("Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", getStringProperty("name").c_str(), payAmount, (payAmount - getIntProperty("money")));
 		setBoolProperty("canrollagain", true); // player can roll once debt is resolved
 		m_game->newDebt(this, 0, ePayTarget, payAmount);
 		return;
@@ -460,7 +458,7 @@ void Player::useJailCard()
 	setProperty("jailcount", 0);
 	resetDisplayButtons(); /* Remove jail buttons: Pay, Use card, Roll */
 	addDisplayButton(".r", "Roll", true);
-	m_game->setDisplay(0, "%s used card and has left jail, can roll now.", getStringProperty("name").c_str());
+	m_game->setDisplayText("%s used card and has left jail, can roll now.", getStringProperty("name").c_str());
 }
 
 void Player::buyEstate()
@@ -479,7 +477,7 @@ void Player::buyEstate()
 
 	m_game->transferEstate(m_estate, this);
 	resetDisplayButtons(); /* Remove buy estate buttons: Buy, Auction, End Turn */
-	m_game->setDisplay(m_estate, "Purchased by %s for %d.", getStringProperty("name").c_str(), m_estate->price());
+	m_game->setDisplayText("Purchased by %s for %d.", getStringProperty("name").c_str(), m_estate->price());
 	setBoolProperty("can_buyestate", false);
 	setBoolProperty("canauction", false);
 	endTurn();
@@ -517,7 +515,7 @@ void Player::sellEstate(int estateId)
 
 	addMoney(sellPrice);
 	m_game->transferEstate(estate, 0);
-	m_game->setDisplay(estate, "%s sold %s for %d.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), sellPrice);
+	m_game->setDisplayText("%s sold %s for %d.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), sellPrice);
 
 	if (getBoolProperty("hasdebt"))
 		m_game->solveDebts(this);
@@ -547,7 +545,7 @@ void Player::mortgageEstate(int estateId)
 		}
 		estate->setBoolProperty("mortgaged", false);
 		m_game->sendMsgEstateUpdate(estate);
-		m_game->setDisplay(estate, "%s unmortgaged %s for %d.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("unmortgageprice"));
+		m_game->setDisplayText("%s unmortgaged %s for %d.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("unmortgageprice"));
 	}
 	else
 	{
@@ -563,7 +561,7 @@ void Player::mortgageEstate(int estateId)
 		m_game->sendMsgEstateUpdate(estate);
 
 		addMoney((estate->getIntProperty("mortgageprice")));
-		m_game->setDisplay(estate, "%s mortgaged %s for %d.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("mortgageprice"));
+		m_game->setDisplayText("%s mortgaged %s for %d.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("mortgageprice"));
 
 		if (getBoolProperty("hasdebt"))
 			m_game->solveDebts(this);
@@ -585,12 +583,12 @@ void Player::payTax(const bool percentage)
 	else
 		payAmount = m_estate->getIntProperty("tax");
 
-	m_game->setDisplay(m_estate, "%s chooses to pay the %s tax, which amounts to %d.", getStringProperty("name").c_str(), (percentage ? "assets based" : "static"), payAmount);
+	m_game->setDisplayText("%s chooses to pay the %s tax, which amounts to %d.", getStringProperty("name").c_str(), (percentage ? "assets based" : "static"), payAmount);
 
 	Estate * const ePayTarget = m_estate->payTarget();
 	if (!payMoney(payAmount))
 	{
-		m_game->setDisplay(m_estate, "Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", getStringProperty("name").c_str(), payAmount, (payAmount - getIntProperty("money")));
+		m_game->setDisplayText("Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", getStringProperty("name").c_str(), payAmount, (payAmount - getIntProperty("money")));
 		m_game->newDebt(this, 0, ePayTarget, payAmount);
 		return;
 	}
@@ -676,13 +674,13 @@ void Player::buyHouse(int estateId)
 			m_game->setHotels(m_game->hotels() - 1);
 			m_game->setHouses(m_game->houses() + 4);
 		}
-		m_game->setDisplay(estate, "%s buys a hotel for %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
+		m_game->setDisplayText("%s buys a hotel for %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
 	}
 	else
 	{
 		if (!unlimitedHouses)
 			m_game->setHouses(m_game->houses() - 1);
-		m_game->setDisplay(estate, "%s buys a house for %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
+		m_game->setDisplayText("%s buys a house for %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
 	}
 
 	m_game->sendMsgEstateUpdate(estate);
@@ -730,13 +728,13 @@ void Player::sellHouse(int estateId)
 			m_game->setHotels(m_game->hotels() + 1);
 			m_game->setHouses(m_game->houses() - 4);
 		}
-		m_game->setDisplay(estate, "%s sells a hotel from %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
+		m_game->setDisplayText("%s sells a hotel from %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
 	}
 	else
 	{
 		if (!unlimitedHouses)
 			m_game->setHouses(m_game->houses() + 1);
-		m_game->setDisplay(estate, "%s sells a house from %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
+		m_game->setDisplayText("%s sells a house from %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
 	}
 
 	m_game->sendMsgEstateUpdate(estate);
@@ -969,7 +967,9 @@ void Player::setTurn(const bool &turn)
 	{
 		if (getBoolProperty("jailed"))
 		{
-			setDisplay(m_estate, "You are in jail, turn %d.", getIntProperty("jailcount"));
+			m_game->setDisplayEstate(m_estate);
+			m_game->setDisplayText("%s is in jail, turn %d.", name().c_str(), getIntProperty("jailcount"));
+			setDisplayText("You are in jail, turn %d.", getIntProperty("jailcount"));
 			addDisplayButton(".jp", "Pay", true);
 			addDisplayButton(".jc", "Use card", findOutOfJailCard());
 			setBoolProperty("canusecard", findOutOfJailCard());
