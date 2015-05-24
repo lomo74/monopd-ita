@@ -50,7 +50,6 @@ public:
 	void resetButtons();
 	void setClearText(bool clearText);
 	bool clearText();
-	void setClearButtons(bool clearButtons);
 	bool clearButtons();
 	std::vector<DisplayButton *> buttons();
 

@@ -102,11 +102,6 @@ bool Display::clearText()
 	return m_clearText;
 }
 
-void Display::setClearButtons(bool clearButtons)
-{
-	m_clearButtons = clearButtons;
-}
-
 bool Display::clearButtons()
 {
 	return m_clearButtons;

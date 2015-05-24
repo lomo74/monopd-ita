@@ -72,7 +72,6 @@ class Player : public GameObject
 		void resetDisplayButtons();
 		void addDisplayButton(const std::string command, const std::string caption, const bool enabled);
 		void setDisplayClearText(bool clearText);
-		void setDisplayClearButtons(bool clearButtons);
 		void setGame(Game *game);
 		void setEstate(Estate *estate);
 		Estate *estate();
