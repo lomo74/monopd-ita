@@ -753,6 +753,8 @@ void Game::solveDebts(Player *pInput, const bool &verbose)
 	else
 		setDisplayText("All debts are settled, game continues.");
 
+	completeAuction();
+
 	if (!clientsMoving() && !m_auction && !m_pausedForDialog)
 		pInput->endTurn();
 }
@@ -772,10 +774,8 @@ bool Game::solveDebt( Debt *debt )
 		eCreditor->addMoney(payAmount);
 
 	setDisplayText("%s pays off a %d debt to %s.", pFrom->getStringProperty("name").c_str(), debt->amount(), (pCreditor ? pCreditor->getStringProperty("name").c_str() : "Bank"));
-	if (debt == m_auctionDebt)
-	{
+	if (debt == m_auctionDebt) {
 		m_auctionDebt = 0;
-		completeAuction();
 	}
 	delDebt(debt);
 	return true;
@@ -1077,7 +1077,7 @@ void Game::completeTrade(Trade *trade)
 
 void Game::completeAuction()
 {
-	if (!m_auction)
+	if (!m_auction || m_auction->status() == Auction::Completed)
 		return;
 
 	printf("Game::completeAuction()\n");
