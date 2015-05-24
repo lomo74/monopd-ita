@@ -1996,6 +1996,7 @@ void Game::bankruptPlayer(Player *pBroke)
 		for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
 			if (pTmp)
 			{
+				pTmp->resetDisplayButtons(); /* Reset any button, game might end if a player leaved while we were asked to buy an estate for example */
 				pTmp->setDisplayText("The game has ended! %s wins with a fortune of %d!", m_pWinner->getStringProperty("name").c_str(), m_pWinner->assets());
 				pTmp->addDisplayButton(".gx", "New Game", true);
 				pTmp->sendDisplayMsg();
