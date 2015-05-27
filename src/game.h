@@ -92,10 +92,6 @@ class Game : public GameObject
 		bool giveCard(Player *player, Card *card);
 		void declareBankrupt(Player *player);
 		void bankruptPlayer(Player *player);
-		void resetDisplayText();
-		void resetDisplayEstate();
-		void setDisplayEstate(Estate *estate);
-		void setDisplayText(const char *data, ...);
 		void sendDisplayMsg(Display *display, Player *except = NULL);
 		void sendMsgEstateUpdate(Estate *);
 		void sendStatus(Player *player);
@@ -139,7 +135,6 @@ class Game : public GameObject
 		unsigned int estates() const { return m_estates.size(); }
 		void setPausedForDialog(const bool paused);
 		bool pausedForDialog();
-		void delEstate(Estate *);
 		void transferEstate(Estate *estate, Player *player, const bool verbose = false);
 		CardGroup *newCardGroup(const std::string name);
 		CardGroup *findCardGroup(const std::string name);

@@ -47,7 +47,6 @@ class Player : public GameObject
 		void ioError(const std::string data);
 		void ioNoSuchCmd(const std::string data = "");
 
-		void sendDisplayMsg();
 		void sendDisplayMsg(Display *display);
 		void sendClientMsg();
 		void sendCardList(Player *pOut);
@@ -67,13 +66,6 @@ class Player : public GameObject
 		void updateTradeMoney(char *data);
 
 		void setTurn(const bool& turn);
-		void setDisplayEstate(Estate *estate);
-		void setDisplayText(const char *data, ...);
-		void setDisplayText(const std::string);
-		void resetDisplayText();
-		void resetDisplayButtons();
-		void resetDisplayEstate();
-		void addDisplayButton(const std::string command, const std::string caption, const bool enabled);
 		void setGame(Game *game);
 		void setEstate(Estate *estate);
 		Estate *estate();

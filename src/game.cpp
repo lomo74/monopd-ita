@@ -1145,42 +1145,6 @@ void Game::completeAuction()
 	m_pTurn->endTurn();
 }
 
-void Game::resetDisplayText() {
-	for (std::vector<Player *>::iterator pit = m_players.begin(); pit != m_players.end() && (*pit) ; ++pit) {
-		(*pit)->resetDisplayText();
-	}
-}
-
-void Game::resetDisplayEstate() {
-	for (std::vector<Player *>::iterator pit = m_players.begin(); pit != m_players.end() && (*pit) ; ++pit) {
-		(*pit)->resetDisplayEstate();
-	}
-}
-
-void Game::setDisplayEstate(Estate *estate) {
-	for (std::vector<Player *>::iterator pit = m_players.begin(); pit != m_players.end() && (*pit) ; ++pit) {
-		(*pit)->setDisplayEstate(estate);
-	}
-}
-
-void Game::setDisplayText(const char *data, ...)
-{
-	va_list arg;
-	char buf[2048];
-
-	va_start(arg, data);
-	vsnprintf(buf, sizeof(buf)-1, data, arg);
-	va_end(arg);
-	buf[sizeof(buf)-1] = 0;
-
-	Player *player = 0;
-	for (std::vector<Player *>::iterator pit = m_players.begin(); pit != m_players.end() && (player = *pit) ; ++pit)
-	{
-		player->setDisplayText(std::string(buf));
-		player->sendDisplayMsg();
-	}
-}
-
 void Game::sendDisplayMsg(Display *display, Player *except) {
 	for (std::vector<Player *>::iterator pit = m_players.begin(); pit != m_players.end(); ++pit) {
 		if (*pit != except) {
@@ -1294,20 +1258,6 @@ Estate *Game::findNextJailEstate(Estate *startEstate)
 		}
 	}
 	return eFirst;
-}
-
-void Game::delEstate(Estate *_e)
-{
-	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (*it); ++it)
-		(*it)->resetDisplayEstate();
-
-	for(std::vector<Estate *>::iterator it = m_estates.begin(); it != m_estates.end(); ++it)
-		if (*it == _e)
-		{
-			m_estates.erase(it);
-			break;
-		}
-	delete _e;
 }
 
 void Game::transferEstate(Estate *estate, Player *player, const bool verbose)
