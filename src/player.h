@@ -99,7 +99,6 @@ private:
 	Socket *m_socket;
 
 	// Game related
-	Display *m_display;
 	Estate *m_estate, *m_destination, *m_tokenLocation;
 	std::vector<Card *> m_cards;
 

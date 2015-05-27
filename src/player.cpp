@@ -35,7 +35,6 @@ Player::Player(Socket *socket) : GameObject(-1, GameObject::GPlayer)
 {
 	m_socket = socket;
 	m_game = 0;
-	m_display = 0;
 	m_estate = 0;
 	m_destination = 0;
 	m_tokenLocation = 0;
@@ -46,8 +45,6 @@ Player::Player(Socket *socket) : GameObject(-1, GameObject::GPlayer)
 Player::~Player()
 {
     while (!m_cards.empty()) { delete *m_cards.begin(); m_cards.erase(m_cards.begin()); }
-
-    delete m_display;
 }
 
 void Player::reset(bool removeProperties)
@@ -73,14 +70,10 @@ void Player::reset(bool removeProperties)
 		removeProperty("directmove");
 	}
 	m_requestedUpdate = false;
-
-	m_display->setEstate(0);
-	m_display->resetButtons();
 }
 
 void Player::identify(int id) {
 	m_id = id;
-	m_display = new Display();
 	setProperty("cookie", std::string(itoa(m_id)) + "/" + itoa(rand()), this);
 	reset();
 	m_identified = true;
