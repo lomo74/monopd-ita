@@ -38,6 +38,7 @@
 #include "io.h"
 #include "player.h"
 #include "trade.h"
+#include "display.h"
 
 Game::Game(int id)
  :	GameObject(id, GGame),
@@ -557,8 +558,9 @@ void Game::setTokenLocation(Player *pInput, unsigned int estateId)
 			if (estate->getIntProperty("passmoney"))
 			{
 //				printf("Game::setTokenLocation, pass:%d\n", estate->id());
-				pInput->setDisplayText("%s passes %s and gets %d.", m_pTurn->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("passmoney"));
-				pInput->sendDisplayMsg();
+				Display display;
+				display.setText("%s passes %s and gets %d.", m_pTurn->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("passmoney"));
+				pInput->sendDisplayMsg(&display);
 				money += estate->getIntProperty("passmoney");
 				pInput->ioWrite("<monopd><playerupdate playerid=\"%d\" money=\"%d\"/></monopd>\n", m_pTurn->id(), m_pTurn->getIntProperty("money") + money);
 			}
@@ -690,8 +692,9 @@ Debt *Game::newDebt(Player *from, Player *toPlayer, Estate *toEstate, int amount
 
 	if (!from->getBoolProperty("hasdebt")) {
 		from->setBoolProperty("hasdebt", true);
-		from->addDisplayButton(".D", "Declare bankruptcy", true);
-		from->sendDisplayMsg();
+		Display display;
+		display.addButton(".D", "Declare bankruptcy", true);
+		from->sendDisplayMsg(&display);
 	}
 	return d;
 }
@@ -1710,18 +1713,20 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 			}
 			else
 			{
-				Player *pTmp = 0;
-				for (std::vector<Player *>::iterator it = m_players.begin() ; it != m_players.end() && (pTmp = *it) ; ++it)
-					if (pTmp != pTurn)
-					{
-						pTmp->setDisplayText("%s must pay either %d or %d percent of his/her assets.", pTurn->getStringProperty("name").c_str(), tax, taxPercentage);
-						pTmp->sendDisplayMsg();
-					}
+				Display display1, display2;
 
-				pTurn->setDisplayText("Pay either %d or %d percent of your assets.", tax, taxPercentage);
-				pTurn->addDisplayButton(".T$", std::string("Pay ") + itoa(tax), 1);\
-				pTurn->addDisplayButton(".T%", std::string("Pay ") + itoa(taxPercentage) + " Percent", 1);
-				pTurn->sendDisplayMsg();
+				display1.setText("%s must pay either %d or %d percent of his/her assets.", pTurn->getStringProperty("name").c_str(), tax, taxPercentage);
+				// FIXME: add Game::sendDisplayMsg with except
+				for (std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end(); ++it) {
+					if (*it != pTurn) {
+						(*it)->sendDisplayMsg(&display1);
+					}
+				}
+
+				display2.setText("Pay either %d or %d percent of your assets.", tax, taxPercentage);
+				display2.addButton(".T$", std::string("Pay ") + itoa(tax), 1);\
+				display2.addButton(".T%", std::string("Pay ") + itoa(taxPercentage) + " Percent", 1);
+				pTurn->sendDisplayMsg(&display2);
 
 				// TODO: port this into a blocking bool in Display which we can check, will be more generic
 				m_pausedForDialog = true;
@@ -1983,16 +1988,15 @@ void Game::bankruptPlayer(Player *pBroke)
 		m_status = End;
 		syslog(LOG_INFO, "game %d ended: %s wins with a fortune of %d.", m_id, m_pWinner->name().c_str(), m_pWinner->assets());
 
-		pTmp = 0;
-		for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
-			if (pTmp)
-			{
-				pTmp->resetDisplayButtons(); /* Reset any button, game might end if a player left while we were asked to buy an estate for example */
-				pTmp->setDisplayText("The game has ended! %s wins with a fortune of %d!", m_pWinner->getStringProperty("name").c_str(), m_pWinner->assets());
-				pTmp->addDisplayButton(".gx", "New Game", true);
-				pTmp->sendDisplayMsg();
-				sendStatus(pTmp);
-			}
+		// FIXME: add Game::sendDisplayMsg
+		Display display;
+		display.resetButtons();  /* Reset any button, game might end if a player left while we were asked to buy an estate for example */
+		display.setText("The game has ended! %s wins with a fortune of %d!", m_pWinner->getStringProperty("name").c_str(), m_pWinner->assets());
+		display.addButton(".gx", "New Game", true);
+		for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end(); ++it) {
+			(*it)->sendDisplayMsg(&display);
+			sendStatus(*it);
+		}
 	}
 	else
 	{
