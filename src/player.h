@@ -48,6 +48,7 @@ class Player : public GameObject
 		void ioNoSuchCmd(const std::string data = "");
 
 		void sendDisplayMsg();
+		void sendDisplayMsg(Display *display);
 		void sendClientMsg();
 		void sendCardList(Player *pOut);
 

@@ -14,6 +14,9 @@
 // the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 // Boston, MA 02111-1307, USA.
 
+#include <stdio.h>
+#include <stdarg.h>
+
 #include "display.h"
 #include "estate.h"
 #include "io.h"
@@ -76,6 +79,19 @@ Estate *Display::estate()
 void Display::setText(const std::string text)
 {
 	m_text = text;
+}
+
+void Display::setText(const char *fmt, ...)
+{
+	va_list arg;
+	char buf[2048];
+
+	va_start(arg, fmt);
+	vsnprintf(buf, sizeof(buf), fmt, arg);
+	va_end(arg);
+	buf[sizeof(buf)-1] = 0;
+
+	m_text = std::string(buf);
 }
 
 const std::string Display::text()

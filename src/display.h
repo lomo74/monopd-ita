@@ -45,6 +45,7 @@ public:
 	void setEstate(Estate *estate);
 	Estate *estate();
 	void setText(const std::string text);
+	void setText(const char *fmt, ...);
 	const std::string text();
 	void addButton(const std::string command, const std::string caption, const bool enabled);
 	void resetButtons();

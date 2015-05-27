@@ -241,6 +241,35 @@ void Player::sendDisplayMsg()
 	m_display->reset();
 }
 
+void Player::sendDisplayMsg(Display *display)
+{
+	std::string text, estate;
+	if (display->text().size()) {
+		text = "text=\"" + display->text() + "\" ";
+	}
+
+	if (display->clearEstate()) {
+		estate = "estateid=\"-1\" ";
+	} else if (display->estate()) {
+		estate = "estateid=\"" + itoa(display->estate()->id()) + "\" ";
+	}
+
+	ioWrite("<monopd><display %s%scleartext=\"%d\" clearbuttons=\"%d\"", estate.c_str(), text.c_str(), display->clearText(), display->clearButtons());
+
+	std::vector<DisplayButton *> buttons = display->buttons();
+	if (buttons.size() > 0) {
+		ioWrite(">");
+		DisplayButton *button;
+		for (std::vector<DisplayButton *>::iterator it = buttons.begin() ; it != buttons.end() && (button = *it) ; ++it)
+			ioWrite("<button command=\"%s\" caption=\"%s\" enabled=\"%d\"/>", button->command().c_str(), button->caption().c_str(), button->enabled());
+		ioWrite("</display></monopd>\n");
+	}
+	else
+		ioWrite("/></monopd>\n");
+
+	display->reset();
+}
+
 void Player::sendClientMsg()
 {
 	ioWrite(std::string("<monopd><client playerid=\"" + itoa(m_id) + "\" cookie=\"" + getStringProperty("cookie").c_str() + "\"/></monopd>\n"));
@@ -969,12 +998,15 @@ void Player::setTurn(const bool &turn)
 		{
 			m_game->setDisplayEstate(m_estate);
 			m_game->setDisplayText("%s is in jail, turn %d.", name().c_str(), getIntProperty("jailcount"));
-			setDisplayText("You are in jail, turn %d.", getIntProperty("jailcount"));
-			addDisplayButton(".jp", "Pay", true);
-			addDisplayButton(".jc", "Use card", findOutOfJailCard());
+
+			Display display;
+			display.setText("You are in jail, turn %d.", getIntProperty("jailcount"));
+			display.addButton(".jp", "Pay", true);
+			display.addButton(".jc", "Use card", findOutOfJailCard());
+			display.addButton(".jr", "Roll", true);
+			sendDisplayMsg(&display);
+
 			setBoolProperty("canusecard", findOutOfJailCard());
-			addDisplayButton(".jr", "Roll", true);
-			sendDisplayMsg();
 		}
 		else {
 			setBoolProperty("can_roll", true);
