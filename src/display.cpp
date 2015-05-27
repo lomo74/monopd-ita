@@ -53,16 +53,6 @@ Display::Display()
 
 Display::~Display()
 {
-	reset();
-}
-
-void Display::reset()
-{
-	m_text = "";
-	m_estate = NULL;
-	m_clearButtons = false;
-	m_clearText = false;
-	m_clearEstate = false;
 	while (!m_buttons.empty()) { delete *m_buttons.begin(); m_buttons.erase(m_buttons.begin()); }
 }
 

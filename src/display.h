@@ -41,7 +41,6 @@ public:
 	Display();
 	virtual ~Display();
 
-	void reset();
 	void setEstate(Estate *estate);
 	Estate *estate();
 	void setText(const std::string text);
