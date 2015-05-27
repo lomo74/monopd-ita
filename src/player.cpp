@@ -266,8 +266,6 @@ void Player::sendDisplayMsg(Display *display)
 	}
 	else
 		ioWrite("/></monopd>\n");
-
-	display->reset();
 }
 
 void Player::sendClientMsg()
@@ -466,9 +464,12 @@ void Player::rollJail()
 
 	if (ePayTarget && m_game->getBoolConfigOption("collectfines"))
 		ePayTarget->addMoney(payAmount);
+
+	Display display;
+	display.addButton(".r", "Roll", true);
+	sendDisplayMsg(&display);
+
 	setBoolProperty("can_roll", true);
-	addDisplayButton(".r", "Roll", true);
-	sendDisplayMsg();
 }
 
 void Player::useJailCard()
@@ -1009,9 +1010,11 @@ void Player::setTurn(const bool &turn)
 			setBoolProperty("canusecard", findOutOfJailCard());
 		}
 		else {
+			Display display;
+			display.addButton(".r", "Roll", true);
+			sendDisplayMsg(&display);
+
 			setBoolProperty("can_roll", true);
-			addDisplayButton(".r", "Roll", true);
-			sendDisplayMsg();
 		}
 	}
 	else
