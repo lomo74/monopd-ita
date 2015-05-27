@@ -517,9 +517,11 @@ void Game::start(Player *pInput)
 	m_status = Run;
 	ioWrite("<monopd><gameupdate gameid=\"%d\" status=\"%s\"/></monopd>\n", m_id, statusLabel().c_str());
 
-	resetDisplayText();
-	resetDisplayEstate();
-	setDisplayText("Game started!");
+	Display display;
+	display.resetText();
+	display.resetEstate();
+	display.setText("Game started!");
+	sendDisplayMsg(&display);
 
 	// Turn goes to first player
 	m_pTurn = *m_players.begin();
@@ -684,8 +686,13 @@ Debt *Game::newDebt(Player *from, Player *toPlayer, Estate *toEstate, int amount
 	if (amount > from->assets())
 	{
 		from->setBoolProperty("hasdebt", true);
-		from->resetDisplayButtons(); /* Player is bankrupt, removed declare bankruptcy button */
-		setDisplayText("%s is bankrupt!", from->getStringProperty("name").c_str());
+
+		Display display;
+		display.setText("%s is bankrupt!", from->getStringProperty("name").c_str());
+		sendDisplayMsg(&display, from);
+		display.resetButtons(); /* Player is bankrupt, removed declare bankruptcy button */
+		from->sendDisplayMsg(&display);
+
 		bankruptPlayer(from);
 		return 0;
 	}
@@ -752,11 +759,18 @@ void Game::solveDebts(Player *pInput, const bool &verbose)
 			break;
 	}
 
-	if (unsigned int debts = m_debts.size())
-		setDisplayText("There are still %d debts, game still paused.", debts);
+	if (unsigned int debts = m_debts.size()) {
+		Display display;
+		display.setText("There are still %d debts, game still paused.", debts);
+		sendDisplayMsg(&display);
+	}
 	else {
-		pInput->resetDisplayButtons(); /* Remove declare bankruptcy button */
-		setDisplayText("All debts are settled, game continues.");
+		Display display;
+		display.setText("All debts are settled, game continues.");
+		sendDisplayMsg(&display, pInput);
+		display.resetButtons(); /* Remove declare bankruptcy button */
+		pInput->sendDisplayMsg(&display);
+
 		completeAuction();
 	}
 
@@ -778,7 +792,9 @@ bool Game::solveDebt( Debt *debt )
 	else if ( ( eCreditor = debt->toEstate() )  && getBoolConfigOption("collectfines") )
 		eCreditor->addMoney(payAmount);
 
-	setDisplayText("%s pays off a %d debt to %s.", pFrom->getStringProperty("name").c_str(), debt->amount(), (pCreditor ? pCreditor->getStringProperty("name").c_str() : "Bank"));
+	Display display;
+	display.setText("%s pays off a %d debt to %s.", pFrom->getStringProperty("name").c_str(), debt->amount(), (pCreditor ? pCreditor->getStringProperty("name").c_str() : "Bank"));
+	sendDisplayMsg(&display);
 	if (debt == m_auctionDebt) {
 		m_auctionDebt = 0;
 	}
@@ -869,8 +885,13 @@ void Game::newAuction(Player *pInput)
 
 	pInput->setBoolProperty("can_buyestate", false);
 	pInput->setBoolProperty("canauction", false);
-	pInput->resetDisplayButtons(); /* Remove buy estate buttons: Buy, Auction, End Turn */
-	setDisplayText("%s chooses to auction %s.", pInput->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
+
+	Display display;
+	display.setText("%s chooses to auction %s.", pInput->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
+	sendDisplayMsg(&display, pInput);
+	display.resetButtons(); /* Remove buy estate buttons: Buy, Auction, End Turn */
+	pInput->sendDisplayMsg(&display);
+
 	ioWrite("<monopd><auctionupdate auctionid=\"%d\" actor=\"%d\" estateid=\"%d\" status=\"0\"/></monopd>\n", m_auction->id(), pInput->id(), estate->id());
 }
 
@@ -1047,6 +1068,7 @@ void Game::completeTrade(Trade *trade)
 	GameObject *object;
 	while((pTo = trade->firstTarget()))
 	{
+		Display display1, display2;
 		pFrom = trade->firstFrom();
 		object = trade->takeFirstObject();
 		switch(object->type())
@@ -1057,13 +1079,16 @@ void Game::completeTrade(Trade *trade)
 			delete object; // was temporarily created to serve as trade object
 			if (!pFrom->payMoney(money))
 			{
-				setDisplayText("%s owes %d to %s. Game paused, %s is not solvent. Player needs to raise %d in cash first.", pFrom->getStringProperty("name").c_str(), money, pTo->getStringProperty("name").c_str(), pFrom->getStringProperty("name").c_str(), (money - pFrom->getIntProperty("money")));
+				display2.setText("%s owes %d to %s. Game paused, %s is not solvent. Player needs to raise %d in cash first.", pFrom->getStringProperty("name").c_str(), money, pTo->getStringProperty("name").c_str(), pFrom->getStringProperty("name").c_str(), (money - pFrom->getIntProperty("money")));
+				sendDisplayMsg(&display2);
+
 				newDebt(pFrom, pTo, 0, money);
 			}
 			else
 				pTo->addMoney(money);
 
-			setDisplayText("%s gets %d from %s.", pTo->getStringProperty("name").c_str(), money, pFrom->getStringProperty("name").c_str());
+			display1.setText("%s gets %d from %s.", pTo->getStringProperty("name").c_str(), money, pFrom->getStringProperty("name").c_str());
+			sendDisplayMsg(&display1);
 			break;
 		default:
 			transferObject(object->type(), object->id(), pTo, true);
@@ -1097,7 +1122,10 @@ void Game::completeAuction()
 	{
 		if (!pBid->payMoney(bid))
 		{
-			setDisplayText("%s has to pay %d. Game paused, %s is not solvent. Player needs to raise %d in cash first.", pBid->getStringProperty("name").c_str(), bid, pBid->getStringProperty("name").c_str(), (bid - pBid->getIntProperty("money")));
+			Display display;
+			display.setText("%s has to pay %d. Game paused, %s is not solvent. Player needs to raise %d in cash first.", pBid->getStringProperty("name").c_str(), bid, pBid->getStringProperty("name").c_str(), (bid - pBid->getIntProperty("money")));
+			sendDisplayMsg(&display);
+
 			m_auctionDebt = newDebt(pBid, 0, 0, bid);
 			m_auction->setStatus(Auction::PaymentDue);
 			return;
@@ -1109,7 +1137,10 @@ void Game::completeAuction()
 	m_auction->setStatus(Auction::Completed);
 	Estate *estate = m_auction->estate();
 	transferEstate(estate, pBid);
-	setDisplayText("Purchased by %s in an auction for %d.", pBid->getStringProperty("name").c_str(), bid);
+
+	Display display;
+	display.setText("Purchased by %s in an auction for %d.", pBid->getStringProperty("name").c_str(), bid);
+	sendDisplayMsg(&display);
 
 	m_pTurn->endTurn();
 }
@@ -1291,8 +1322,11 @@ void Game::transferEstate(Estate *estate, Player *player, const bool verbose)
 	estate->setOwner(player);
 	sendMsgEstateUpdate(estate);
 
-	if (player && verbose)
-		setDisplayText("%s is now the owner of estate %s.", player->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
+	if (player && verbose) {
+		Display display;
+		display.setText("%s is now the owner of estate %s.", player->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
+		sendDisplayMsg(&display);
+	}
 }
 
 void Game::transferObject(const enum GameObject::Type type, unsigned int id, Player *player, const bool verbose)
@@ -1342,8 +1376,11 @@ void Game::transferCard(Card *card, Player *player, const bool verbose)
 		card->group()->pushCard(card);
 
 	ioWrite("<monopd><cardupdate cardid=\"%d\" title=\"%s\" owner=\"%d\"/></monopd>\n", card->id(), card->name().c_str(), card->owner() ? card->owner()->id() : -1);
-	if (verbose)
-		setDisplayText("%s is now the owner of card %d.", player->getStringProperty("name").c_str(), card->id());
+	if (verbose) {
+		Display display;
+		display.setText("%s is now the owner of card %d.", player->getStringProperty("name").c_str(), card->id());
+		sendDisplayMsg(&display);
+	}
 }
 
 CardGroup *Game::newCardGroup(const std::string name)
@@ -1589,7 +1626,10 @@ void Game::updateTurn()
 		m_pTurn = pFirst;
 
 	// Set turn.
-	setDisplayText("Turn goes to %s.", m_pTurn->getStringProperty("name").c_str());
+	Display display;
+	display.setText("Turn goes to %s.", m_pTurn->getStringProperty("name").c_str());
+	sendDisplayMsg(&display);
+
 	m_pTurn->setTurn(true);
 }
 
@@ -1620,8 +1660,11 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 					money += estate->getIntProperty("passmoney");
 					// Write incremental message for direct moves, token
 					// confirmation or timeout didn't do it yet.
-					if (directMove)
-						setDisplayText("%s passes %s and gets %d.", pTurn->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("passmoney"));
+					if (directMove) {
+						Display display;
+						display.setText("%s passes %s and gets %d.", pTurn->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("passmoney"));
+						sendDisplayMsg(&display);
+					}
 				}
 				if (estate == destination)
 					break;
@@ -1646,15 +1689,22 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 	bool endTurn = true;
 	Player *pOwner = 0;
 	Estate *es = pTurn->estate();
-	setDisplayEstate(es);
 
 	if (getBoolConfigOption("doublepassmoney") && es->getIntProperty("passmoney"))
 	{
-		setDisplayText("%s lands on %s and gets %d.", pTurn->getStringProperty("name").c_str(), es->getStringProperty("name").c_str(), es->getIntProperty("passmoney"));
+		Display display;
+		display.setText("%s lands on %s and gets %d.", pTurn->getStringProperty("name").c_str(), es->getStringProperty("name").c_str(), es->getIntProperty("passmoney"));
+		display.setEstate(es);
+		sendDisplayMsg(&display);
+
 		pTurn->addMoney(es->getIntProperty("passmoney"));
 	}
-	else
-		setDisplayText("%s lands on %s.", pTurn->getStringProperty("name").c_str(), es->getStringProperty("name").c_str());
+	else {
+		Display display;
+		display.setText("%s lands on %s.", pTurn->getStringProperty("name").c_str(), es->getStringProperty("name").c_str());
+		display.setEstate(es);
+		sendDisplayMsg(&display);
+	}
 
 	// toJail is really serious: if an estate has this property, all other
 	// properties are ignored when landing it. TODO: Don't ignore and allow
@@ -1680,7 +1730,10 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 			// Good for you!
 			pTurn->addMoney(estateMoney);
 			es->setProperty("money", 0);
-			setDisplayText("%s gets %d from the fine pot.", pTurn->getStringProperty("name").c_str(), estateMoney);
+
+			Display display;
+			display.setText("%s gets %d from the fine pot.", pTurn->getStringProperty("name").c_str(), estateMoney);
+			sendDisplayMsg(&display);
 		}
 		else
 		{
@@ -1691,14 +1744,19 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 				// TODO: If we go into debt here, we'll never enter rent
 				// calculation. But we'll need negative getIntProperty("money") piles for
 				// Estates because that's basically what tax estates are.
-				setDisplayText("%s has to pay %d but is not solvent. Game paused, %s is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), estateMoney, pTurn->getStringProperty("name").c_str(), (estateMoney - pTurn->getIntProperty("money")));
+				Display display;
+				display.setText("%s has to pay %d but is not solvent. Game paused, %s is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), estateMoney, pTurn->getStringProperty("name").c_str(), (estateMoney - pTurn->getIntProperty("money")));
+				sendDisplayMsg(&display);
+
 				newDebt(pTurn, 0, ePayTarget, estateMoney);
 				return false;
 			}
 			else if (ePayTarget && getBoolConfigOption("collectfines"))
 				ePayTarget->addMoney(estateMoney);
 
-			setDisplayText("%s pays %d.", pTurn->getStringProperty("name").c_str(), estateMoney);
+			Display display;
+			display.setText("%s pays %d.", pTurn->getStringProperty("name").c_str(), estateMoney);
+			sendDisplayMsg(&display);
 		}
 	}
 
@@ -1746,13 +1804,19 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 			// TODO: If we go into debt here, we'll never enter rent
 			// calculation. So, estates with tax shouldn't be ownable
 			// ever.
-			setDisplayText("Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), payAmount, (payAmount - pTurn->getIntProperty("money")));
+			Display display;
+			display.setText("Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), payAmount, (payAmount - pTurn->getIntProperty("money")));
+			sendDisplayMsg(&display);
+
 			newDebt(pTurn, 0, ePayTarget, payAmount);
 			return false;
 		}
 		else if (ePayTarget && getBoolConfigOption("collectfines"))
 			ePayTarget->addMoney(payAmount);
-		setDisplayText("%s pays %d.", pTurn->getStringProperty("name").c_str(), payAmount);
+
+		Display display;
+		display.setText("%s pays %d.", pTurn->getStringProperty("name").c_str(), payAmount);
+		sendDisplayMsg(&display);
 	}
 
 	// Some estates have cards. Handle them before we do rent and purchasing.
@@ -1771,24 +1835,35 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 		{
 			// Owned.
 
-			if (pOwner == pTurn)
-				setDisplayText("%s already owns it.", pTurn->getStringProperty("name").c_str());
-			else if (es->getBoolProperty("mortgaged"))
-				setDisplayText("%s pays no rent because it's mortgaged.", pTurn->getStringProperty("name").c_str());
-			else if (getBoolConfigOption("norentinjail") && pOwner->getBoolProperty("jailed"))
-				setDisplayText("%s pays no rent because owner %s is in jail.", pTurn->getStringProperty("name").c_str(), pOwner->getStringProperty("name").c_str());
-			else
-			{
+			if (pOwner == pTurn) {
+				Display display;
+				display.setText("%s already owns it.", pTurn->getStringProperty("name").c_str());
+				sendDisplayMsg(&display);
+			} else if (es->getBoolProperty("mortgaged")) {
+				Display display;
+				display.setText("%s pays no rent because it's mortgaged.", pTurn->getStringProperty("name").c_str());
+				sendDisplayMsg(&display);
+			} else if (getBoolConfigOption("norentinjail") && pOwner->getBoolProperty("jailed")) {
+				Display display;
+				display.setText("%s pays no rent because owner %s is in jail.", pTurn->getStringProperty("name").c_str(), pOwner->getStringProperty("name").c_str());
+				sendDisplayMsg(&display);
+			} else {
 				// Pay payAmount owed.
 				int payAmount = es->rent(pTurn, rentMath);
 
 				if (!pTurn->payMoney(payAmount))
 				{
-					setDisplayText("Game paused, %s owes %d to %s but is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), payAmount, pOwner->getStringProperty("name").c_str(), (payAmount - pTurn->getIntProperty("money")));
+					Display display;
+					display.setText("Game paused, %s owes %d to %s but is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), payAmount, pOwner->getStringProperty("name").c_str(), (payAmount - pTurn->getIntProperty("money")));
+					sendDisplayMsg(&display);
+
 					newDebt(pTurn, pOwner, 0, payAmount);
 					return false;
 				}
-				setDisplayText("%s pays %d rent to %s.", pTurn->getStringProperty("name").c_str(), payAmount, pOwner->getStringProperty("name").c_str());
+				Display display;
+				display.setText("%s pays %d rent to %s.", pTurn->getStringProperty("name").c_str(), payAmount, pOwner->getStringProperty("name").c_str());
+				sendDisplayMsg(&display);
+
 				pOwner->addMoney(payAmount);
 			}
 		}
@@ -1799,11 +1874,13 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 			pTurn->setBoolProperty("can_buyestate", true);
 			pTurn->setBoolProperty("canauction", (getBoolConfigOption("auctionsenabled") && totalAssets()));
 
-			pTurn->addDisplayButton(".eb", "Buy", 1);
-			pTurn->addDisplayButton(".ea", "Auction", (getBoolConfigOption("auctionsenabled") && totalAssets()));
-			pTurn->addDisplayButton(".E", "End Turn", !getBoolConfigOption("auctionsenabled"));
-			setDisplayText("For sale.");
-
+			Display display;
+			display.setText("For sale.");
+			sendDisplayMsg(&display, pTurn);
+			display.addButton(".eb", "Buy", 1);
+			display.addButton(".ea", "Auction", (getBoolConfigOption("auctionsenabled") && totalAssets()));
+			display.addButton(".E", "End Turn", !getBoolConfigOption("auctionsenabled"));
+			pTurn->sendDisplayMsg(&display);
 			return false;
 		}
 	}
@@ -1816,7 +1893,10 @@ bool Game::giveCard(Player *pTurn, Card *card)
 		ioError(pTurn->name() + " should get a card, but there don't seem to be any available!");
 		return true;
 	}
-	setDisplayText("%s", card->getStringProperty("name").c_str());
+
+	Display display;
+	display.setText("%s", card->getStringProperty("name").c_str());
+	sendDisplayMsg(&display);
 
 	// If canBeOwned, remove from stack and give to player. Card can still
 	// have actions afterwards.
@@ -1841,7 +1921,10 @@ bool Game::giveCard(Player *pTurn, Card *card)
 		{
 			if (!pTurn->payMoney(payAmount))
 			{
-				setDisplayText("Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), payAmount, (payAmount - pTurn->getIntProperty("money")));
+				Display display;
+				display.setText("Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), payAmount, (payAmount - pTurn->getIntProperty("money")));
+				sendDisplayMsg(&display);
+
 				newDebt(pTurn, 0, ePayTarget, payAmount);
 				return false;
 			}
@@ -1863,7 +1946,10 @@ bool Game::giveCard(Player *pTurn, Card *card)
 		{
 			if (!pTurn->payMoney(payAmount))
 			{
-				setDisplayText("Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), payAmount, (payAmount - pTurn->getIntProperty("money")));
+				Display display;
+				display.setText("Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), payAmount, (payAmount - pTurn->getIntProperty("money")));
+				sendDisplayMsg(&display);
+
 				newDebtToAll(pTurn, card->payEach());
 			}
 			else
@@ -1881,7 +1967,10 @@ bool Game::giveCard(Player *pTurn, Card *card)
 				{
 					if (!pTmp->payMoney(payAmount))
 					{
-						setDisplayText("Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", pTmp->getStringProperty("name").c_str(), payAmount, (payAmount - pTmp->getIntProperty("money")));
+						Display display;
+						display.setText("Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", pTmp->getStringProperty("name").c_str(), payAmount, (payAmount - pTmp->getIntProperty("money")));
+						sendDisplayMsg(&display);
+
 						newDebt(pTmp, pTurn, 0, payAmount);
 					}
 					else
@@ -1910,7 +1999,10 @@ bool Game::giveCard(Player *pTurn, Card *card)
 			Estate * const ePayTarget = pTurn->estate()->payTarget();
 			if (!pTurn->payMoney(payAmount))
 			{
-				setDisplayText("Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), payAmount, (payAmount - pTurn->getIntProperty("money")));
+				Display display;
+				display.setText("Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", pTurn->getStringProperty("name").c_str(), payAmount, (payAmount - pTurn->getIntProperty("money")));
+				sendDisplayMsg(&display);
+
 				newDebt(pTurn, 0, ePayTarget, payAmount);
 				return false;
 			}
@@ -1941,8 +2033,12 @@ bool Game::giveCard(Player *pTurn, Card *card)
 
 void Game::declareBankrupt(Player *pInput)
 {
-	pInput->resetDisplayButtons(); /* Player declared bankruptcy, removed declare bankruptcy button */
-	setDisplayText("%s declares bankruptcy!", pInput->getStringProperty("name").c_str());
+	Display display;
+	display.setText("%s declares bankruptcy!", pInput->getStringProperty("name").c_str());
+	sendDisplayMsg(&display, pInput);
+	display.resetButtons(); /* Player declared bankruptcy, removed declare bankruptcy button */
+	pInput->sendDisplayMsg(&display);
+
 	bankruptPlayer(pInput);
 }
 
@@ -2007,8 +2103,11 @@ void Game::bankruptPlayer(Player *pBroke)
 
 		if (activePlayers && !m_debts.size())
 		{
-			if (debtsWereSolved)
-				setDisplayText("All debts are settled, game continues.");
+			if (debtsWereSolved) {
+				Display display;
+				display.setText("All debts are settled, game continues.");
+				sendDisplayMsg(&display);
+			}
 
 			// Update turn. Always when this function is called as command
 			// and possibly necessary when this function is called for a
