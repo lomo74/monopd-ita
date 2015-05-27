@@ -22,6 +22,7 @@
 #include <string>
 
 #include "gameobject.h"
+#include "display.h"
 
 class Auction;
 class Card;
@@ -95,6 +96,7 @@ class Game : public GameObject
 		void resetDisplayEstate();
 		void setDisplayEstate(Estate *estate);
 		void setDisplayText(const char *data, ...);
+		void sendDisplayMsg(Display *display, Player *except = NULL);
 		void sendMsgEstateUpdate(Estate *);
 		void sendStatus(Player *player);
 		void sendEstateList(Player *player);

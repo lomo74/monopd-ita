@@ -1150,6 +1150,14 @@ void Game::setDisplayText(const char *data, ...)
 	}
 }
 
+void Game::sendDisplayMsg(Display *display, Player *except) {
+	for (std::vector<Player *>::iterator pit = m_players.begin(); pit != m_players.end(); ++pit) {
+		if (*pit != except) {
+			(*pit)->sendDisplayMsg(display);
+		}
+	}
+}
+
 void Game::sendMsgEstateUpdate(Estate *e)
 {
 	Estate *eTmp = 0;
@@ -1716,12 +1724,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 				Display display1, display2;
 
 				display1.setText("%s must pay either %d or %d percent of his/her assets.", pTurn->getStringProperty("name").c_str(), tax, taxPercentage);
-				// FIXME: add Game::sendDisplayMsg with except
-				for (std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end(); ++it) {
-					if (*it != pTurn) {
-						(*it)->sendDisplayMsg(&display1);
-					}
-				}
+				sendDisplayMsg(&display1, pTurn);
 
 				display2.setText("Pay either %d or %d percent of your assets.", tax, taxPercentage);
 				display2.addButton(".T$", std::string("Pay ") + itoa(tax), 1);\
@@ -1988,13 +1991,13 @@ void Game::bankruptPlayer(Player *pBroke)
 		m_status = End;
 		syslog(LOG_INFO, "game %d ended: %s wins with a fortune of %d.", m_id, m_pWinner->name().c_str(), m_pWinner->assets());
 
-		// FIXME: add Game::sendDisplayMsg
 		Display display;
 		display.resetButtons();  /* Reset any button, game might end if a player left while we were asked to buy an estate for example */
 		display.setText("The game has ended! %s wins with a fortune of %d!", m_pWinner->getStringProperty("name").c_str(), m_pWinner->assets());
 		display.addButton(".gx", "New Game", true);
+		sendDisplayMsg(&display);
+
 		for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end(); ++it) {
-			(*it)->sendDisplayMsg(&display);
 			sendStatus(*it);
 		}
 	}
