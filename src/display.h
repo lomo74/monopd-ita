@@ -26,6 +26,7 @@ class DisplayButton
 {
 public:
 	DisplayButton(const std::string command, const std::string caption, const bool enabled);
+	DisplayButton(const DisplayButton *button);
 	const std::string command();
 	const std::string caption();
 	bool enabled();
@@ -39,7 +40,8 @@ class Display
 {
 public:
 	Display();
-	virtual ~Display();
+	Display(const Display *display);
+	~Display();
 
 	void setEstate(Estate *estate);
 	Estate *estate();

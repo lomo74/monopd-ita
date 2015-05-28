@@ -29,6 +29,12 @@ DisplayButton::DisplayButton(const std::string command, const std::string captio
 	m_enabled = enabled;
 }
 
+DisplayButton::DisplayButton(const DisplayButton *button) {
+	m_command = button->m_command;
+	m_caption = button->m_caption;
+	m_enabled = button->m_enabled;
+}
+
 const std::string DisplayButton::command()
 {
 	return m_command;
@@ -49,6 +55,20 @@ Display::Display()
 	m_estate = NULL;
 	m_text = "";
 	m_clearText = m_clearButtons = m_clearEstate = false;
+}
+
+Display::Display(const Display *display) {
+	m_estate = display->m_estate;
+	m_text = display->m_text;
+	m_clearText = display->m_clearText;
+	m_clearButtons = display->m_clearButtons;
+	m_clearEstate = display->m_clearEstate;
+
+	std::vector<DisplayButton *> buttons = display->m_buttons;
+	for (std::vector<DisplayButton *>::iterator it = buttons.begin() ; it != buttons.end(); ++it) {
+		DisplayButton *button = new DisplayButton(*it);
+		m_buttons.push_back(button);
+	}
 }
 
 Display::~Display()
