@@ -192,6 +192,9 @@ void Player::sendDisplay(Display *display)
 void Player::sendDisplayMsg(Display *display)
 {
 	sendDisplay(display);
+	if (display->clearText()) {
+		while (!m_display.empty()) { delete *m_display.begin(); m_display.erase(m_display.begin()); }
+	}
 	m_display.push_back(new Display(display));
 }
 
