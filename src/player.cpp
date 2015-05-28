@@ -44,19 +44,18 @@ Player::Player(Socket *socket) : GameObject(-1, GameObject::GPlayer)
 
 Player::~Player()
 {
-    while (!m_cards.empty()) { delete *m_cards.begin(); m_cards.erase(m_cards.begin()); }
-    while (!m_display.empty()) { delete *m_display.begin(); m_display.erase(m_display.begin()); }
+	while (!m_cards.empty()) { delete *m_cards.begin(); m_cards.erase(m_cards.begin()); }
+	while (!m_display.empty()) { delete *m_display.begin(); m_display.erase(m_display.begin()); }
 }
 
 void Player::reset(bool removeProperties)
 {
-    while (!m_cards.empty()) { delete *m_cards.begin(); m_cards.erase(m_cards.begin()); }
+	while (!m_cards.empty()) { delete *m_cards.begin(); m_cards.erase(m_cards.begin()); }
 	while (!m_display.empty()) { delete *m_display.begin(); m_display.erase(m_display.begin()); }
 
 	m_estate = m_destination = m_tokenLocation = 0;
 
-	if (removeProperties)
-	{
+	if (removeProperties) {
 		removeProperty("money");
 		removeProperty("doublecount");
 		removeProperty("jailcount");
@@ -77,7 +76,6 @@ void Player::reset(bool removeProperties)
 void Player::identify(int id) {
 	m_id = id;
 	setProperty("cookie", std::string(itoa(m_id)) + "/" + itoa(rand()), this);
-	reset();
 	m_identified = true;
 }
 
