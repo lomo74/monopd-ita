@@ -162,7 +162,7 @@ void Player::ioNoSuchCmd(const std::string data)
 		ioError("No such command.");
 }
 
-void Player::sendDisplayMsg(Display *display)
+void Player::sendDisplay(Display *display)
 {
 	std::string text, estate;
 	if (display->text().size()) {
@@ -187,8 +187,19 @@ void Player::sendDisplayMsg(Display *display)
 	}
 	else
 		ioWrite("/></monopd>\n");
+}
 
+void Player::sendDisplayMsg(Display *display)
+{
+	sendDisplay(display);
 	m_display.push_back(new Display(display));
+}
+
+void Player::sendDisplayHistory()
+{
+	for(std::vector<Display *>::iterator it = m_display.begin(); it != m_display.end(); ++it) {
+		sendDisplay(*it);
+	}
 }
 
 void Player::sendClientMsg()

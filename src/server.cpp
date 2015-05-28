@@ -313,6 +313,7 @@ void MonopdServer::reconnectPlayer(Player *pInput, const std::string &cookie)
 	game->sendFullUpdate(player);
 	game->setStatus(Game::Run);
 	game->sendStatus(player);
+	player->sendDisplayHistory();
 
 	game->ioInfo("%s reconnected.", player->name().c_str());
 	pInput->setSocket(0);

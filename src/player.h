@@ -48,6 +48,7 @@ class Player : public GameObject
 		void ioNoSuchCmd(const std::string data = "");
 
 		void sendDisplayMsg(Display *display);
+		void sendDisplayHistory();
 		void sendClientMsg();
 		void sendCardList(Player *pOut);
 
@@ -95,6 +96,8 @@ class Player : public GameObject
 		bool payMoney(int);
 
 private:
+	void sendDisplay(Display *display);
+
 	// Connection related
 	Socket *m_socket;
 
