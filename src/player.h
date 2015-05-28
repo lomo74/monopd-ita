@@ -101,6 +101,7 @@ private:
 	// Game related
 	Estate *m_estate, *m_destination, *m_tokenLocation;
 	std::vector<Card *> m_cards;
+	std::vector<Display *> m_display;
 
 	bool m_requestedUpdate;
 	bool m_identified;
