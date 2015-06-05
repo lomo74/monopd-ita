@@ -17,7 +17,7 @@ AC_PROG_CXX
 
 # Checks for header files.
 AC_CHECK_HEADER([cmath], [], [AC_MSG_ERROR([Your STL doesn't come with cmath, upgrade your libstdc++.])])
-AC_CHECK_HEADER([math++/nodes.h], [], [AC_MSG_ERROR([Please install libmath++ >= 0.0.3 from http://www.surakware.net/download/])])
+AC_CHECK_HEADER([muParser.h], [], [AC_MSG_ERROR([Please install libmuparser >= 2.0.0 from http://muparser.beltoforion.de/])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 

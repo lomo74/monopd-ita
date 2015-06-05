@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <iostream>
 
-#include <math++/nodes.h>
+#include <muParser.h>
 
 #include "estate.h"
 #include "estategroup.h"
@@ -70,24 +70,24 @@ int EstateGroup::rent(Player *pLand, const std::string &rentMath)
 {
 	std::string mathStr = rentMath.size() ? rentMath : m_rentMath;
 
-	if (mathStr.size())
-	{
-		Estate *estate = pLand->estate();
-
-		stringReplace(mathStr, "${DICE}", std::string(itoa((m_game->dice[0] + m_game->dice[1]))));
-		stringReplace(mathStr, "${GROUPOWNED}", std::string(itoa(estate->groupSize(estate->owner()))));
-		stringReplace(mathStr, "${HOUSES}", std::string(itoa(estate->getIntProperty("houses"))));
-
-		try {
-			std::string exprStr(mathStr);
-			std::auto_ptr<math::TNode<double> >expr(math::TReader<double>::parse(exprStr));
-			std::auto_ptr<math::TNode<double> >se(math::TSimplifier<double>::simplify(expr.get()));
-			return atoi(math::TPrinter<double>::print(se.get()).c_str());
-		} catch (const math::EMath& e) {
-			return 0;
-		} catch (...) {
-			return 0;
-		}
+	if (!mathStr.size()) {
+		return 0;
 	}
+
+	Estate *estate = pLand->estate();
+	stringReplace(mathStr, "${DICE}", std::string(itoa((m_game->dice[0] + m_game->dice[1]))));
+	stringReplace(mathStr, "${GROUPOWNED}", std::string(itoa(estate->groupSize(estate->owner()))));
+	stringReplace(mathStr, "${HOUSES}", std::string(itoa(estate->getIntProperty("houses"))));
+
+	try {
+		mu::Parser p;
+		p.SetExpr(mathStr);
+		return (int)round(p.Eval());
+	} catch (mu::Parser::exception_type &e) {
+		return 0;
+	} catch (...) {
+		return 0;
+	}
+
 	return 0;
 }
