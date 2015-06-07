@@ -231,9 +231,7 @@ Gives the client a unique identification.
  <msg type="string" playerid="int" author="string" value="string"/>
 
 Used for sending informative messages to clients.  Possible types include
-chat, info, error, standby, and startgame.  These are just to display to
-users and can be ignored as they will always be accompanied by more
-'official' messages. For chat messages, playerid and name of the chatting
+chat, info, error.  For chat messages, playerid and name of the chatting
 player are sent.
 
 --------------------
