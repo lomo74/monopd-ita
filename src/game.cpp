@@ -503,9 +503,11 @@ void Game::start(Player *pInput)
 
 	// Set all players at Go, give them money
 	Player *pTmp = 0;
+	int turnorder = 0;
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
 	{
 		pTmp->reset(false);
+		pTmp->setProperty("turnorder", turnorder++);
 		pTmp->setEstate(m_goEstate);
 		pTmp->addMoney(m_startMoney);
 	}
@@ -2182,7 +2184,7 @@ void Game::sendPlayerList(Player *pOut)
 	Player *pTmp = 0;
 	for(std::vector<Player *>::iterator it = m_players.begin() ; it != m_players.end() && (pTmp = *it) ; ++it)
 	{
-		pOut->ioWrite("<playerupdate playerid=\"%d\" name=\"%s\" location=\"%d\" jailed=\"%d\" directmove=\"%d\" hasturn=\"%d\" can_roll=\"%d\"/>", pTmp->id(), pTmp->name().c_str(), pTmp->getIntProperty("location"), pTmp->getBoolProperty("jailed"), 1, pTmp->getBoolProperty("hasturn"), pTmp->getBoolProperty("can_roll"));
+		pOut->ioWrite("<playerupdate playerid=\"%d\" name=\"%s\" location=\"%d\" jailed=\"%d\" directmove=\"%d\" hasturn=\"%d\" can_roll=\"%d\" turnorder=\"%d\"/>", pTmp->id(), pTmp->name().c_str(), pTmp->getIntProperty("location"), pTmp->getBoolProperty("jailed"), 1, pTmp->getBoolProperty("hasturn"), pTmp->getBoolProperty("can_roll"), pTmp->getIntProperty("turnorder"));
 		pOut->ioWrite(pTmp->oldXMLUpdate(pOut, true));
 	}
 }

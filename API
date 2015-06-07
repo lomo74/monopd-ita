@@ -254,7 +254,8 @@ If estateid is -1, clients should clear the display.
  <playerupdate playerid="int" game="int" name="string" image="string"
     money="int" location="int" jailed="bool" directmove="bool"
     bankrupt="bool" hasturn="bool" can_roll="bool" can_buyestate="bool"
-    host="string" spectator="bool" hasdebt="bool" canauction="bool" canusecard="bool" />
+    host="string" spectator="bool" hasdebt="bool" canauction="bool"
+    canusecard="bool" turnorder="int"/>
 
 Most of these are obvious. Directmove is a suggestion to clients whether
 they should animate tokens (or not, directmove is 1 for "go directly to
