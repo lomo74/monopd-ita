@@ -69,6 +69,7 @@ void Player::reset(bool removeProperties)
 		removeProperty("canauction");
 		removeProperty("location");
 		removeProperty("directmove");
+		removeProperty("turnorder");
 	}
 	m_requestedUpdate = false;
 }
