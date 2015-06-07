@@ -426,36 +426,25 @@ void MonopdServer::closedSocket(Socket *socket)
 		return;
 	}
 
-	pInput->setSocket( 0 );
-	printf("%s socket 0 spec %d, bank %d, gamerun %d\n", pInput->name().c_str(), pInput->getBoolProperty("spectator"), pInput->getBoolProperty("bankrupt"), game->status() == Game::Run );
-	game->ioInfo("Connection with %s lost.", pInput->name().c_str());
+	pInput->setSocket(NULL);
+	printf("%s socket 0 spec %d, bankrupt %d, gamerun %d\n", pInput->name().c_str(), pInput->getBoolProperty("spectator"), pInput->getBoolProperty("bankrupt"), game->status() == Game::Run );
 
 	// Only remove from game when game not running, or when it's merely a spectator.
-	bool exitFromGame = false;
-	if (game->status() == Game::Run)
-	{
-		if ( pInput->getBoolProperty("spectator") )
-			exitFromGame = true;
-		else if ( !pInput->getBoolProperty("bankrupt") )
-		{
-			printf("may reconnect\n");
-			unsigned int timeout = 180;
-			game->ioInfo("Player has %ds to reconnect until bankruptcy.", timeout);
-			Event *event = newEvent( Event::PlayerTimeout, game );
-			event->setLaunchTime(time(0) + timeout);
-			event->setObject( dynamic_cast<GameObject *> (pInput) );
-		}
-	}
-	else
-		exitFromGame = true;
-
-	if (exitFromGame)
-	{
+	if (game->status() != Game::Run || pInput->getBoolProperty("spectator") || pInput->getBoolProperty("bankrupt")) {
+		game->ioInfo("Connection with %s lost.", pInput->name().c_str());
 		printf("exit from game %d: %d\n", game->id(), pInput->id());
 		exitGame(game, pInput);
 		printf("delplayer %d\n", pInput->id());
 		delPlayer(pInput);
+		return;
 	}
+
+	printf("may reconnect\n");
+	unsigned int timeout = 180;
+	game->ioInfo("Connection with %s lost. Player has %ds to reconnect until bankruptcy.", pInput->name().c_str(), timeout);
+	Event *event = newEvent( Event::PlayerTimeout, game );
+	event->setLaunchTime(time(0) + timeout);
+	event->setObject( dynamic_cast<GameObject *> (pInput) );
 }
 
 int MonopdServer::processEvents()
