@@ -507,7 +507,7 @@ void Game::start(Player *pInput)
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
 	{
 		pTmp->reset(false);
-		pTmp->setProperty("turnorder", turnorder++);
+		pTmp->setProperty("turnorder", ++turnorder);
 		pTmp->setEstate(m_goEstate);
 		pTmp->addMoney(m_startMoney);
 	}
