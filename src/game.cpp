@@ -1449,6 +1449,7 @@ void Game::removePlayer(Player *p)
 			break;
 		}
 	setProperty( "players", m_players.size() );
+	ioInfo("%s left the game.", p->name().c_str());
 
 	// Do bankrupt after player is removed from list, player doesn't need the resulting messages
 	if (m_status != Config)
