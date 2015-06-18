@@ -26,7 +26,7 @@ class Player;
 class Auction : public GameObject
 {
  public:
- 	enum Status { Bidding = 0, GoingOnce = 1, GoingTwice = 2, Sold = 3, PaymentDue = 4, Completed = 5 };
+	enum Status { Bidding = 0, GoingOnce = 1, GoingTwice = 2, Sold = 3 };
 
 	Auction();
 	void setEstate(Estate *estate) { m_estate = estate; }

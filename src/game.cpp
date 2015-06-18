@@ -627,43 +627,33 @@ void Game::tokenMovementTimeout()
 
 unsigned int Game::auctionTimeout()
 {
+	printf("Game::auctionTimeout %d %d\n", m_id, m_auction->status());
+
 	if (!m_auction)
 		return 0;
 
-	printf("Game::auctionTimeout %d %d\n", m_id, (int)m_players.size());
+	m_auction->setStatus(m_auction->status() +1);
+	ioWrite("<monopd><auctionupdate auctionid=\"%d\" status=\"%d\"/></monopd>\n", m_auction->id(), m_auction->status());
 
-	int status = m_auction->status();
-	switch(status)
-	{
-	case Auction::Sold:
-	case Auction::PaymentDue:
-	case Auction::Completed:
-		break;
-	default:
-		m_auction->setStatus(status+1);
-		ioWrite("<monopd><auctionupdate auctionid=\"%d\" status=\"%d\"/></monopd>\n", m_auction->id(), m_auction->status());
-		printf("<monopd><auctionupdate auctionid=\"%d\" status=\"%d\"/></monopd>\n", m_auction->id(), m_auction->status());
-	}
-	status = m_auction->status();
+	if (m_auction->status() == Auction::Sold) {
+		printf("Game::auctionTimeout sold %d %d\n", m_id, m_auction->status());
 
-	if (status == Auction::Sold || status == Auction::PaymentDue)
-	{
-		printf("Game::auctionTimeout sold||paymentdue %d %d\n", m_id, (int)m_players.size());
+		Player *pBid = m_auction->highBidder();
+		int bid = m_auction->getIntProperty("highbid");
+
+		if (!pBid->payMoney(bid)) {
+			Display display;
+			display.setText("%s has to pay %d. Game paused, %s is not solvent. Player needs to raise %d in cash first.", pBid->getStringProperty("name").c_str(), bid, pBid->getStringProperty("name").c_str(), (bid - pBid->getIntProperty("money")));
+			sendDisplayMsg(&display);
+
+			m_auctionDebt = newDebt(pBid, 0, 0, bid);
+			return 0;
+		}
+
 		completeAuction();
-	}
-	if (status == Auction::PaymentDue)
-		return 1;
-
-	if (status == Auction::Completed)
-	{
-		if (m_pTurn && !clientsMoving() )
-			m_pTurn->endTurn();
-
-		printf("Game::auctionTimeout delAuction %d %d\n", m_id, (int)m_players.size());
-
-		delAuction();
 		return 0;
 	}
+
 	return 4;
 }
 
@@ -902,12 +892,6 @@ Auction *Game::auction()
 	return m_auction;
 }
 
-void Game::delAuction()
-{
-	delete m_auction;
-	m_auction = 0;
-}
-
 // Returns 0 on successful bid, 1 on error.
 int Game::bidInAuction(Player *pInput, char *data)
 {
@@ -925,14 +909,9 @@ int Game::bidInAuction(Player *pInput, char *data)
 		return 1;
 	}
 
-	switch( m_auction->getIntProperty("status") )
-	{
-	case Auction::Sold:
-	case Auction::PaymentDue:
-	case Auction::Completed:
+	if (m_auction->status() == Auction::Sold) {
 		pInput->ioError( "You can no longer bid in auction %d.", auctionId );
 		return 1;
-	default:;
 	}
 
 	if (bid > pInput->assets())
@@ -1109,40 +1088,21 @@ void Game::completeTrade(Trade *trade)
 
 void Game::completeAuction()
 {
-	if (!m_auction || m_auction->status() == Auction::Completed)
+	if (!m_auction || m_auction->status() != Auction::Sold || m_auctionDebt)
 		return;
 
 	printf("Game::completeAuction()\n");
 
 	Player *pBid = m_auction->highBidder();
-	if (!pBid)
-		return;
-
-	int bid = m_auction->getIntProperty("highbid");
-
-	if (m_auction->status() == Auction::Sold)
-	{
-		if (!pBid->payMoney(bid))
-		{
-			Display display;
-			display.setText("%s has to pay %d. Game paused, %s is not solvent. Player needs to raise %d in cash first.", pBid->getStringProperty("name").c_str(), bid, pBid->getStringProperty("name").c_str(), (bid - pBid->getIntProperty("money")));
-			sendDisplayMsg(&display);
-
-			m_auctionDebt = newDebt(pBid, 0, 0, bid);
-			m_auction->setStatus(Auction::PaymentDue);
-			return;
-		}
-	}
-	else if (m_auction->status() == Auction::PaymentDue && m_auctionDebt)
-			return;
-
-	m_auction->setStatus(Auction::Completed);
 	Estate *estate = m_auction->estate();
 	transferEstate(estate, pBid);
 
 	Display display;
-	display.setText("Purchased by %s in an auction for %d.", pBid->getStringProperty("name").c_str(), bid);
+	display.setText("Purchased by %s in an auction for %d.", pBid->getStringProperty("name").c_str(), m_auction->getIntProperty("highbid"));
 	sendDisplayMsg(&display);
+
+	delete m_auction;
+	m_auction = NULL;
 
 	m_pTurn->endTurn();
 }

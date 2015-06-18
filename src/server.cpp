@@ -1023,9 +1023,7 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 	}
 
 	// Auctions restrict movement and stuff.
-	Auction *auction = game->auction();
-	if (auction && auction->status() != Auction::Completed)
-	{
+	if (game->auction()) {
 		switch(data[0])
 			{
 			case 'a':

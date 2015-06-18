@@ -114,7 +114,6 @@ class Game : public GameObject
 		Auction *auction();
 		// Returns 0 on successful bid, 1 on error.
 		int bidInAuction(Player *pInput, char *data);
-		void delAuction();
 
 		void newTrade(Player *pInput, unsigned int playerId);
 		Trade *findTrade(Player *player);
