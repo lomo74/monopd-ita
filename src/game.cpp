@@ -627,10 +627,10 @@ void Game::tokenMovementTimeout()
 
 unsigned int Game::auctionTimeout()
 {
-	printf("Game::auctionTimeout %d %d\n", m_id, m_auction->status());
-
 	if (!m_auction)
 		return 0;
+
+	printf("Game::auctionTimeout %d %d\n", m_id, m_auction->status());
 
 	m_auction->setStatus(m_auction->status() +1);
 	ioWrite("<monopd><auctionupdate auctionid=\"%d\" status=\"%d\"/></monopd>\n", m_auction->id(), m_auction->status());
@@ -1086,6 +1086,21 @@ void Game::completeTrade(Trade *trade)
 			solveDebts(player);
 }
 
+void Game::abortAuction()
+{
+	if (!m_auction)
+		return;
+
+	printf("Game::abortAuction()\n");
+
+	ioWrite("<monopd><auctionupdate auctionid=\"%d\" status=\"%d\"/></monopd>\n", m_auction->id(), Auction::Sold);
+
+	delete m_auction;
+	m_auction = NULL;
+
+	m_pTurn->endTurn();
+}
+
 void Game::completeAuction()
 {
 	if (!m_auction || m_auction->status() != Auction::Sold || m_auctionDebt)
@@ -1411,11 +1426,15 @@ void Game::removePlayer(Player *p)
 	setProperty( "players", m_players.size() );
 	ioInfo("%s left the game.", p->name().c_str());
 
+	// highest bidder might be the player who just left, don't try to be clever
+	// and abort any currently running auction
+	abortAuction();
+
 	// Do bankrupt after player is removed from list, player doesn't need the resulting messages
 	if (m_status != Config)
 		bankruptPlayer(p);
 
-	// If not in Config, canbejoined might become true again
+	// If in Config, canbejoined might become true again
 	else if ( m_players.size() < getBoolProperty("maxplayers") )
 			setBoolProperty("canbejoined", true);
 

@@ -122,6 +122,7 @@ class Game : public GameObject
 		void acceptTrade(Player *pInput, char *);
 		void rejectTrade(Player *pInput, unsigned int tradeId);
 		void completeTrade(Trade *trade);
+		void abortAuction();
 		void completeAuction();
 
 		EstateGroup *newGroup(const std::string &name);
