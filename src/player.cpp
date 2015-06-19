@@ -852,6 +852,16 @@ void Player::updateTradeObject(char *data)
 
 	// NULL player allowed, Trade will delete the component.
 	Player *playerTo = m_game->findPlayer(playerId);
+	if (playerTo) {
+		if (playerTo->getBoolProperty("bankrupt")) {
+			ioError("You cannot trade with bankrupt players.");
+			return;
+		}
+		if (playerTo->getBoolProperty("spectator")) {
+			ioError("You cannot trade with spectators.");
+			return;
+		}
+	}
 
 	trade->updateObject(object, pFrom, playerTo);
 }
@@ -901,10 +911,26 @@ void Player::updateTradeMoney(char *data)
 		ioError("No such playerFromId: %d.", playerFromId);
 		return;
 	}
+	if (pFrom->getBoolProperty("bankrupt")) {
+		ioError("You cannot trade with bankrupt players.");
+		return;
+	}
+	if (pFrom->getBoolProperty("spectator")) {
+		ioError("You cannot trade with spectators.");
+		return;
+	}
 	Player *pTo = m_game->findPlayer(playerToId);
 	if (!pTo)
 	{
 		ioError("No such playerToId: %d.", playerToId);
+		return;
+	}
+	if (pTo->getBoolProperty("bankrupt")) {
+		ioError("You cannot trade with bankrupt players.");
+		return;
+	}
+	if (pTo->getBoolProperty("spectator")) {
+		ioError("You cannot trade with spectators.");
 		return;
 	}
 

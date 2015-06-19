@@ -935,14 +935,20 @@ int Game::bidInAuction(Player *pInput, char *data)
 void Game::newTrade(Player *pInput, unsigned int playerId)
 {
 	Player *player = findPlayer(playerId);
-	if (!player)
-	{
+	if (!player) {
 		pInput->ioError("No such playerId: %d.", playerId);
 		return;
 	}
-	else if (player == pInput)
-	{
+	if (player == pInput) {
 		pInput->ioError("Trading with yourself?");
+		return;
+	}
+	if (player->getBoolProperty("bankrupt")) {
+		pInput->ioError("You cannot trade with bankrupt players.");
+		return;
+	}
+	if (player->getBoolProperty("spectator")) {
+		pInput->ioError("You cannot trade with spectators.");
 		return;
 	}
 
