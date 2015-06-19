@@ -120,7 +120,7 @@ class Game : public GameObject
 		Trade *findTrade(int tradeId);
 		void delTrade(Trade *trade);
 		void acceptTrade(Player *pInput, char *);
-		void rejectTrade(Player *pInput, unsigned int tradeId);
+		void rejectTrade(Player *pInput, unsigned int tradeId, const bool verbose = true);
 		void completeTrade(Trade *trade);
 		void abortAuction();
 		void completeAuction();

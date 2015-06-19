@@ -1022,18 +1022,22 @@ void Game::acceptTrade(Player *pInput, char *data)
 	}
 }
 
-void Game::rejectTrade(Player *pInput, unsigned int tradeId)
+void Game::rejectTrade(Player *pInput, unsigned int tradeId, const bool verbose)
 {
 	Trade *trade = findTrade(tradeId);
 	if (!trade)
 	{
-		pInput->ioError("No such tradeId: %d.", tradeId);
+		if (verbose) {
+			pInput->ioError("No such tradeId: %d.", tradeId);
+		}
 		return;
 	}
 
 	if ( !(trade->hasPlayer(pInput)) )
 	{
-		pInput->ioError("You are not part of trade %d.", tradeId);
+		if (verbose) {
+			pInput->ioError("You are not part of trade %d.", tradeId);
+		}
 		return;
 	}
 
@@ -1423,6 +1427,8 @@ void Game::removePlayer(Player *p)
 			m_players.erase(it);
 			break;
 		}
+
+	// Do everything after player is removed from list, player doesn't need the resulting messages
 	setProperty( "players", m_players.size() );
 	ioInfo("%s left the game.", p->name().c_str());
 
@@ -1430,7 +1436,18 @@ void Game::removePlayer(Player *p)
 	// and abort any currently running auction
 	abortAuction();
 
-	// Do bankrupt after player is removed from list, player doesn't need the resulting messages
+	// same for trades, try to abort any currently running trade
+	for (std::vector<Trade *>::iterator it = m_trades.begin(); it != m_trades.end() && (*it);) {
+		unsigned int prevsize = m_trades.size();
+		rejectTrade(p, (*it)->id(), false);
+		if (prevsize != m_trades.size()) {
+			it = m_trades.begin();
+			continue;
+		}
+		++it;
+	}
+
+	// bankrupt player
 	if (m_status != Config)
 		bankruptPlayer(p);
 
