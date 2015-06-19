@@ -1451,13 +1451,14 @@ void Game::removePlayer(Player *p)
 		++it;
 	}
 
-	// bankrupt player
-	if (m_status != Config)
-		bankruptPlayer(p);
-
 	// If in Config, canbejoined might become true again
-	else if ( m_players.size() < getBoolProperty("maxplayers") )
+	if (m_status == Config) {
+		if ( m_players.size() < getBoolProperty("maxplayers") )
 			setBoolProperty("canbejoined", true);
+	}
+	else if (m_status != End) {
+		bankruptPlayer(p);
+	}
 
 	p->setGame(0);
 	removeFromScope(p);
