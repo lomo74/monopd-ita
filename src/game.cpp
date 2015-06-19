@@ -1417,8 +1417,12 @@ Player *Game::findPlayer(int playerId)
 
 void Game::removePlayer(Player *p)
 {
-	if (p->getBoolProperty("hasturn"))
+	if (p->getBoolProperty("hasturn")) {
+		if (clientsMoving()) {
+			tokenMovementTimeout();
+		}
 		updateTurn();
+	}
 
 	// Find player and erase from std::vector
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end(); ++it)
