@@ -50,20 +50,7 @@ int main(int argc, char **argv)
 	/* Indicate to systemd that we are ready to answer requests. */
 	server->updateSystemdStatus();
 
-	for(;;)
-	{
-		// Check for network events
-		listener->checkActivity();
-
-		// Check for scheduled events in the timer
-		int fd = server->processEvents();
-		if(fd != -1)
-		{
-			Socket *delSocket = listener->findSocket(fd);
-			if (delSocket)
-				delSocket->setStatus(Socket::Close);
-		}
-	}
+	server->run();
 
 	// Clean up memory
 	delete server;

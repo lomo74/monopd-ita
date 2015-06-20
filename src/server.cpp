@@ -671,6 +671,22 @@ void MonopdServer::loadGameTemplates()
 	closedir(dirp);
 }
 
+void MonopdServer::run()
+{
+	while(1) {
+		// Check for network events
+		m_listener->checkActivity();
+
+		// Check for scheduled events in the timer
+		int fd = processEvents();
+		if (fd != -1) {
+			Socket *delSocket = m_listener->findSocket(fd);
+			if (delSocket)
+				delSocket->setStatus(Socket::Close);
+		}
+	}
+}
+
 void MonopdServer::initMetaserverEvent()
 {
 	if (!m_useMetaserver)

@@ -52,6 +52,7 @@ public:
 	Player *findPlayer(Socket *socket);
 	void delPlayer(Player *player);
 
+	void run();
 	void initMetaserverEvent();
 	void welcomeNew(Socket *socket);
 	void welcomeMetaserver(Socket *socket);
