@@ -59,6 +59,10 @@ MonopdServer::MonopdServer(int argc, char **argv) : GameObject(0)
 	m_metaserverAddrinfo = NULL;
 	m_metaserverBusy = false;
 
+	openlog("monopd", LOG_PID, LOG_DAEMON);
+	syslog(LOG_NOTICE, "monopd %s started", VERSION);
+
+	srand((unsigned int)time(0));
 	loadConfig();
 	loadGameTemplates();
 

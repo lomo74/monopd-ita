@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <syslog.h>
+#include <signal.h>
 
 #if USE_SYSTEMD_DAEMON
 #include <systemd/sd-daemon.h>
@@ -53,6 +54,8 @@
 Listener::Listener(MonopdServer *server, const int port)
 {
 	m_server = server;
+
+	signal(SIGPIPE, SIG_IGN);
 
 #if USE_SYSTEMD_DAEMON
 	int socket_count = sd_listen_fds(0);

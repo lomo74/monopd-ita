@@ -31,12 +31,6 @@
 
 int main(int argc, char **argv)
 {
-	srand( (unsigned) time(0) );
-	signal( SIGPIPE, SIG_IGN );
-
-	openlog( "monopd", LOG_PID, LOG_DAEMON );
-	syslog( LOG_NOTICE, "monopd %s started", VERSION );
-
 	MonopdServer *server = new MonopdServer(argc, argv);
 
 	// close stdin, stdout, stderr
