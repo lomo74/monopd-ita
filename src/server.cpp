@@ -1102,7 +1102,13 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 			{
 				case 'r':
 					pInput->rollDice();
-					Event *event = newEvent(Event::TokenMovementTimeout, game);
+					// A TokenMovementTimeout event may exist if a player disconnected
+					// while moving, destroy previous event if necessary
+					Event *event = findEvent(game, Event::TokenMovementTimeout);
+					if (event) {
+						delEvent(event);
+					}
+					event = newEvent(Event::TokenMovementTimeout, game);
 					event->setLaunchTime(time(0) + 10);
 					return;
 			}
