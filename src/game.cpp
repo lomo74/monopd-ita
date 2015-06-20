@@ -1446,17 +1446,6 @@ void Game::removePlayer(Player *p)
 	// and abort any currently running auction
 	abortAuction();
 
-	// same for trades, try to abort any currently running trade
-	for (std::vector<Trade *>::iterator it = m_trades.begin(); it != m_trades.end() && (*it);) {
-		unsigned int prevsize = m_trades.size();
-		rejectTrade(p, (*it)->id(), false);
-		if (prevsize != m_trades.size()) {
-			it = m_trades.begin();
-			continue;
-		}
-		++it;
-	}
-
 	// If in Config, canbejoined might become true again
 	if (m_status == Config) {
 		if ( m_players.size() < getBoolProperty("maxplayers") )
@@ -2006,6 +1995,17 @@ void Game::bankruptPlayer(Player *pBroke)
 {
 	if (pBroke->getBoolProperty("bankrupt") || pBroke->getBoolProperty("spectator"))
 		return;
+
+	// abort any trade where this player is participating
+	for (std::vector<Trade *>::iterator it = m_trades.begin(); it != m_trades.end() && (*it);) {
+		unsigned int prevsize = m_trades.size();
+		rejectTrade(pBroke, (*it)->id(), false);
+		if (prevsize != m_trades.size()) {
+			it = m_trades.begin();
+			continue;
+		}
+		++it;
+	}
 
 	// Set bankrupt flag
 	pBroke->setBoolProperty("bankrupt", true);
