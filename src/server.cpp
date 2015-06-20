@@ -67,6 +67,15 @@ MonopdServer::MonopdServer(int argc, char **argv) : GameObject(0)
 	}
 
 	m_listener = new Listener(this, m_port);
+
+	if (m_useMetaserver) {
+		registerMetaserver();
+
+		// Register Metaserver event
+		m_metaserverEvent = newEvent(Event::Metaserver);
+		m_metaserverEvent->setLaunchTime(METASERVER_PERIOD);
+		m_metaserverEvent->setFrequency(METASERVER_PERIOD);
+	}
 }
 
 MonopdServer::~MonopdServer()
@@ -682,17 +691,6 @@ void MonopdServer::run()
 				delSocket->setStatus(Socket::Close);
 		}
 	}
-}
-
-void MonopdServer::initMetaserverEvent()
-{
-	if (!m_useMetaserver)
-		return;
-
-	// Register Metaserver event
-	m_metaserverEvent = newEvent(Event::Metaserver);
-	m_metaserverEvent->setLaunchTime(time(0));
-	m_metaserverEvent->setFrequency(METASERVER_PERIOD);
 }
 
 void MonopdServer::welcomeNew(Socket *socket)
