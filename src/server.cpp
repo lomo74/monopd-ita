@@ -94,13 +94,8 @@ MonopdServer::MonopdServer(int argc, char **argv) : GameObject(0)
 		// Check for network events
 		m_listener->checkActivity();
 
-		// Check for scheduled events in the timer
-		int fd = processEvents();
-		if (fd != -1) {
-			Socket *delSocket = m_listener->findSocket(fd);
-			if (delSocket)
-				delSocket->setStatus(Socket::Close);
-		}
+		// Check for scheduled events
+		processEvents();
 	}
 }
 
@@ -483,18 +478,19 @@ void MonopdServer::closedSocket(Socket *socket)
 	event->setObject( dynamic_cast<GameObject *> (pInput) );
 }
 
-int MonopdServer::processEvents()
+void MonopdServer::processEvents()
 {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 
-	int returnvalue = -1;
 	Event *event = 0;
 	for (std::vector<Event *>::iterator it = m_events.begin() ; it != m_events.end() && (event = *it) ; ++it)
 	{
 		if (tv.tv_sec >= event->launchTime())
 		{
 			Game *game = event->game();
+			Socket *delSocket;
+
 			switch(event->type())
 			{
 			case Event::TokenMovementTimeout:
@@ -510,7 +506,10 @@ int MonopdServer::processEvents()
 					event->setFrequency( 0 );
 				break;
 			case Event::SocketTimeout:
-				returnvalue = event->id();
+				delSocket = m_listener->findSocket(event->id());
+				if (delSocket) {
+					delSocket->setStatus(Socket::Close);
+				}
 				break;
 			case Event::AuctionTimeout:
 				if (game)
@@ -572,7 +571,6 @@ int MonopdServer::processEvents()
 		}
 	}
 	sendXMLUpdates();
-	return returnvalue;
 }
 
 void MonopdServer::registerMetaserver()
