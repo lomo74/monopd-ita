@@ -67,15 +67,6 @@ MonopdServer::MonopdServer(int argc, char **argv) : GameObject(0)
 	}
 
 	m_listener = new Listener(this, m_port);
-
-	if (m_useMetaserver) {
-		registerMetaserver();
-
-		// Register Metaserver event
-		m_metaserverEvent = newEvent(Event::Metaserver);
-		m_metaserverEvent->setLaunchTime(METASERVER_PERIOD);
-		m_metaserverEvent->setFrequency(METASERVER_PERIOD);
-	}
 }
 
 MonopdServer::~MonopdServer()
@@ -85,6 +76,31 @@ MonopdServer::~MonopdServer()
 	while (!m_games.empty()) { delete *m_games.begin(); m_games.erase(m_games.begin()); }
 	while (!m_gameConfigs.empty()) { delete *m_gameConfigs.begin(); m_gameConfigs.erase(m_gameConfigs.begin()); }
 	while (!m_players.empty()) { delete *m_players.begin(); m_players.erase(m_players.begin()); }
+}
+
+void MonopdServer::run()
+{
+	if (m_useMetaserver) {
+		registerMetaserver();
+
+		// Register Metaserver event
+		m_metaserverEvent = newEvent(Event::Metaserver);
+		m_metaserverEvent->setLaunchTime(METASERVER_PERIOD);
+		m_metaserverEvent->setFrequency(METASERVER_PERIOD);
+	}
+
+	while(1) {
+		// Check for network events
+		m_listener->checkActivity();
+
+		// Check for scheduled events in the timer
+		int fd = processEvents();
+		if (fd != -1) {
+			Socket *delSocket = m_listener->findSocket(fd);
+			if (delSocket)
+				delSocket->setStatus(Socket::Close);
+		}
+	}
 }
 
 Event *MonopdServer::newEvent(unsigned int eventType, Game *game, int id)
@@ -675,22 +691,6 @@ void MonopdServer::loadGameTemplates()
 		}
 	}
 	closedir(dirp);
-}
-
-void MonopdServer::run()
-{
-	while(1) {
-		// Check for network events
-		m_listener->checkActivity();
-
-		// Check for scheduled events in the timer
-		int fd = processEvents();
-		if (fd != -1) {
-			Socket *delSocket = m_listener->findSocket(fd);
-			if (delSocket)
-				delSocket->setStatus(Socket::Close);
-		}
-	}
 }
 
 void MonopdServer::welcomeNew(Socket *socket)
