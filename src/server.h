@@ -59,6 +59,7 @@ private:
 	Event *findEvent(Game *game, unsigned int eventType);
 	Event *findEvent(Game *game, GameObject *object);
 	void delEvent(Event *event);
+	int timeleftEvent();
 	void processEvents();
 	Game *findGame(int gameId);
 	GameConfig *newGameConfig(const std::string id, const std::string name, const std::string description);

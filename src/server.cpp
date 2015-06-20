@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #include <string>
 
@@ -476,6 +477,37 @@ void MonopdServer::closedSocket(Socket *socket)
 	Event *event = newEvent( Event::PlayerTimeout, game );
 	event->setLaunchTime(time(0) + timeout);
 	event->setObject( dynamic_cast<GameObject *> (pInput) );
+}
+
+int MonopdServer::timeleftEvent()
+{
+	int timeleft = INT_MAX;
+	struct timeval timenow;
+	gettimeofday(&timenow, NULL);
+
+	Event *event = NULL;
+	for (std::vector<Event *>::iterator it = m_events.begin() ; it != m_events.end() && (event = *it) ; ++it) {
+		struct timeval timevent, timeres;
+		int timems;
+
+		timevent.tv_usec = 0;
+		timevent.tv_sec = event->launchTime();
+
+		if (timercmp(&timenow, &timevent, >)) {
+			return 0;
+		}
+
+		timersub(&timevent, &timenow, &timeres);
+		timems = timeres.tv_sec*1000 + timeres.tv_usec/1000;
+		if (timeleft > timems) {
+			timeleft = timems;
+		}
+	}
+	if (!event) {
+		return -1;
+	}
+
+	return timeleft;
 }
 
 void MonopdServer::processEvents()
