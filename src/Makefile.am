@@ -4,7 +4,7 @@ bin_PROGRAMS = monopd
 
 monopd_SOURCES = auction.cpp card.cpp cardgroup.cpp debt.cpp display.cpp \
 	estate.cpp estategroup.cpp event.cpp game.cpp gameconfig.cpp \
-	gameobject.cpp gameproperty.cpp io.cpp main.cpp player.cpp \
+	gameobject.cpp gameproperty.cpp io.cpp player.cpp \
 	server.cpp trade.cpp tradecomponent.cpp socket.cpp listener.cpp \
 	listenport.cpp
 

@@ -47,6 +47,12 @@
 
 #define METASERVER_PERIOD 180
 
+int main(int argc, char **argv)
+{
+	MonopdServer server(argc, argv);
+	return 0;
+}
+
 MonopdServer::MonopdServer(int argc, char **argv) : GameObject(0)
 {
 	m_nextGameId = m_nextPlayerId = 1;
