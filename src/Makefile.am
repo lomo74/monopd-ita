@@ -10,7 +10,7 @@ monopd_SOURCES = auction.cpp card.cpp cardgroup.cpp debt.cpp display.cpp \
 
 noinst_HEADERS = auction.h card.h cardgroup.h debt.h display.h estate.h \
 	estategroup.h event.h game.h gameconfig.h gameobject.h \
-	gameproperty.h io.h main.h player.h server.h trade.h \
+	gameproperty.h io.h player.h server.h trade.h \
 	tradecomponent.h socket.h listener.h listenport.h
 
 monopd_LDADD = $(SYSTEMD_DAEMON_LIBS) -lmuparser

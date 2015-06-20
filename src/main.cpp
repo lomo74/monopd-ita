@@ -27,82 +27,7 @@
 #include "config.h"
 #include "listener.h"
 #include "socket.h"
-#include "main.h"
 #include "server.h"
-
-#if USE_SYSTEMD_DAEMON
-#include <systemd/sd-daemon.h>
-#endif /* USE_SYSTEMD_DAEMON */
-
-MonopdListener::MonopdListener( MonopdServer *server )
- :	Listener(),
- 	m_server( server )
-{
-#if USE_SYSTEMD_DAEMON
-	int socket_count = sd_listen_fds(0);
-	if (socket_count > 0) {
-		for (int fd = SD_LISTEN_FDS_START; socket_count--; fd++) {
-			addListenFd(fd);
-		}
-		syslog( LOG_NOTICE, "listener: systemd");
-	} else
-#endif /* USE_SYSTEMD_DAEMON */
-
-	if ( addListenPort( server->port() ) == -1 )
-	{
-		syslog( LOG_ERR, "could not bind port %d, exiting", server->port() );
-		exit(1);
-	}
-	else
-		syslog( LOG_NOTICE, "listener: port=[%d]", server->port() );
-}
-
-void MonopdListener::socketHandler( Socket *socket, const std::string &data )
-{
-	switch (socket->type()) {
-
-	case Socket::Player:
-		switch (socket->status()) {
-
-		case Socket::New:
-			syslog( LOG_INFO, "connection: fd=[%d], ip=[%s]", socket->fd(), socket->ipAddr().c_str() );
-			m_server->welcomeNew( socket );
-			break;
-
-		case Socket::Ok:
-			m_server->processInput( socket, data );
-			break;
-
-		case Socket::Close:
-			syslog( LOG_INFO, "disconnect: fd=[%d], ip=[%s]", socket->fd(), socket->ipAddr().c_str() );
-			m_server->closedSocket( socket );
-			break;
-
-		case Socket::Connect:
-		case Socket::ConnectFailed:
-			break;
-		}
-		break;
-
-	case Socket::Metaserver:
-		switch (socket->status()) {
-
-		case Socket::New:
-			m_server->welcomeMetaserver( socket );
-			break;
-
-		case Socket::Close:
-		case Socket::ConnectFailed:
-			m_server->closedMetaserver(socket);
-			break;
-
-		case Socket::Connect:
-		case Socket::Ok:
-			break;
-		}
-		break;
-	}
-}
 
 int main(int argc, char **argv)
 {
@@ -116,7 +41,7 @@ int main(int argc, char **argv)
 	if ( argc > 1 )
 		server->setPort( atoi(argv[1]) );
 
-	MonopdListener *listener = new MonopdListener( server );
+	Listener *listener = new Listener( server );
 	server->setListener(listener);
 
 	// close stdin, stdout, stderr

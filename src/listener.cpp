@@ -39,14 +39,38 @@
 #include <fcntl.h>
 #include <syslog.h>
 
+#if USE_SYSTEMD_DAEMON
+#include <systemd/sd-daemon.h>
+#endif /* USE_SYSTEMD_DAEMON */
+
 #include "listener.h"
 #include "listenport.h"
 #include "socket.h"
+#include "server.h"
 
 #define	MAXLINE	1024
 
-Listener::Listener()
+Listener::Listener(MonopdServer *server)
 {
+	m_server = server;
+
+#if USE_SYSTEMD_DAEMON
+	int socket_count = sd_listen_fds(0);
+	if (socket_count > 0) {
+		for (int fd = SD_LISTEN_FDS_START; socket_count--; fd++) {
+			addListenFd(fd);
+		}
+		syslog( LOG_NOTICE, "listener: systemd");
+	} else
+#endif /* USE_SYSTEMD_DAEMON */
+
+	if ( addListenPort( m_server->port() ) == -1 )
+	{
+		syslog( LOG_ERR, "could not bind port %d, exiting", m_server->port() );
+		exit(1);
+	}
+	else
+		syslog( LOG_NOTICE, "listener: port=[%d]", m_server->port() );
 }
 
 Listener::~Listener()
@@ -388,6 +412,47 @@ Socket *Listener::findSocket(int fd)
 
 void Listener::socketHandler( Socket *socket, const std::string &data )
 {
-	(void)socket;
-	(void)data;
+	switch (socket->type()) {
+
+	case Socket::Player:
+		switch (socket->status()) {
+
+		case Socket::New:
+			syslog( LOG_INFO, "connection: fd=[%d], ip=[%s]", socket->fd(), socket->ipAddr().c_str() );
+			m_server->welcomeNew( socket );
+			break;
+
+		case Socket::Ok:
+			m_server->processInput( socket, data );
+			break;
+
+		case Socket::Close:
+			syslog( LOG_INFO, "disconnect: fd=[%d], ip=[%s]", socket->fd(), socket->ipAddr().c_str() );
+			m_server->closedSocket( socket );
+			break;
+
+		case Socket::Connect:
+		case Socket::ConnectFailed:
+			break;
+		}
+		break;
+
+	case Socket::Metaserver:
+		switch (socket->status()) {
+
+		case Socket::New:
+			m_server->welcomeMetaserver( socket );
+			break;
+
+		case Socket::Close:
+		case Socket::ConnectFailed:
+			m_server->closedMetaserver(socket);
+			break;
+
+		case Socket::Connect:
+		case Socket::Ok:
+			break;
+		}
+		break;
+	}
 }

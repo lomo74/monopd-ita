@@ -34,13 +34,14 @@
 
 class ListenPort;
 class Socket;
+class MonopdServer;
 
 #define	LISTENQ	1024
 
 class Listener
 {
 public:
-	Listener();
+	Listener(MonopdServer *server);
 	virtual ~Listener();
 
 	Socket *findSocket(int fd);
@@ -70,6 +71,8 @@ private:
 
 	std::vector<Socket *> m_sockets;
 	std::vector<ListenPort *> m_listenPorts;
+
+	MonopdServer *m_server;
 };
 
 #endif
