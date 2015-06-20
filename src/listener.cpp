@@ -50,7 +50,7 @@
 
 #define	MAXLINE	1024
 
-Listener::Listener(MonopdServer *server)
+Listener::Listener(MonopdServer *server, const int port)
 {
 	m_server = server;
 
@@ -60,17 +60,17 @@ Listener::Listener(MonopdServer *server)
 		for (int fd = SD_LISTEN_FDS_START; socket_count--; fd++) {
 			addListenFd(fd);
 		}
-		syslog( LOG_NOTICE, "listener: systemd");
+		syslog(LOG_NOTICE, "listener: systemd");
 	} else
 #endif /* USE_SYSTEMD_DAEMON */
 
-	if ( addListenPort( m_server->port() ) == -1 )
+	if ( addListenPort(port) == -1 )
 	{
-		syslog( LOG_ERR, "could not bind port %d, exiting", m_server->port() );
+		syslog(LOG_ERR, "could not bind port %d, exiting", port);
 		exit(1);
 	}
 	else
-		syslog( LOG_NOTICE, "listener: port=[%d]", m_server->port() );
+		syslog(LOG_NOTICE, "listener: port=[%d]", port);
 }
 
 Listener::~Listener()

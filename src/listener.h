@@ -41,7 +41,7 @@ class MonopdServer;
 class Listener
 {
 public:
-	Listener(MonopdServer *server);
+	Listener(MonopdServer *server, const int port);
 	virtual ~Listener();
 
 	Socket *findSocket(int fd);
