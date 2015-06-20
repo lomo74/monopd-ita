@@ -54,11 +54,12 @@ public:
 	int status;
 
 private:
-	void addPlayer(Player *player, bool sendComponents = false);
+	void addPlayer(Player *player);
 	void resetAcceptFlags();
 
 	void delComponent(TradeComponent *tc);
 
+	Player *m_actor;
 	std::vector<TradeComponent *> m_components;
 	std::vector<Player *> m_players;
   	std::map<Player *, bool> m_acceptMap;

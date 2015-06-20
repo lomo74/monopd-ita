@@ -26,12 +26,11 @@ Trade::Trade(Player *pFrom, Player *pTo, int id) : GameObject(id)
 {
 	status = Setup;
 	setProperty("revision", 1, this); // scope is trade once used
+	m_actor = pFrom;
 
-	// Need to write this to players individually, they are not in trade yet.
-	pFrom->ioWrite("<monopd><tradeupdate type=\"new\" tradeid=\"%d\" actor=\"%d\" revision=\"%d\"></tradeupdate></monopd>\n", m_id, pFrom->id(), getIntProperty("revision"));
-	pTo->ioWrite("<monopd><tradeupdate type=\"new\" tradeid=\"%d\" actor=\"%d\" revision=\"%d\"></tradeupdate></monopd>\n", m_id, pFrom->id(), getIntProperty("revision"));
 	addPlayer(pFrom);
 	addPlayer(pTo);
+	resetAcceptFlags();
 }
 
 Trade::~Trade()
@@ -111,9 +110,9 @@ void Trade::updateObject(GameObject *gameObject, Player *pFrom, Player *targetPl
 
 			// Make sure participating players are participating
 			if (!hasPlayer(pFrom))
-				addPlayer(pFrom, true);
+				addPlayer(pFrom);
 			if (!hasPlayer(targetPlayer))
-				addPlayer(targetPlayer, true);
+				addPlayer(targetPlayer);
 
 			resetAcceptFlags();
 			return;
@@ -134,9 +133,9 @@ void Trade::updateObject(GameObject *gameObject, Player *pFrom, Player *targetPl
 
 	// Make sure participating players are participating
 	if (!hasPlayer(pFrom))
-		addPlayer(pFrom, true);
+		addPlayer(pFrom);
 	if (!hasPlayer(targetPlayer))
-		addPlayer(targetPlayer, true);
+		addPlayer(targetPlayer);
 
 	resetAcceptFlags();
 }
@@ -200,18 +199,16 @@ void Trade::delComponent(TradeComponent *tc)
 		}
 }
 
-void Trade::addPlayer(Player *player, bool sendComponents)
+void Trade::addPlayer(Player *player)
 {
 	m_players.push_back(player);
 	m_acceptMap[player] = false;
-	ioWrite("<monopd><tradeupdate tradeid=\"%d\"><tradeplayer playerid=\"%d\" accept=\"0\"/></tradeupdate></monopd>\n", m_id, player->id());
 
-	if (sendComponents)
-	{
-		TradeComponent *tc = 0;
-		for(std::vector<TradeComponent *>::iterator it = m_components.begin(); it != m_components.end() && (tc = *it) ; ++it)
-			writeComponentMsg(tc, player);
-	}
+	player->ioWrite("<monopd><tradeupdate type=\"new\" tradeid=\"%d\" actor=\"%d\" revision=\"%d\"/></monopd>\n", m_id, m_actor->id(), getIntProperty("revision"));
+
+	TradeComponent *tc = 0;
+	for(std::vector<TradeComponent *>::iterator it = m_components.begin(); it != m_components.end() && (tc = *it) ; ++it)
+		writeComponentMsg(tc, player);
 }
 
 void Trade::resetAcceptFlags()
