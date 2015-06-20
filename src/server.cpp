@@ -47,7 +47,7 @@
 
 #define METASERVER_PERIOD 180
 
-MonopdServer::MonopdServer() : GameObject(0)
+MonopdServer::MonopdServer(int argc, char **argv) : GameObject(0)
 {
 	m_nextGameId = m_nextPlayerId = 1;
 	m_port = 1234;
@@ -61,6 +61,10 @@ MonopdServer::MonopdServer() : GameObject(0)
 
 	loadConfig();
 	loadGameTemplates();
+
+	if (argc > 1) {
+		setPort(atoi(argv[1]));
+	}
 }
 
 void MonopdServer::setPort(int port)

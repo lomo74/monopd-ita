@@ -36,7 +36,7 @@ class Socket;
 class MonopdServer : public GameObject
 {
 public:
-	MonopdServer();
+	MonopdServer(int argc, char **argv);
 	~MonopdServer();
 
 	void setListener(Listener *listener) { m_listener = listener; }

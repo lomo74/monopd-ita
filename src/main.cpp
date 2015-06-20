@@ -37,9 +37,7 @@ int main(int argc, char **argv)
 	openlog( "monopd", LOG_PID, LOG_DAEMON );
 	syslog( LOG_NOTICE, "monopd %s started", VERSION );
 
-	MonopdServer *server = new MonopdServer();
-	if ( argc > 1 )
-		server->setPort( atoi(argv[1]) );
+	MonopdServer *server = new MonopdServer(argc, argv);
 
 	Listener *listener = new Listener( server );
 	server->setListener(listener);
