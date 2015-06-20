@@ -93,8 +93,7 @@ MonopdServer::MonopdServer(int argc, char **argv) : GameObject(0)
 
 	while(1) {
 		// Check for network events
-		m_listener->checkActivity();
-
+		m_listener->checkActivity(timeleftEvent());
 		// Check for scheduled events
 		processEvents();
 	}

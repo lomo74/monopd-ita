@@ -108,7 +108,7 @@ int Listener::addListenFd(const int fd) {
 	return 0;
 }
 
-void Listener::checkActivity()
+void Listener::checkActivity(int timeout)
 {
 	// Notify socket close events and delete them.
 	for ( std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it) ; )
@@ -164,12 +164,16 @@ void Listener::checkActivity()
 		return;
 	}
 
-	struct timeval tv;
-	tv.tv_sec = 0;
-	tv.tv_usec = 100000; // perhaps decrease with increasing amount of sockets, or make this configurable?
+	struct timeval tv, *tvp = NULL;
+	if (timeout >= 0) {
+		// timeout is in ms
+		tv.tv_sec = timeout/1000;
+		tv.tv_usec = timeout*1000;
+		tvp = &tv;
+	}
 
 	// Check filedescriptors for input.
-	if ( (select(highestFd+1, &m_readfdset, &m_writefdset, NULL, &tv)) <= 0 )
+	if ( (select(highestFd+1, &m_readfdset, &m_writefdset, NULL, tvp)) <= 0 )
 		return;
 
 	// Check for new connections
