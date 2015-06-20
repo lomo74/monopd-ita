@@ -39,9 +39,6 @@ public:
 	MonopdServer(int argc, char **argv);
 	~MonopdServer();
 
-	void setListener(Listener *listener) { m_listener = listener; }
-	Listener *listener() { return m_listener; }
-
 	void setPort(int port);
 	int port() { return m_port; }
 

@@ -39,9 +39,6 @@ int main(int argc, char **argv)
 
 	MonopdServer *server = new MonopdServer(argc, argv);
 
-	Listener *listener = new Listener( server );
-	server->setListener(listener);
-
 	// close stdin, stdout, stderr
 	// close(0); close(1); close(2);
 
@@ -54,7 +51,6 @@ int main(int argc, char **argv)
 
 	// Clean up memory
 	delete server;
-	delete listener;
 
 	return 0;
 }

@@ -65,6 +65,8 @@ MonopdServer::MonopdServer(int argc, char **argv) : GameObject(0)
 	if (argc > 1) {
 		setPort(atoi(argv[1]));
 	}
+
+	m_listener = new Listener(this);
 }
 
 void MonopdServer::setPort(int port)
