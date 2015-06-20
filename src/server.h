@@ -49,7 +49,6 @@ public:
 	void welcomeNew(Socket *socket);
 	void welcomeMetaserver(Socket *socket);
 	void closedMetaserver(Socket *socket);
-	void processEvents();
 	void processInput(Socket *socket, const std::string data);
 
 private:
@@ -60,6 +59,7 @@ private:
 	Event *findEvent(Game *game, unsigned int eventType);
 	Event *findEvent(Game *game, GameObject *object);
 	void delEvent(Event *event);
+	void processEvents();
 	Game *findGame(int gameId);
 	GameConfig *newGameConfig(const std::string id, const std::string name, const std::string description);
 	void delGameConfig(GameConfig *gameConfig);
