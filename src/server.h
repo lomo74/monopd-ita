@@ -38,7 +38,6 @@ class MonopdServer : public GameObject
 public:
 	MonopdServer(int argc, char **argv);
 	~MonopdServer();
-	void run();
 
 	void closedSocket(Socket *socket);
 	Game *findGame(Player *player);

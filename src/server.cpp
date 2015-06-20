@@ -71,19 +71,7 @@ MonopdServer::MonopdServer(int argc, char **argv) : GameObject(0)
 	}
 
 	m_listener = new Listener(this, m_port);
-}
 
-MonopdServer::~MonopdServer()
-{
-	// We are responsible for the objects allocated
-	while (!m_events.empty()) { delete *m_events.begin(); m_events.erase(m_events.begin()); }
-	while (!m_games.empty()) { delete *m_games.begin(); m_games.erase(m_games.begin()); }
-	while (!m_gameConfigs.empty()) { delete *m_gameConfigs.begin(); m_gameConfigs.erase(m_gameConfigs.begin()); }
-	while (!m_players.empty()) { delete *m_players.begin(); m_players.erase(m_players.begin()); }
-}
-
-void MonopdServer::run()
-{
 	// Indicate to systemd that we are ready to answer requests
 	updateSystemdStatus();
 
@@ -108,6 +96,15 @@ void MonopdServer::run()
 				delSocket->setStatus(Socket::Close);
 		}
 	}
+}
+
+MonopdServer::~MonopdServer()
+{
+	// We are responsible for the objects allocated
+	while (!m_events.empty()) { delete *m_events.begin(); m_events.erase(m_events.begin()); }
+	while (!m_games.empty()) { delete *m_games.begin(); m_games.erase(m_games.begin()); }
+	while (!m_gameConfigs.empty()) { delete *m_gameConfigs.begin(); m_gameConfigs.erase(m_gameConfigs.begin()); }
+	while (!m_players.empty()) { delete *m_players.begin(); m_players.erase(m_players.begin()); }
 }
 
 Event *MonopdServer::newEvent(unsigned int eventType, Game *game, int id)
