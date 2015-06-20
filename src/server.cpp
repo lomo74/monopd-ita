@@ -1054,6 +1054,8 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 	{
 		if(pInput->getBoolProperty("can_buyestate"))
 		{
+			Event *event;
+
 			switch(data[0])
 			{
 			case 'e':
@@ -1064,6 +1066,12 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 					return;
 		        case 'a':
 					game->newAuction(pInput);
+					// A AuctionTimeout event may exist if a player disconnected
+					// while an auction was in progress, destroy previous event if necessary
+					event = findEvent(game, Event::AuctionTimeout);
+					if (event) {
+						delEvent(event);
+					}
 					return;
 				default:
 					pInput->ioNoSuchCmd();
