@@ -42,9 +42,6 @@ int main(int argc, char **argv)
 	// close stdin, stdout, stderr
 	// close(0); close(1); close(2);
 
-	/* Indicate to systemd that we are ready to answer requests. */
-	server->updateSystemdStatus();
-
 	server->run();
 
 	// Clean up memory

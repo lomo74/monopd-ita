@@ -52,9 +52,10 @@ public:
 	void closedMetaserver(Socket *socket);
 	int processEvents(); /* returns -1 or socket fd in case of socket timeout */
 	void processInput(Socket *socket, const std::string data);
-	void updateSystemdStatus();
 
 private:
+	void updateSystemdStatus();
+
 	Event *newEvent(unsigned int eventType, Game *game = 0, int id = 0);
 	Event *findEvent(Auction *auction);
 	Event *findEvent(Game *game, unsigned int eventType);

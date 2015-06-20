@@ -80,6 +80,9 @@ MonopdServer::~MonopdServer()
 
 void MonopdServer::run()
 {
+	// Indicate to systemd that we are ready to answer requests
+	updateSystemdStatus();
+
 	if (m_useMetaserver) {
 		registerMetaserver();
 
