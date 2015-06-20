@@ -87,7 +87,7 @@ MonopdServer::MonopdServer(int argc, char **argv) : GameObject(0)
 
 		// Register Metaserver event
 		m_metaserverEvent = newEvent(Event::Metaserver);
-		m_metaserverEvent->setLaunchTime(METASERVER_PERIOD);
+		m_metaserverEvent->setLaunchTime(time(0) + METASERVER_PERIOD);
 		m_metaserverEvent->setFrequency(METASERVER_PERIOD);
 	}
 
