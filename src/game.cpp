@@ -1442,10 +1442,6 @@ void Game::removePlayer(Player *p)
 	setProperty( "players", m_players.size() );
 	ioInfo("%s left the game.", p->name().c_str());
 
-	// highest bidder might be the player who just left, don't try to be clever
-	// and abort any currently running auction
-	abortAuction();
-
 	// If in Config, canbejoined might become true again
 	if (m_status == Config) {
 		if ( m_players.size() < getBoolProperty("maxplayers") )
@@ -2007,6 +2003,11 @@ void Game::bankruptPlayer(Player *pBroke)
 		++it;
 	}
 
+	// highest bidder might be the player who just left
+	if (m_auction && m_auction->highBidder() == pBroke) {
+		abortAuction();
+	}
+
 	// Set bankrupt flag
 	pBroke->setBoolProperty("bankrupt", true);
 
@@ -2044,6 +2045,9 @@ void Game::bankruptPlayer(Player *pBroke)
 
 	if (activePlayers == 1)
 	{
+		// a user who disconnect might end the game while an auction was running
+		abortAuction();
+
 		m_status = End;
 		syslog(LOG_INFO, "game %d ended: %s wins with a fortune of %d.", m_id, m_pWinner->name().c_str(), m_pWinner->assets());
 
