@@ -515,7 +515,7 @@ void MonopdServer::processEvents()
 	gettimeofday(&tv, NULL);
 
 	Event *event = 0;
-	for (std::vector<Event *>::iterator it = m_events.begin() ; it != m_events.end() && (event = *it) ; ++it)
+	for (std::vector<Event *>::iterator it = m_events.begin() ; it != m_events.end() && (event = *it) ; )
 	{
 		if (tv.tv_sec >= event->launchTime())
 		{
@@ -585,21 +585,24 @@ void MonopdServer::processEvents()
 				break;
 			}
 
-			if ( event )
-			{
-				// Delete event from event list
-				int frequency = event->frequency();
-				if (frequency)
-					event->setLaunchTime(time(0) + frequency);
-				else
-				{
-					delEvent(event);
-					break; // can't use continue, damn vectors
-				}
+			if (!event) {
+				// damn vectors
+				it = m_events.begin();
+				continue;
 			}
-			else
-				break;
+
+			if (event->frequency() == 0) {
+				// Delete event from event list
+				delEvent(event);
+				// damn vectors
+				it = m_events.begin();
+				continue;
+			}
+
+			event->setLaunchTime(time(0) + event->frequency());
 		}
+
+		++it; // next event
 	}
 	sendXMLUpdates();
 }
