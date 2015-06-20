@@ -39,9 +39,6 @@ public:
 	MonopdServer(int argc, char **argv);
 	~MonopdServer();
 
-	void setPort(int port);
-	int port() { return m_port; }
-
 	void closedSocket(Socket *socket);
 	Game *findGame(Player *player);
 	void delGame(Game *game, bool verbose = true);

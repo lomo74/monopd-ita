@@ -63,15 +63,10 @@ MonopdServer::MonopdServer(int argc, char **argv) : GameObject(0)
 	loadGameTemplates();
 
 	if (argc > 1) {
-		setPort(atoi(argv[1]));
+		m_port = atoi(argv[1]);
 	}
 
 	m_listener = new Listener(this, m_port);
-}
-
-void MonopdServer::setPort(int port)
-{
-	m_port = port;
 }
 
 MonopdServer::~MonopdServer()
@@ -604,7 +599,7 @@ void MonopdServer::loadConfig()
 		{
 			buf = strtok(str, "=");
 			if (!strcmp(buf, "port"))
-				setPort(atoi(strtok(NULL, "\n\0")));
+				m_port = atoi(strtok(NULL, "\n\0"));
 			else if (!strcmp(buf, "metaserverhost"))
 				m_metaserverHost = strtok(NULL, "\n\0");
 			else if (!strcmp(buf, "metaserverport"))
