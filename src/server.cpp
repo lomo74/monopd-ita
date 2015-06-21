@@ -881,6 +881,9 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 	case 'n':
 		setPlayerName(pInput, data2.substr(1, 16));
 		return;
+	case 'd':
+		pInput->closeSocket();
+		return;
 	case 'p':
 		switch(data[1])
 		{
@@ -942,16 +945,33 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 		break;
 	}
 
-	switch(game->status())
-	{
-	case Game::End:
+	if (game->status() == Game::End) {
 		pInput->ioNoSuchCmd("this game has ended");
 		// The rest of the commands are only available when the game has not ended.
 		return;
-	default:;
 	}
 
-	if (game->status() != Game::Config && !pInput->getBoolProperty("bankrupt") && !pInput->getBoolProperty("spectator"))
+	switch(data[0])
+	{
+	case 't':
+		game->setTokenLocation(pInput, atoi(data+1));
+		if (!game->clientsMoving()) {
+			Event *event = findEvent(game, Event::TokenMovementTimeout);
+			if (event) {
+				delEvent(event);
+			}
+		}
+		return;
+	}
+
+	if (pInput->getBoolProperty("spectator") || pInput->getBoolProperty("bankrupt"))
+	{
+		pInput->ioNoSuchCmd("you are only a spectator");
+		// The rest of the commands are only available for participating players
+		return;
+	}
+
+	if (game->status() == Game::Run) {
 		switch(data[0])
 		{
 			case 'T':
@@ -976,22 +996,6 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 				}
 				break;
 		}
-
-	switch(data[0])
-	{
-	case 't':
-		game->setTokenLocation(pInput, atoi(data+1));
-		if (!game->clientsMoving())
-			if (Event *event = findEvent(game, Event::TokenMovementTimeout))
-				delEvent(event);
-		return;
-	}
-
-	if (pInput->getBoolProperty("spectator") || pInput->getBoolProperty("bankrupt"))
-	{
-		pInput->ioNoSuchCmd("you are only a spectator");
-		// The rest of the commands are only available for participating players
-		return;
 	}
 
 	if (game->clientsMoving())
@@ -1026,9 +1030,6 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 	switch(data[0])
 	{
-		case 't': // client authors find the no such command message annoying.
-			return;
-		break;
 		// From the official rules: "may buy and erect at any time"
 		case 'h':
 			switch(data[1])
@@ -1212,9 +1213,6 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 					pInput->ioNoSuchCmd();
 			}
 			break;
-		case 'd':
-			pInput->closeSocket();
-			return;
 		default:
 			pInput->ioNoSuchCmd();
 	}
