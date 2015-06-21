@@ -38,7 +38,7 @@ public:
 
 	Socket *findSocket(int fd);
 
-	void checkActivity(int timeout);
+	void checkActivity();
 
 	Socket *connectSocket(struct addrinfo *addrinfo);
 

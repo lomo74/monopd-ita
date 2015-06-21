@@ -100,7 +100,7 @@ int Listener::addListenFd(const int fd) {
 	return 0;
 }
 
-void Listener::checkActivity(int timeout)
+void Listener::checkActivity()
 {
 	// Notify socket close events and delete them.
 	for (std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it);) {
@@ -158,7 +158,7 @@ void Listener::checkActivity(int timeout)
 	}
 
 	struct timeval tv, *tvp = NULL;
-	printf("timeout: %d\n", timeout);
+	int timeout = m_server->timeleftEvent();
 	if (timeout >= 0) {
 		// timeout is in ms
 		tv.tv_sec = timeout/1000;
