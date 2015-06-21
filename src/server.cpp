@@ -227,9 +227,6 @@ void MonopdServer::exitGame(Game *game, Player *pInput)
 	}
 
 	pInput->reset();
-
-	// Send new game list
-	sendGameTemplateList(pInput);
 }
 
 Game *MonopdServer::findGame(int gameId)
@@ -720,7 +717,7 @@ void MonopdServer::welcomeNew(Socket *socket)
 	addToScope(player);
 
 	player->ioWrite( std::string("<monopd><server host=\"") + m_metaserverIdentity + "\" version=\"" VERSION "\"/></monopd>\n" );
-	sendGameTemplateList(player, true);
+	sendGameTemplateList(player);
 	sendXMLUpdate(player, true, true); // give new player a full update (excluding self) so it knows who's in the lounge
 }
 
@@ -785,15 +782,14 @@ void MonopdServer::ioWrite(const std::string &data, const bool &noGameOnly)
 			player->ioWrite(data);
 }
 
-void MonopdServer::sendGameTemplateList(Player *pInput, const bool &sendTemplates)
+void MonopdServer::sendGameTemplateList(Player *pInput)
 {
 	pInput->ioWrite("<monopd>");
 
 	// Supported game types for new games
 	GameConfig *gcTmp = 0;
-	if (sendTemplates)
-		for(std::vector<GameConfig *>::iterator it = m_gameConfigs.begin() ; it != m_gameConfigs.end() && (gcTmp = *it) ; ++it )
-			pInput->ioWrite("<gameupdate gameid=\"-1\" gametype=\"%s\" name=\"%s\" description=\"%s\"/>", gcTmp->id().c_str(), gcTmp->name().c_str(), gcTmp->description().c_str());
+	for(std::vector<GameConfig *>::iterator it = m_gameConfigs.begin() ; it != m_gameConfigs.end() && (gcTmp = *it) ; ++it )
+		pInput->ioWrite("<gameupdate gameid=\"-1\" gametype=\"%s\" name=\"%s\" description=\"%s\"/>", gcTmp->id().c_str(), gcTmp->name().c_str(), gcTmp->description().c_str());
 
 	pInput->ioWrite("</monopd>\n");
 }
@@ -882,7 +878,7 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 			switch(data[1])
 			{
 				case 'l':
-					sendGameTemplateList(pInput, true);
+					sendGameTemplateList(pInput);
 					return;
 				case 'n':
 					newGame(pInput, data2.substr(2));

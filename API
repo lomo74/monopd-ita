@@ -128,7 +128,7 @@ server.
 
 .gn$1    : create a new game of optional type $1. monopd defaults to the
            Atlantic game type.
-.gl      : request a game list.
+.gl      : request a game template list.
 .gj$1    : join game number $1.
 .gx      : exit a game without disconnecting from the monopd server
 .gk$1    : the player listed as master for a game can use this to kick a
