@@ -856,9 +856,6 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 	case 'n':
 		setPlayerName(pInput, data2.substr(1, 16));
 		return;
-	case 'd':
-		pInput->closeSocket();
-		return;
 	case 'p':
 		switch (data[1]) {
 
@@ -867,6 +864,17 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 			return;
 		}
 		break;
+	case 'g':
+		switch (data[1]) {
+
+		case 'l':
+			sendGameTemplateList(pInput);
+			return;
+		}
+		break;
+	case 'd':
+		pInput->closeSocket();
+		return;
 	}
 
 	// Commands available when player is not within a game.
@@ -877,9 +885,6 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 		case 'g':
 			switch (data[1]) {
 
-			case 'l':
-				sendGameTemplateList(pInput);
-				return;
 			case 'n':
 				newGame(pInput, data2.substr(2));
 				return;
@@ -901,7 +906,6 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 		return;
 	}
 
-	// These commands are always available in a running game, no matter what.
 	switch (data[0]) {
 
 	case 'f':
@@ -910,11 +914,29 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 	case 'g':
 		switch (data[1]) {
 
+		// These commands are always available in a running game, no matter what.
 		case 'd':
 			setGameDescription(pInput, data2.substr(2, 64));
 			return;
 		case 'x':
 			exitGame(game, pInput);
+			return;
+		// The following commands have their own availability checks.
+		case 'c':
+			game->editConfiguration( pInput, data+2 );
+			return;
+		case 'k':
+			Player *pKick;
+			pKick = game->kickPlayer( pInput, atoi(data+2) );
+			if (pKick) {
+				exitGame(game, pKick);
+			}
+			return;
+		case 'u':
+			game->upgradePlayer( pInput, atoi(data+2) );
+			return;
+		case 's':
+			game->start(pInput);
 			return;
 		}
 		break;
@@ -945,64 +967,35 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 		return;
 	}
 
-	// The following commands have their own availability checks.
+	if (game->status() != Game::Run) {
+		pInput->ioNoSuchCmd("game is not running");
+		// The rest of the commands are only available if game is running
+		return;
+	}
+
 	switch (data[0]) {
 
-	case 'E':
-		pInput->endTurn(true);
-		return;
-	case 'g':
+	case 'T':
 		switch (data[1]) {
 
 		case 'c':
-			game->editConfiguration( pInput, data+2 );
+		case 'e':
+			pInput->updateTradeObject(data+1);
 			return;
-		case 'k':
-			Player *pKick;
-			pKick = game->kickPlayer( pInput, atoi(data+2) );
-			if (pKick) {
-				exitGame(game, pKick);
-			}
+		case 'm':
+			pInput->updateTradeMoney(data+2);
 			return;
-		case 'u':
-			game->upgradePlayer( pInput, atoi(data+2) );
+		case 'n':
+			game->newTrade(pInput, atol(data2.substr(2).c_str()));
 			return;
-		case 's':
-			game->start(pInput);
+		case 'a':
+			game->acceptTrade(pInput, data+2);
+			return;
+		case 'r':
+			game->rejectTrade(pInput, atol(data2.substr(2).c_str()));
 			return;
 		}
 		break;
-	}
-
-	if (game->status() == Game::Run) {
-		switch (data[0]) {
-
-		case 'T':
-			switch (data[1]) {
-
-			case 'c':
-			case 'e':
-				pInput->updateTradeObject(data+1);
-				return;
-			case 'm':
-				pInput->updateTradeMoney(data+2);
-				return;
-			case 'n':
-				game->newTrade(pInput, atol(data2.substr(2).c_str()));
-				return;
-			case 'a':
-				game->acceptTrade(pInput, data+2);
-				return;
-			case 'r':
-				game->rejectTrade(pInput, atol(data2.substr(2).c_str()));
-				return;
-			}
-			break;
-		}
-	}
-
-	switch (data[0]) {
-
 	// From the official rules: "may buy and erect at any time"
 	case 'h':
 		switch (data[1]) {
@@ -1106,71 +1099,80 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 		return;
 	}
 
-	// These are only available when it's the player's turn
-	if (pInput->getBoolProperty("hasturn")) {
+	if (!pInput->getBoolProperty("hasturn")) {
+		pInput->ioNoSuchCmd("this is not your turn");
+		// The rest of the commands are only available when it's the player's turn
+		return;
+	}
 
-		if (pInput->getBoolProperty("can_buyestate")) {
-			Event *event;
+	switch (data[0]) {
 
-			switch (data[0]) {
+	case 'E':
+		pInput->endTurn(true);
+		return;
+	}
 
-			case 'e':
-				switch (data[1]) {
+	if (pInput->getBoolProperty("can_buyestate")) {
+		Event *event;
 
-				case 'b':
-					pInput->buyEstate();
-					return;
-				case 'a':
-					game->newAuction(pInput);
-					// A AuctionTimeout event may exist if a player disconnected
-					// while an auction was in progress, destroy previous event if necessary
-					event = findEvent(game, Event::AuctionTimeout);
-					if (event) {
-						delEvent(event);
-					}
-					return;
-				}
-				break;
-			}
-		}
+		switch (data[0]) {
 
-		if (pInput->getBoolProperty("jailed")) {
+		case 'e':
+			switch (data[1]) {
 
-			switch (data[0]) {
-
-			case 'j':
-				switch (data[1]) {
-
-				case 'c':
-					pInput->useJailCard();
-					return;
-				case 'p':
-					pInput->payJail();
-					return;
-				case 'r':
-					pInput->rollJail();
-					return;
-				}
-				break;
-			}
-		}
-
-		if (pInput->getBoolProperty("can_roll")) {
-
-			switch (data[0]) {
-
-			case 'r':
-				pInput->rollDice();
-				// A TokenMovementTimeout event may exist if a player disconnected
-				// while moving, destroy previous event if necessary
-				Event *event = findEvent(game, Event::TokenMovementTimeout);
+			case 'b':
+				pInput->buyEstate();
+				return;
+			case 'a':
+				game->newAuction(pInput);
+				// A AuctionTimeout event may exist if a player disconnected
+				// while an auction was in progress, destroy previous event if necessary
+				event = findEvent(game, Event::AuctionTimeout);
 				if (event) {
 					delEvent(event);
 				}
-				event = newEvent(Event::TokenMovementTimeout, game);
-				event->setLaunchTime(time(0) + 10);
 				return;
 			}
+			break;
+		}
+	}
+
+	if (pInput->getBoolProperty("jailed")) {
+
+		switch (data[0]) {
+
+		case 'j':
+			switch (data[1]) {
+
+			case 'c':
+				pInput->useJailCard();
+				return;
+			case 'p':
+				pInput->payJail();
+				return;
+			case 'r':
+				pInput->rollJail();
+				return;
+			}
+			break;
+		}
+	}
+
+	if (pInput->getBoolProperty("can_roll")) {
+
+		switch (data[0]) {
+
+		case 'r':
+			pInput->rollDice();
+			// A TokenMovementTimeout event may exist if a player disconnected
+			// while moving, destroy previous event if necessary
+			Event *event = findEvent(game, Event::TokenMovementTimeout);
+			if (event) {
+				delEvent(event);
+			}
+			event = newEvent(Event::TokenMovementTimeout, game);
+			event->setLaunchTime(time(0) + 10);
+			return;
 		}
 	}
 
