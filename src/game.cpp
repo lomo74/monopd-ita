@@ -2201,17 +2201,17 @@ void Game::sendFullUpdate(Player *p)
 {
 	sendStatus(p);
 
-	if (m_status == Config)
+	if (m_status == Config) {
 		sendConfiguration(p);
-	else if (m_status == Init || m_status == Run)
-	{
-		p->ioWrite("<monopd>");
-		sendPlayerList(p);
-		sendEstateGroupList(p);
-		sendEstateList(p);
-		sendCardList(p);
-		p->ioWrite("</monopd>\n");
+		return;
 	}
+
+	p->ioWrite("<monopd>");
+	sendPlayerList(p);
+	sendEstateGroupList(p);
+	sendEstateList(p);
+	sendCardList(p);
+	p->ioWrite("</monopd>\n");
 }
 
 void Game::sendConfiguration(Player *p)
