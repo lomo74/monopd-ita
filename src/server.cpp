@@ -46,7 +46,7 @@
 #include <systemd/sd-daemon.h>
 #endif /* USE_SYSTEMD_DAEMON */
 
-#define METASERVER_PERIOD 180
+#define METASERVER_PERIOD 180000
 
 int main(int argc, char **argv)
 {
@@ -87,7 +87,7 @@ MonopdServer::MonopdServer(int argc, char **argv) : GameObject(0)
 
 		// Register Metaserver event
 		m_metaserverEvent = newEvent(Event::Metaserver);
-		m_metaserverEvent->setLaunchTime(time(0) + METASERVER_PERIOD);
+		m_metaserverEvent->setLaunchTime(METASERVER_PERIOD);
 		m_metaserverEvent->setFrequency(METASERVER_PERIOD);
 	}
 
@@ -439,10 +439,10 @@ void MonopdServer::closedSocket(Socket *socket)
 
 	printf("may reconnect\n");
 	pInput->setSocket(NULL);
-	unsigned int timeout = 180;
-	game->ioInfo("Connection with %s lost. Player has %ds to reconnect until bankruptcy.", pInput->name().c_str(), timeout);
+	unsigned int timeout = 180000;
+	game->ioInfo("Connection with %s lost. Player has %ds to reconnect until bankruptcy.", pInput->name().c_str(), timeout/1000);
 	Event *event = newEvent( Event::PlayerTimeout, game );
-	event->setLaunchTime(time(0) + timeout);
+	event->setLaunchTime(timeout);
 	event->setObject( dynamic_cast<GameObject *> (pInput) );
 	sendXMLUpdates();
 }
@@ -463,7 +463,8 @@ int MonopdServer::timeleftEvent()
 		}
 
 		timersub(event->launchTime(), &timenow, &timeres);
-		timems = timeres.tv_sec*1000 + timeres.tv_usec/1000;
+		// add 1ms to adjust for precision lost in tv_usec/10000
+		timems = (timeres.tv_sec*1000 + timeres.tv_usec/1000) +1;
 		if (timeleft > timems) {
 			timeleft = timems;
 		}
@@ -493,16 +494,13 @@ void MonopdServer::processEvents()
 		switch(event->type())
 		{
 		case Event::TokenMovementTimeout:
-			if (game)
-			{
+			event->setFrequency(0);
+			if (game) {
 				game->tokenMovementTimeout();
-				if ( game->clientsMoving() )
-					event->setFrequency( 1 );
-				else
-					event->setFrequency( 0 );
+				if (game->clientsMoving()) {
+					event->setFrequency(1000);
+				}
 			}
-			else
-				event->setFrequency( 0 );
 			break;
 		case Event::SocketTimeout:
 			delSocket = m_listener->findSocket(event->id());
@@ -511,10 +509,8 @@ void MonopdServer::processEvents()
 			}
 			break;
 		case Event::AuctionTimeout:
-			if (game)
-			{
-				unsigned int frequency = game->auctionTimeout();
-				event->setFrequency(frequency);
+			if (game) {
+				event->setFrequency(game->auctionTimeout());
 			}
 			break;
 		case Event::Metaserver:
@@ -559,7 +555,7 @@ void MonopdServer::processEvents()
 			continue;
 		}
 
-		event->setLaunchTime(time(0) + event->frequency());
+		event->setLaunchTime(event->frequency());
 		++it; // next event
 	}
 
@@ -716,7 +712,7 @@ void MonopdServer::welcomeMetaserver(Socket *socket)
 	 * bit before closing the session. Sure this is not perfect, we don't have a close when
 	 * output buffer empty trigger yet, is it worth complicating this?
 	 */
-	socketTimeout->setLaunchTime(time(0) + 2);
+	socketTimeout->setLaunchTime(100);
 }
 
 void MonopdServer::closedMetaserver(Socket *socket)
@@ -1066,7 +1062,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 					event = findEvent(game, Event::AuctionTimeout);
 					if (!event)
 						event = newEvent(Event::AuctionTimeout, game);
-					event->setLaunchTime(time(0) + 4);
+					event->setLaunchTime(4000);
 				}
 				goto sendupdates;
 			}
@@ -1151,7 +1147,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 				delEvent(event);
 			}
 			event = newEvent(Event::TokenMovementTimeout, game);
-			event->setLaunchTime(time(0) + 10);
+			event->setLaunchTime(10000);
 			goto sendupdates;
 		}
 	}

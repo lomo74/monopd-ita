@@ -31,19 +31,19 @@ public:
 
 	Event(int id, EventType type, Game *game = 0);
 
-	void setLaunchTime(time_t _lt) { m_launchTime.tv_sec = _lt; m_launchTime.tv_usec = 0; }
-	void setFrequency(time_t frequency) { m_frequency = frequency; }
-	void setType(unsigned int _t) { m_type = _t; }
+	void setLaunchTime(int ms);
+	void setFrequency(int ms) { m_frequency = ms; }
+	void setType(unsigned int type) { m_type = type; }
 	void setObject(GameObject *object) { m_object = object; }
 
 	struct timeval *launchTime() { return &m_launchTime; }
-	time_t frequency() { return m_frequency; }
+	int frequency() { return m_frequency; }
 	unsigned int type() { return m_type; }
 	GameObject *object() { return m_object; }
 
 private:
 	struct timeval m_launchTime;
-	time_t m_frequency;
+	int m_frequency;
 	unsigned int m_type;
 	GameObject *m_object;
 };

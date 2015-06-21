@@ -654,7 +654,7 @@ unsigned int Game::auctionTimeout()
 		return 0;
 	}
 
-	return 4;
+	return 4000;
 }
 
 void Game::newDebtToAll(Player *from, int amount)

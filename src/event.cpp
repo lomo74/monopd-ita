@@ -16,13 +16,22 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include "event.h"
 
 Event::Event(int id, EventType type, Game *game) : GameObject(id, GameObject::Unknown, game)
 {
-	setType(type);
-	setLaunchTime(0);
+	m_type = type;
+	m_launchTime.tv_sec = 0;
+	m_launchTime.tv_usec = 0;
 	m_frequency = 0;
-	m_object = 0;
+	m_object = NULL;
+}
+
+void Event::setLaunchTime(int ms) {
+	struct timeval timenow, timeout = { .tv_sec = ms/1000, .tv_usec = (ms%1000)*1000 };
+
+	gettimeofday(&timenow, NULL);
+	timeradd(&timenow, &timeout, &m_launchTime);
 }
