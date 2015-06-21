@@ -83,7 +83,6 @@ class Player : public GameObject
 		Card *findFirstCard();
 		int assets();
 
-		void closeSocket();
 		void setSocket(Socket *socket);
 		Socket *socket() { return m_socket; }
 

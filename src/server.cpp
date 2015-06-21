@@ -815,7 +815,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 			if (game) {
 				exitGame(game, pInput);
 			}
-			pInput->closeSocket();
+			socket->setStatus(Socket::Close);
 			goto sendupdates;
 		case 'R':
 			if (game) {

@@ -1004,11 +1004,6 @@ bool Player::payMoney(int amount)
 	return true;
 }
 
-void Player::closeSocket()
-{
-	m_socket->setStatus(Socket::Close);
-}
-
 void Player::setSocket(Socket *socket)
 {
 	m_socket = socket;
