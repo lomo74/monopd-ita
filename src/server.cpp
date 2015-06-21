@@ -945,6 +945,35 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 		return;
 	}
 
+	// The following commands have their own availability checks.
+	switch (data[0]) {
+
+	case 'E':
+		pInput->endTurn(true);
+		return;
+	case 'g':
+		switch (data[1]) {
+
+		case 'c':
+			game->editConfiguration( pInput, data+2 );
+			return;
+		case 'k':
+			Player *pKick;
+			pKick = game->kickPlayer( pInput, atoi(data+2) );
+			if (pKick) {
+				exitGame(game, pKick);
+			}
+			return;
+		case 'u':
+			game->upgradePlayer( pInput, atoi(data+2) );
+			return;
+		case 's':
+			game->start(pInput);
+			return;
+		}
+		break;
+	}
+
 	if (game->status() == Game::Run) {
 		switch (data[0]) {
 
@@ -1143,35 +1172,6 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 				return;
 			}
 		}
-	}
-
-	// The following commands have their own availability checks.
-	switch (data[0]) {
-
-	case 'E':
-		pInput->endTurn(true);
-		return;
-	case 'g':
-		switch (data[1]) {
-
-		case 'c':
-			game->editConfiguration( pInput, data+2 );
-			return;
-		case 'k':
-			Player *pKick;
-			pKick = game->kickPlayer( pInput, atoi(data+2) );
-			if (pKick) {
-				exitGame(game, pKick);
-			}
-			return;
-		case 'u':
-			game->upgradePlayer( pInput, atoi(data+2) );
-			return;
-		case 's':
-			game->start(pInput);
-			return;
-		}
-		break;
 	}
 
 	pInput->ioNoSuchCmd();
