@@ -484,87 +484,88 @@ void MonopdServer::processEvents()
 	gettimeofday(&tv, NULL);
 
 	Event *event = 0;
-	for (std::vector<Event *>::iterator it = m_events.begin() ; it != m_events.end() && (event = *it) ; )
-	{
-		if (tv.tv_sec >= event->launchTime())
-		{
-			Game *game = event->game();
-			Socket *delSocket;
-
-			switch(event->type())
-			{
-			case Event::TokenMovementTimeout:
-				if (game)
-				{
-					game->tokenMovementTimeout();
-					if ( game->clientsMoving() )
-						event->setFrequency( 1 );
-					else
-						event->setFrequency( 0 );
-				}
-				else
-					event->setFrequency( 0 );
-				break;
-			case Event::SocketTimeout:
-				delSocket = m_listener->findSocket(event->id());
-				if (delSocket) {
-					delSocket->setStatus(Socket::Close);
-				}
-				break;
-			case Event::AuctionTimeout:
-				if (game)
-				{
-					unsigned int frequency = game->auctionTimeout();
-					event->setFrequency(frequency);
-				}
-				break;
-			case Event::Metaserver:
-				registerMetaserver();
-				break;
-			case Event::PlayerTimeout:
-				GameObject *object = event->object();
-				if (!object)
-					break;
-
-				Player *player;
-				player = findPlayer(object->id());
-				if (player) {
-					if (player->socket()) {
-						break;
-					}
-
-					Game *game = player->game();
-					if (game->status() == Game::Run) {
-						game->ioInfo("%s did not reconnect in time and is now bankrupt.", player->name().c_str());
-					}
-
-					// delPlayer() might call delGame() if player is the last player in game, which remove
-					// all events from game, therefore we don't know whether delPlayer() is going to
-					// remove this event. Remove it before to prevent a double free.
-					delEvent(event);
-
-					delPlayer(player);
-
-					// damn vectors
-					it = m_events.begin();
-					continue;
-				}
-				break;
-			}
-
-			if (event->frequency() == 0) {
-				// Delete event from event list
-				delEvent(event);
-				// damn vectors
-				it = m_events.begin();
-				continue;
-			}
-
-			event->setLaunchTime(time(0) + event->frequency());
+	for (std::vector<Event *>::iterator it = m_events.begin(); it != m_events.end() && (event = *it);) {
+		if (tv.tv_sec < event->launchTime()) {
+			++it; // next event
+			continue;
 		}
 
+		Game *game = event->game();
+		Socket *delSocket;
+
+		switch(event->type())
+		{
+		case Event::TokenMovementTimeout:
+			if (game)
+			{
+				game->tokenMovementTimeout();
+				if ( game->clientsMoving() )
+					event->setFrequency( 1 );
+				else
+					event->setFrequency( 0 );
+			}
+			else
+				event->setFrequency( 0 );
+			break;
+		case Event::SocketTimeout:
+			delSocket = m_listener->findSocket(event->id());
+			if (delSocket) {
+				delSocket->setStatus(Socket::Close);
+			}
+			break;
+		case Event::AuctionTimeout:
+			if (game)
+			{
+				unsigned int frequency = game->auctionTimeout();
+				event->setFrequency(frequency);
+			}
+			break;
+		case Event::Metaserver:
+			registerMetaserver();
+			break;
+		case Event::PlayerTimeout:
+			GameObject *object = event->object();
+			if (!object)
+				break;
+
+			Player *player;
+			player = findPlayer(object->id());
+			if (player) {
+				if (player->socket()) {
+					break;
+				}
+
+				Game *game = player->game();
+				if (game->status() == Game::Run) {
+					game->ioInfo("%s did not reconnect in time and is now bankrupt.", player->name().c_str());
+				}
+
+				// delPlayer() might call delGame() if player is the last player in game, which remove
+				// all events from game, therefore we don't know whether delPlayer() is going to
+				// remove this event. Remove it before to prevent a double free.
+				delEvent(event);
+
+				delPlayer(player);
+
+				// damn vectors
+				it = m_events.begin();
+				continue; // apply to for() loop
+			}
+			break;
+		}
+
+		if (event->frequency() == 0) {
+			// Delete event from event list
+			delEvent(event);
+			// damn vectors
+			it = m_events.begin();
+			continue;
+		}
+
+		event->setLaunchTime(time(0) + event->frequency());
 		++it; // next event
 	}
+
 	sendXMLUpdates();
 }
 
