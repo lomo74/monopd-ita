@@ -221,8 +221,11 @@ void MonopdServer::joinGame(Player *pInput, unsigned int gameId, const bool &spe
 void MonopdServer::exitGame(Game *game, Player *pInput)
 {
 	game->removePlayer(pInput);
-	if (game->players() == 0)
+	game->ioInfo("%s left the game.", pInput->name().c_str());
+
+	if (game->players() == 0) {
 		delGame(game);
+	}
 
 	pInput->reset();
 
@@ -550,26 +553,22 @@ void MonopdServer::processEvents()
 
 				Player *player;
 				player = findPlayer(object->id());
-				if (player)
-				{
-					if (player->socket())
-					break;
+				if (player) {
+					if (player->socket()) {
+						break;
+					}
 
 					Game *game = player->game();
-					if (game->status() == Game::Run)
-					{
+					if (game->status() == Game::Run) {
 						game->ioInfo("%s did not reconnect in time and is now bankrupt.", player->name().c_str());
-						game->bankruptPlayer(player);
 					}
-					else
-					{
-						// Game might have ended, silently remove.
-						exitGame(game, player);
-						// Event might have been deleted now.
-						event = 0;
 
-						delPlayer(player);
+					game->removePlayer(player);
+					delPlayer(player);
+					if (game->players() == 0) {
+						delGame(game);
 					}
+					event = 0;
 				}
 				if ( event )
 					event->setObject(0);

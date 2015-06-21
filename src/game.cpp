@@ -1440,7 +1440,6 @@ void Game::removePlayer(Player *p)
 
 	// Do everything after player is removed from list, player doesn't need the resulting messages
 	setProperty( "players", m_players.size() );
-	ioInfo("%s left the game.", p->name().c_str());
 
 	// If in Config, canbejoined might become true again
 	if (m_status == Config) {
