@@ -910,6 +910,9 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 	case 'g':
 		switch (data[1]) {
 
+		case 'd':
+			setGameDescription(pInput, data2.substr(2, 64));
+			return;
 		case 'x':
 			exitGame(game, pInput);
 			return;
@@ -1151,9 +1154,6 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 	case 'g':
 		switch (data[1]) {
 
-		case 'd':
-			setGameDescription(pInput, data2.substr(2, 64));
-			return;
 		case 'c':
 			game->editConfiguration( pInput, data+2 );
 			return;
