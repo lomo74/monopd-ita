@@ -794,6 +794,13 @@ void MonopdServer::sendGameTemplateList(Player *pInput)
 	pInput->ioWrite("</monopd>\n");
 }
 
+void MonopdServer::updateSystemdStatus() {
+#if USE_SYSTEMD_DAEMON
+	/* Update systemd status string */
+	sd_notifyf(0, "READY=1\nSTATUS=Running, %d players, %d games", (int)m_players.size(), (int)m_games.size() );
+#endif /* USE_SYSTEMD_DAEMON */
+}
+
 void MonopdServer::processInput(Socket *socket, const std::string data)
 {
 	Player *pInput = findPlayer(socket);
@@ -834,14 +841,6 @@ void MonopdServer::processInput(Socket *socket, const std::string data)
 	}
 
 	processCommands(pInput, data.substr(1));
-	sendXMLUpdates();
-}
-
-void MonopdServer::updateSystemdStatus() {
-#if USE_SYSTEMD_DAEMON
-	/* Update systemd status string */
-	sd_notifyf(0, "READY=1\nSTATUS=Running, %d players, %d games", (int)m_players.size(), (int)m_games.size() );
-#endif /* USE_SYSTEMD_DAEMON */
 }
 
 void MonopdServer::processCommands(Player *pInput, const std::string data2)
@@ -858,13 +857,13 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 	case 'n':
 		setPlayerName(pInput, data2.substr(1, 16));
-		return;
+		goto sendupdates;
 	case 'p':
 		switch (data[1]) {
 
 		case 'i':
 			pInput->setProperty("image", data2.substr(2, 32), this);
-			return;
+			goto sendupdates;
 		}
 		break;
 	case 'g':
@@ -872,7 +871,7 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 		case 'l':
 			sendGameTemplateList(pInput);
-			return;
+			goto sendupdates;
 		}
 		break;
 	case 'd':
@@ -880,7 +879,7 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 			exitGame(game, pInput);
 		}
 		pInput->closeSocket();
-		return;
+		goto sendupdates;
 	}
 
 	// Commands available when player is not within a game.
@@ -892,18 +891,18 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 			case 'n':
 				newGame(pInput, data2.substr(2));
-				return;
+				goto sendupdates;
 			case 'j':
 				joinGame(pInput, atol(data2.substr(2).c_str()));
-				return;
+				goto sendupdates;
 			case 'S':
 				joinGame( pInput, atol(data2.substr(2).c_str()), true );
-				return;
+				goto sendupdates;
 			}
 			break;
 		case 'R':
 			reconnectPlayer(pInput, data2.substr(1));
-			return;
+			goto sendupdates;
 		}
 
 		pInput->ioNoSuchCmd("you are not within a game");
@@ -915,34 +914,34 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 	case 'f':
 		game->sendFullUpdate(pInput, true);
-		return;
+		goto sendupdates;
 	case 'g':
 		switch (data[1]) {
 
 		// These commands are always available in a running game, no matter what.
 		case 'd':
 			setGameDescription(pInput, data2.substr(2, 64));
-			return;
+			goto sendupdates;
 		case 'x':
 			exitGame(game, pInput);
-			return;
+			goto sendupdates;
 		// The following commands have their own availability checks.
 		case 'c':
 			game->editConfiguration( pInput, data+2 );
-			return;
+			goto sendupdates;
 		case 'k':
 			Player *pKick;
 			pKick = game->kickPlayer( pInput, atoi(data+2) );
 			if (pKick) {
 				exitGame(game, pKick);
 			}
-			return;
+			goto sendupdates;
 		case 'u':
 			game->upgradePlayer( pInput, atoi(data+2) );
-			return;
+			goto sendupdates;
 		case 's':
 			game->start(pInput);
-			return;
+			goto sendupdates;
 		}
 		break;
 	}
@@ -963,7 +962,7 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 				delEvent(event);
 			}
 		}
-		return;
+		goto sendupdates;
 	}
 
 	if (pInput->getBoolProperty("spectator") || pInput->getBoolProperty("bankrupt")) {
@@ -986,19 +985,19 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 		case 'c':
 		case 'e':
 			pInput->updateTradeObject(data+1);
-			return;
+			goto sendupdates;
 		case 'm':
 			pInput->updateTradeMoney(data+2);
-			return;
+			goto sendupdates;
 		case 'n':
 			game->newTrade(pInput, atol(data2.substr(2).c_str()));
-			return;
+			goto sendupdates;
 		case 'a':
 			game->acceptTrade(pInput, data+2);
-			return;
+			goto sendupdates;
 		case 'r':
 			game->rejectTrade(pInput, atol(data2.substr(2).c_str()));
-			return;
+			goto sendupdates;
 		}
 		break;
 	// From the official rules: "may buy and erect at any time"
@@ -1007,10 +1006,10 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 		case 'b':
 			pInput->buyHouse(atoi(data+2));
-			return;
+			goto sendupdates;
 		case 's':
 			pInput->sellHouse(atoi(data+2));
-			return;
+			goto sendupdates;
 		}
 		break;
 	// From official rules: "Unimproved properties can be mortgaged
@@ -1022,10 +1021,10 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 		case 'm':
 			pInput->mortgageEstate(atoi(data+2));
-			return;
+			goto sendupdates;
 		case 's':
 			pInput->sellEstate(atoi(data+2));
-			return;
+			goto sendupdates;
 		}
 		break;
 	}
@@ -1045,10 +1044,10 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 			case '$':
 				pInput->payTax();
-				return;
+				goto sendupdates;
 			case '%':
 				pInput->payTax(true);
-				return;
+				goto sendupdates;
 			}
 			break;
 		}
@@ -1065,10 +1064,10 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 			case 'D':
 				game->declareBankrupt(pInput);
-				return;
+				goto sendupdates;
 			case 'p':
 				game->solveDebts(pInput, true);
-				return;
+				goto sendupdates;
 			}
 		}
 
@@ -1093,7 +1092,7 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 						event = newEvent(Event::AuctionTimeout, game);
 					event->setLaunchTime(time(0) + 4);
 				}
-				return;
+				goto sendupdates;
 			}
 			break;
 		}
@@ -1114,7 +1113,7 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 	case 'E':
 		pInput->endTurn(true);
-		return;
+		goto sendupdates;
 	}
 
 	if (pInput->getBoolProperty("can_buyestate")) {
@@ -1127,7 +1126,7 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 			case 'b':
 				pInput->buyEstate();
-				return;
+				goto sendupdates;
 			case 'a':
 				game->newAuction(pInput);
 				// A AuctionTimeout event may exist if a player disconnected
@@ -1136,7 +1135,7 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 				if (event) {
 					delEvent(event);
 				}
-				return;
+				goto sendupdates;
 			}
 			break;
 		}
@@ -1151,13 +1150,13 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 			case 'c':
 				pInput->useJailCard();
-				return;
+				goto sendupdates;
 			case 'p':
 				pInput->payJail();
-				return;
+				goto sendupdates;
 			case 'r':
 				pInput->rollJail();
-				return;
+				goto sendupdates;
 			}
 			break;
 		}
@@ -1177,11 +1176,15 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 			}
 			event = newEvent(Event::TokenMovementTimeout, game);
 			event->setLaunchTime(time(0) + 10);
-			return;
+			goto sendupdates;
 		}
 	}
 
 	pInput->ioNoSuchCmd();
+	return;
+
+sendupdates:
+	sendXMLUpdates();
 }
 
 void MonopdServer::sendXMLUpdates()
