@@ -222,7 +222,6 @@ void MonopdServer::exitGame(Game *game, Player *pInput)
 {
 	game->removePlayer(pInput);
 	game->ioInfo("%s left the game.", pInput->name().c_str());
-
 	if (game->players() == 0) {
 		delGame(game);
 	}
@@ -347,17 +346,12 @@ void MonopdServer::reconnectPlayer(Player *pInput, const std::string &cookie)
 
 void MonopdServer::delPlayer(Player *player)
 {
-	// Delete timeout event, if present.
-	Game *game = player ? player->game() : 0;
-	if ( player && game )
-	{
-		Event *event = findEvent( game, dynamic_cast<GameObject *> (player) );
-		if ( event )
-		{
-			printf("cleared event for player\n");
-			event->setObject( 0 );
+	Game *game = player->game();
+	if (game) {
+		game->removePlayer(player);
+		if (game->players() == 0) {
+			delGame(game);
 		}
-		game->removePlayer( player );
 	}
 
 	if (player->id() > 0) {
@@ -451,20 +445,18 @@ void MonopdServer::closedSocket(Socket *socket)
 		return;
 	}
 
-	pInput->setSocket(NULL);
 	printf("%s socket 0 spec %d, bankrupt %d, gamerun %d\n", pInput->name().c_str(), pInput->getBoolProperty("spectator"), pInput->getBoolProperty("bankrupt"), game->status() == Game::Run );
 
 	// Only remove from game when game not running, or when it's merely a spectator.
 	if (game->status() != Game::Run || pInput->getBoolProperty("spectator") || pInput->getBoolProperty("bankrupt")) {
 		game->ioInfo("Connection with %s lost.", pInput->name().c_str());
 		printf("exit from game %d: %d\n", game->id(), pInput->id());
-		exitGame(game, pInput);
-		printf("delplayer %d\n", pInput->id());
 		delPlayer(pInput);
 		return;
 	}
 
 	printf("may reconnect\n");
+	pInput->setSocket(NULL);
 	unsigned int timeout = 180;
 	game->ioInfo("Connection with %s lost. Player has %ds to reconnect until bankruptcy.", pInput->name().c_str(), timeout);
 	Event *event = newEvent( Event::PlayerTimeout, game );
@@ -568,11 +560,7 @@ void MonopdServer::processEvents()
 					// remove this event. Remove it before to prevent a double free.
 					delEvent(event);
 
-					game->removePlayer(player);
 					delPlayer(player);
-					if (game->players() == 0) {
-						delGame(game);
-					}
 
 					// damn vectors
 					it = m_events.begin();
