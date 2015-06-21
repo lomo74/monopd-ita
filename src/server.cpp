@@ -969,34 +969,6 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 		}
 	}
 
-	if (game->clientsMoving()) {
-		pInput->ioNoSuchCmd("other clients are still moving");
-		// The rest of the commands are only available when no clients are moving
-		return;
-	}
-
-	// If we're in a tax dialog, we don't accept too many commands.
-	if (game->pausedForDialog()) {
-		switch (data[0]) {
-
-		case 'T':
-			switch (data[1]) {
-
-			case '$':
-				pInput->payTax();
-				return;
-			case '%':
-				pInput->payTax(true);
-				return;
-			}
-			break;
-		}
-
-		// The rest of the commands are not available during a tax dialog
-		pInput->ioNoSuchCmd("a tax dialog is in progress");
-		return;
-	}
-
 	switch (data[0]) {
 
 	// From the official rules: "may buy and erect at any time"
@@ -1026,6 +998,34 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 			return;
 		}
 		break;
+	}
+
+	if (game->clientsMoving()) {
+		pInput->ioNoSuchCmd("other clients are still moving");
+		// The rest of the commands are only available when no clients are moving
+		return;
+	}
+
+	// If we're in a tax dialog, we don't accept too many commands.
+	if (game->pausedForDialog()) {
+		switch (data[0]) {
+
+		case 'T':
+			switch (data[1]) {
+
+			case '$':
+				pInput->payTax();
+				return;
+			case '%':
+				pInput->payTax(true);
+				return;
+			}
+			break;
+		}
+
+		// The rest of the commands are not available during a tax dialog
+		pInput->ioNoSuchCmd("a tax dialog is in progress");
+		return;
 	}
 
 	// Declaring bankruptcy is only possible when a player is in debt.
