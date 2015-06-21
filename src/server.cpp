@@ -422,6 +422,7 @@ void MonopdServer::closedSocket(Socket *socket)
 	Game *game = pInput->game();
 	if (!game) {
 		delPlayer(pInput);
+		sendXMLUpdates();
 		return;
 	}
 
@@ -432,6 +433,7 @@ void MonopdServer::closedSocket(Socket *socket)
 		game->ioInfo("Connection with %s lost.", pInput->name().c_str());
 		printf("exit from game %d: %d\n", game->id(), pInput->id());
 		delPlayer(pInput);
+		sendXMLUpdates();
 		return;
 	}
 
@@ -442,6 +444,7 @@ void MonopdServer::closedSocket(Socket *socket)
 	Event *event = newEvent( Event::PlayerTimeout, game );
 	event->setLaunchTime(time(0) + timeout);
 	event->setObject( dynamic_cast<GameObject *> (pInput) );
+	sendXMLUpdates();
 }
 
 int MonopdServer::timeleftEvent()
