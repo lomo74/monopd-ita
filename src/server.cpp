@@ -807,23 +807,50 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 	Player *pInput = findPlayer(socket);
 	Game *game = pInput->game();
 
-	if (!pInput->identified())
-	{
-		// The 'n' name command is available even for non-players. In fact,
-		// it's considered to be the protocol handshake.
-		if (data[0] == '.')
-		{
-			switch(data[1])
-			{
-			case 'n':
+	// The following commands are _always_ available.
+	if (data[0] == '.') {
+		if (data[1] != 'f') {
+			pInput->setRequestedUpdate(false);
+		}
+
+		switch (data[1]) {
+
+		case 'n':
+			// The 'n' name command is available even for non-players.
+			//  In fact, it's considered to be the protocol handshake.
+			if (!pInput->identified()) {
 				identifyPlayer(pInput, data2.substr(2, 16));
-				sendXMLUpdates();
-				return;
-			case 'R':
-				reconnectPlayer(pInput, data2.substr(2));
+				goto sendupdates;
+			}
+			setPlayerName(pInput, data2.substr(2, 16));
+			goto sendupdates;
+		case 'g':
+			switch (data[2]) {
+
+			case 'l':
+				sendGameTemplateList(pInput);
+				goto sendupdates;
+			}
+			break;
+		case 'd':
+			if (game) {
+				exitGame(game, pInput);
+			}
+			pInput->closeSocket();
+			goto sendupdates;
+		case 'R':
+			if (game) {
+				pInput->ioNoSuchCmd("you are already within a game");
 				return;
 			}
+			reconnectPlayer(pInput, data2.substr(2));
+			goto sendupdates;
 		}
+	}
+
+	if (!pInput->identified()) {
+		pInput->ioNoSuchCmd("you are not identified");
+		// The rest of the commands are only available if player is identified.
 		return;
 	}
 
@@ -841,16 +868,9 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 		return;
 	}
 
-	if (data[1] != 'f') {
-		pInput->setRequestedUpdate(false);
-	}
-
-	// The following commands are _always_ available.
+	// The following commands are always available if player is identified.
 	switch (data[1]) {
 
-	case 'n':
-		setPlayerName(pInput, data2.substr(2, 16));
-		goto sendupdates;
 	case 'p':
 		switch (data[2]) {
 
@@ -859,20 +879,6 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 			goto sendupdates;
 		}
 		break;
-	case 'g':
-		switch (data[2]) {
-
-		case 'l':
-			sendGameTemplateList(pInput);
-			goto sendupdates;
-		}
-		break;
-	case 'd':
-		if (game) {
-			exitGame(game, pInput);
-		}
-		pInput->closeSocket();
-		goto sendupdates;
 	}
 
 	// Commands available when player is not within a game.
@@ -893,9 +899,6 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 				goto sendupdates;
 			}
 			break;
-		case 'R':
-			reconnectPlayer(pInput, data2.substr(2));
-			goto sendupdates;
 		}
 
 		pInput->ioNoSuchCmd("you are not within a game");
