@@ -455,17 +455,14 @@ int MonopdServer::timeleftEvent()
 
 	Event *event = NULL;
 	for (std::vector<Event *>::iterator it = m_events.begin() ; it != m_events.end() && (event = *it) ; ++it) {
-		struct timeval timevent, timeres;
+		struct timeval timeres;
 		int timems;
 
-		timevent.tv_usec = 0;
-		timevent.tv_sec = event->launchTime();
-
-		if (timercmp(&timenow, &timevent, >)) {
+		if (timercmp(&timenow, event->launchTime(), >)) {
 			return 0;
 		}
 
-		timersub(&timevent, &timenow, &timeres);
+		timersub(event->launchTime(), &timenow, &timeres);
 		timems = timeres.tv_sec*1000 + timeres.tv_usec/1000;
 		if (timeleft > timems) {
 			timeleft = timems;
@@ -485,7 +482,7 @@ void MonopdServer::processEvents()
 
 	Event *event = 0;
 	for (std::vector<Event *>::iterator it = m_events.begin(); it != m_events.end() && (event = *it);) {
-		if (tv.tv_sec < event->launchTime()) {
+		if (timercmp(event->launchTime(), &tv, >)) {
 			++it; // next event
 			continue;
 		}
