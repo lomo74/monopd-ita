@@ -80,7 +80,6 @@ private:
 	void ioWrite(const char *data, ...);
 	void ioWrite(const std::string &data, const bool &noGameOnly = false);
 	void sendGameTemplateList(Player *player);
-	void processCommands(Player *pInput, const std::string data);
 	void sendXMLUpdates();
 	void sendXMLUpdate(Player *player, bool fullUpdate = false, bool excludeSelf = false);
 	void setPlayerName(Player *player, const std::string &name);

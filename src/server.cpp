@@ -841,14 +841,6 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 		return;
 	}
 
-	processCommands(pInput, data2);
-}
-
-void MonopdServer::processCommands(Player *pInput, const std::string data2)
-{
-	char *data = (char*)data2.c_str();
-	Game *game = pInput->game();
-
 	if (data[1] != 'f') {
 		pInput->setRequestedUpdate(false);
 	}
