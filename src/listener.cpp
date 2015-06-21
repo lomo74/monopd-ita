@@ -165,12 +165,16 @@ void Listener::checkActivity(int timeout)
 	}
 
 	struct timeval tv, *tvp = NULL;
+	printf("timeout: %d\n", timeout);
 	if (timeout >= 0) {
 		// timeout is in ms
 		tv.tv_sec = timeout/1000;
 		tv.tv_usec = timeout*1000;
 		tvp = &tv;
 	}
+	tv.tv_sec = 1;
+	tv.tv_usec = 0;
+	tvp = &tv;
 
 	// Check filedescriptors for input.
 	if ( (select(highestFd+1, &m_readfdset, &m_writefdset, NULL, tvp)) <= 0 )
