@@ -162,7 +162,7 @@ void Listener::checkActivity()
 	if (timeout >= 0) {
 		// timeout is in ms
 		tv.tv_sec = timeout/1000;
-		tv.tv_usec = timeout*1000;
+		tv.tv_usec = (timeout%1000)*1000;
 		tvp = &tv;
 	}
 
