@@ -2117,16 +2117,6 @@ int Game::players()
 	return (int)m_players.size();
 }
 
-unsigned int Game::connectedPlayers()
-{
-	unsigned int count = 0;
-	Player *pTmp = 0;
-	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
-		if (pTmp->socket())
-			count++;
-	return count;
-}
-
 int Game::debts()
 {
 	return m_debts.size();

@@ -221,7 +221,7 @@ void MonopdServer::joinGame(Player *pInput, unsigned int gameId, const bool &spe
 void MonopdServer::exitGame(Game *game, Player *pInput)
 {
 	game->removePlayer(pInput);
-	if (game->connectedPlayers() == 0)
+	if (game->players() == 0)
 		delGame(game);
 
 	pInput->reset();
@@ -242,21 +242,12 @@ Game *MonopdServer::findGame(int gameId)
 
 void MonopdServer::delGame(Game *game, bool verbose)
 {
+	if (game->players()) {
+		return;
+	}
+
 	if (verbose)
 		ioWrite("<monopd><deletegame gameid=\"" + itoa(game->id()) + "\"/></monopd>\n");
-
-	// Remove everyone from the game
-	while (game->players())
-	{
-		Player *player = 0;
-		for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (player = *it) ; ++it)
-			if (player->game() == game)
-			{
-				game->removePlayer(player);
-				delPlayer(player);
-				break;
-			}
-	}
 
 	// Remove events from game
 	for(std::vector<Event *>::iterator it = m_events.begin(); it != m_events.end() && (*it) ; )
