@@ -563,22 +563,22 @@ void MonopdServer::processEvents()
 						game->ioInfo("%s did not reconnect in time and is now bankrupt.", player->name().c_str());
 					}
 
+					// delPlayer() might call delGame() if player is the last player in game, which remove
+					// all events from game, therefore we don't know whether delPlayer() is going to
+					// remove this event. Remove it before to prevent a double free.
+					delEvent(event);
+
 					game->removePlayer(player);
 					delPlayer(player);
 					if (game->players() == 0) {
 						delGame(game);
 					}
-					event = 0;
-				}
-				if ( event )
-					event->setObject(0);
-				break;
-			}
 
-			if (!event) {
-				// damn vectors
-				it = m_events.begin();
-				continue;
+					// damn vectors
+					it = m_events.begin();
+					continue;
+				}
+				break;
 			}
 
 			if (event->frequency() == 0) {
