@@ -841,7 +841,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 		return;
 	}
 
-	processCommands(pInput, data2.substr(1));
+	processCommands(pInput, data2);
 }
 
 void MonopdServer::processCommands(Player *pInput, const std::string data2)
@@ -849,26 +849,26 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 	char *data = (char*)data2.c_str();
 	Game *game = pInput->game();
 
-	if (data[0] != 'f') {
+	if (data[1] != 'f') {
 		pInput->setRequestedUpdate(false);
 	}
 
 	// The following commands are _always_ available.
-	switch (data[0]) {
+	switch (data[1]) {
 
 	case 'n':
-		setPlayerName(pInput, data2.substr(1, 16));
+		setPlayerName(pInput, data2.substr(2, 16));
 		goto sendupdates;
 	case 'p':
-		switch (data[1]) {
+		switch (data[2]) {
 
 		case 'i':
-			pInput->setProperty("image", data2.substr(2, 32), this);
+			pInput->setProperty("image", data2.substr(3, 32), this);
 			goto sendupdates;
 		}
 		break;
 	case 'g':
-		switch (data[1]) {
+		switch (data[2]) {
 
 		case 'l':
 			sendGameTemplateList(pInput);
@@ -885,24 +885,24 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 	// Commands available when player is not within a game.
 	if (!game) {
-		switch (data[0]) {
+		switch (data[1]) {
 
 		case 'g':
-			switch (data[1]) {
+			switch (data[2]) {
 
 			case 'n':
-				newGame(pInput, data2.substr(2));
+				newGame(pInput, data2.substr(3));
 				goto sendupdates;
 			case 'j':
-				joinGame(pInput, atol(data2.substr(2).c_str()));
+				joinGame(pInput, atol(data2.substr(3).c_str()));
 				goto sendupdates;
 			case 'S':
-				joinGame( pInput, atol(data2.substr(2).c_str()), true );
+				joinGame( pInput, atol(data2.substr(3).c_str()), true );
 				goto sendupdates;
 			}
 			break;
 		case 'R':
-			reconnectPlayer(pInput, data2.substr(1));
+			reconnectPlayer(pInput, data2.substr(2));
 			goto sendupdates;
 		}
 
@@ -911,34 +911,34 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 		return;
 	}
 
-	switch (data[0]) {
+	switch (data[1]) {
 
 	case 'f':
 		game->sendFullUpdate(pInput, true);
 		goto sendupdates;
 	case 'g':
-		switch (data[1]) {
+		switch (data[2]) {
 
 		// These commands are always available in a running game, no matter what.
 		case 'd':
-			setGameDescription(pInput, data2.substr(2, 64));
+			setGameDescription(pInput, data2.substr(3, 64));
 			goto sendupdates;
 		case 'x':
 			exitGame(game, pInput);
 			goto sendupdates;
 		// The following commands have their own availability checks.
 		case 'c':
-			game->editConfiguration( pInput, data+2 );
+			game->editConfiguration( pInput, data+3 );
 			goto sendupdates;
 		case 'k':
 			Player *pKick;
-			pKick = game->kickPlayer( pInput, atoi(data+2) );
+			pKick = game->kickPlayer( pInput, atoi(data+3) );
 			if (pKick) {
 				exitGame(game, pKick);
 			}
 			goto sendupdates;
 		case 'u':
-			game->upgradePlayer( pInput, atoi(data+2) );
+			game->upgradePlayer( pInput, atoi(data+3) );
 			goto sendupdates;
 		case 's':
 			game->start(pInput);
@@ -953,10 +953,10 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 		return;
 	}
 
-	switch (data[0]) {
+	switch (data[1]) {
 
 	case 't':
-		game->setTokenLocation(pInput, atoi(data+1));
+		game->setTokenLocation(pInput, atoi(data+2));
 		if (!game->clientsMoving()) {
 			Event *event = findEvent(game, Event::TokenMovementTimeout);
 			if (event) {
@@ -978,38 +978,38 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 		return;
 	}
 
-	switch (data[0]) {
+	switch (data[1]) {
 
 	case 'T':
-		switch (data[1]) {
+		switch (data[2]) {
 
 		case 'c':
 		case 'e':
-			pInput->updateTradeObject(data+1);
+			pInput->updateTradeObject(data+2);
 			goto sendupdates;
 		case 'm':
-			pInput->updateTradeMoney(data+2);
+			pInput->updateTradeMoney(data+3);
 			goto sendupdates;
 		case 'n':
-			game->newTrade(pInput, atol(data2.substr(2).c_str()));
+			game->newTrade(pInput, atol(data2.substr(3).c_str()));
 			goto sendupdates;
 		case 'a':
-			game->acceptTrade(pInput, data+2);
+			game->acceptTrade(pInput, data+3);
 			goto sendupdates;
 		case 'r':
-			game->rejectTrade(pInput, atol(data2.substr(2).c_str()));
+			game->rejectTrade(pInput, atol(data2.substr(3).c_str()));
 			goto sendupdates;
 		}
 		break;
 	// From the official rules: "may buy and erect at any time"
 	case 'h':
-		switch (data[1]) {
+		switch (data[2]) {
 
 		case 'b':
-			pInput->buyHouse(atoi(data+2));
+			pInput->buyHouse(atoi(data+3));
 			goto sendupdates;
 		case 's':
-			pInput->sellHouse(atoi(data+2));
+			pInput->sellHouse(atoi(data+3));
 			goto sendupdates;
 		}
 		break;
@@ -1018,13 +1018,13 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 	// Selling estates is not officially supported, but it makes most
 	// sense here.
 	case 'e':
-		switch (data[1]) {
+		switch (data[2]) {
 
 		case 'm':
-			pInput->mortgageEstate(atoi(data+2));
+			pInput->mortgageEstate(atoi(data+3));
 			goto sendupdates;
 		case 's':
-			pInput->sellEstate(atoi(data+2));
+			pInput->sellEstate(atoi(data+3));
 			goto sendupdates;
 		}
 		break;
@@ -1038,10 +1038,10 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 	// If we're in a tax dialog, we don't accept too many commands.
 	if (game->pausedForDialog()) {
-		switch (data[0]) {
+		switch (data[1]) {
 
 		case 'T':
-			switch (data[1]) {
+			switch (data[2]) {
 
 			case '$':
 				pInput->payTax();
@@ -1061,7 +1061,7 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 	// Declaring bankruptcy is only possible when a player is in debt.
 	if (game->debts()) {
 		if (game->findDebt(pInput)) {
-			switch (data[0]) {
+			switch (data[1]) {
 
 			case 'D':
 				game->declareBankrupt(pInput);
@@ -1080,13 +1080,13 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 	// Auctions restrict movement and stuff.
 	if (game->auction()) {
-		switch (data[0]) {
+		switch (data[1]) {
 
 		case 'a':
-			switch (data[1]) {
+			switch (data[2]) {
 
 			case 'b':
-				if (!game->bidInAuction(pInput, data+2)) {
+				if (!game->bidInAuction(pInput, data+3)) {
 					Event *event;
 					event = findEvent(game, Event::AuctionTimeout);
 					if (!event)
@@ -1110,7 +1110,7 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 		return;
 	}
 
-	switch (data[0]) {
+	switch (data[1]) {
 
 	case 'E':
 		pInput->endTurn(true);
@@ -1120,10 +1120,10 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 	if (pInput->getBoolProperty("can_buyestate")) {
 		Event *event;
 
-		switch (data[0]) {
+		switch (data[1]) {
 
 		case 'e':
-			switch (data[1]) {
+			switch (data[2]) {
 
 			case 'b':
 				pInput->buyEstate();
@@ -1144,10 +1144,10 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 	if (pInput->getBoolProperty("jailed")) {
 
-		switch (data[0]) {
+		switch (data[1]) {
 
 		case 'j':
-			switch (data[1]) {
+			switch (data[2]) {
 
 			case 'c':
 				pInput->useJailCard();
@@ -1165,7 +1165,7 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 
 	if (pInput->getBoolProperty("can_roll")) {
 
-		switch (data[0]) {
+		switch (data[1]) {
 
 		case 'r':
 			pInput->rollDice();
