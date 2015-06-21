@@ -801,8 +801,9 @@ void MonopdServer::updateSystemdStatus() {
 #endif /* USE_SYSTEMD_DAEMON */
 }
 
-void MonopdServer::processInput(Socket *socket, const std::string data)
+void MonopdServer::processInput(Socket *socket, const std::string data2)
 {
+	char *data = (char*)data2.c_str();
 	Player *pInput = findPlayer(socket);
 	Game *game = pInput->game();
 
@@ -815,11 +816,11 @@ void MonopdServer::processInput(Socket *socket, const std::string data)
 			switch(data[1])
 			{
 			case 'n':
-				identifyPlayer(pInput, data.substr(2, 16));
+				identifyPlayer(pInput, data2.substr(2, 16));
 				sendXMLUpdates();
 				return;
 			case 'R':
-				reconnectPlayer(pInput, data.substr(2));
+				reconnectPlayer(pInput, data2.substr(2));
 				return;
 			}
 		}
@@ -827,20 +828,20 @@ void MonopdServer::processInput(Socket *socket, const std::string data)
 	}
 
 	if (data[0] != '.') {
-		if (data.size() > 256) {
+		if (data2.size() > 256) {
 			pInput->ioError("Chat messages are limited to 256 characters");
 			return;
 		}
 
 		if (game) {
-			game->ioWrite("<monopd><msg type=\"chat\" playerid=\"%d\" author=\"%s\" value=\"%s\"/></monopd>\n", pInput->id(), pInput->name().c_str(), escapeXML(data).c_str());
+			game->ioWrite("<monopd><msg type=\"chat\" playerid=\"%d\" author=\"%s\" value=\"%s\"/></monopd>\n", pInput->id(), pInput->name().c_str(), escapeXML(data2).c_str());
 		} else {
-			ioWrite("<monopd><msg type=\"chat\" playerid=\"" + itoa(pInput->id()) + "\" author=\"" + pInput->name() + "\" value=\"" + escapeXML(data) + "\"/></monopd>\n", true);
+			ioWrite("<monopd><msg type=\"chat\" playerid=\"" + itoa(pInput->id()) + "\" author=\"" + pInput->name() + "\" value=\"" + escapeXML(data2) + "\"/></monopd>\n", true);
 		}
 		return;
 	}
 
-	processCommands(pInput, data.substr(1));
+	processCommands(pInput, data2.substr(1));
 }
 
 void MonopdServer::processCommands(Player *pInput, const std::string data2)

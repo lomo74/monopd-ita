@@ -49,7 +49,7 @@ public:
 	void welcomeNew(Socket *socket);
 	void welcomeMetaserver(Socket *socket);
 	void closedMetaserver(Socket *socket);
-	void processInput(Socket *socket, const std::string data);
+	void processInput(Socket *socket, const std::string data2);
 
 private:
 	void updateSystemdStatus();
