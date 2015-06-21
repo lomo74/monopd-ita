@@ -103,16 +103,17 @@ int Listener::addListenFd(const int fd) {
 void Listener::checkActivity(int timeout)
 {
 	// Notify socket close events and delete them.
-	for ( std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it) ; )
-		if ( (*it)->status() == Socket::Close || (*it)->status() == Socket::ConnectFailed )
-		{
-			socketHandler( (*it) );
-			delSocket( (*it) );
+	for (std::vector<Socket *>::iterator it = m_sockets.begin() ; it != m_sockets.end() && (*it);) {
+		if ((*it)->status() == Socket::Close || (*it)->status() == Socket::ConnectFailed) {
+			socketHandler(*it);
+			delSocket(*it);
+			// damn vectors
 			it = m_sockets.begin();
 			continue;
 		}
-		else
-			++it;
+
+		++it;
+	}
 
 	// Construct file descriptor set for new events
 	FD_ZERO(&m_readfdset);
@@ -164,9 +165,6 @@ void Listener::checkActivity(int timeout)
 		tv.tv_usec = timeout*1000;
 		tvp = &tv;
 	}
-	tv.tv_sec = 1;
-	tv.tv_usec = 0;
-	tvp = &tv;
 
 	// Check filedescriptors for input.
 	if ( (select(highestFd+1, &m_readfdset, &m_writefdset, NULL, tvp)) <= 0 )
@@ -190,7 +188,7 @@ void Listener::checkActivity(int timeout)
 			{
 				(*it)->setStatus(Socket::Close);
 				delete[] readBuf;
-				return; // notification is (still) in earlier iteration
+				continue;
 			}
 			readBuf[n] = 0;
 			(*it)->fillBuffer(readBuf);
