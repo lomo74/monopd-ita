@@ -1,4 +1,5 @@
-// Copyright (c) 2002-2003 Rob Kaper <cap@capsi.com>
+// Copyright © 2002-2003 Rob Kaper <cap@capsi.com>
+//             2010-2015 Sylvain Rochet <gradator@gradator.net>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -10,9 +11,8 @@
 // General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program; see the file COPYING.  If not, write to
-// the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-// Boston, MA 02111-1307, USA.
+// along with this program; see the file COPYING. If not, see
+// <http://www.gnu.org/licenses/>.
 
 #include <stdlib.h>
 #include <iostream>

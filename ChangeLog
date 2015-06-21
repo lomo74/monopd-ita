@@ -289,7 +289,6 @@
 2002-07-04 (cap) (monopd-0.4.1)
 ----------
 
-- happy birthday, America!
 - fixed Makefile.am to include the READMEs at make dist, arghl
 - fixes more mem leaks
 - trades are now protected from non-participants
