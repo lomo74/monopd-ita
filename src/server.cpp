@@ -846,6 +846,8 @@ void MonopdServer::updateSystemdStatus() {
 void MonopdServer::processCommands(Player *pInput, const std::string data2)
 {
 	char *data = (char*)data2.c_str();
+	Game *game = pInput->game();
+
 	if (data[0] != 'f') {
 		pInput->setRequestedUpdate(false);
 	}
@@ -873,12 +875,14 @@ void MonopdServer::processCommands(Player *pInput, const std::string data2)
 		}
 		break;
 	case 'd':
+		if (game) {
+			exitGame(game, pInput);
+		}
 		pInput->closeSocket();
 		return;
 	}
 
 	// Commands available when player is not within a game.
-	Game *game = pInput->game();
 	if (!game) {
 		switch (data[0]) {
 
