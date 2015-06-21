@@ -74,8 +74,6 @@ class Player : public GameObject
 		Estate *destination();
 		void setTokenLocation(Estate *estate);
 		Estate *tokenLocation();
-		void setRequestedUpdate(const bool request) { m_requestedUpdate = request; }
-		bool requestedUpdate() { return m_requestedUpdate; }
 		void addCard(Card *card);
 		void takeCard(Card *card);
 		Card *findCard(int cardId);
@@ -105,7 +103,6 @@ private:
 	std::vector<Card *> m_cards;
 	std::vector<Display *> m_display;
 
-	bool m_requestedUpdate;
 	bool m_identified;
 };
 

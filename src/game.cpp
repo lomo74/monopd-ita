@@ -2197,17 +2197,8 @@ void Game::sendCardList(Player *pOut)
 	}
 }
 
-void Game::sendFullUpdate(Player *p, const bool userRequest)
+void Game::sendFullUpdate(Player *p)
 {
-	if (p->requestedUpdate())
-	{
-		// Last request was also a full update, so the full update XML
-		// itself triggers the request. Return here to avoid race condition.
-		return;
-	}
-	if (userRequest)
-		p->setRequestedUpdate(true);
-
 	sendStatus(p);
 
 	if (m_status == Config)

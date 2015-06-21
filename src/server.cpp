@@ -789,10 +789,6 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 
 	// The following commands are _always_ available.
 	if (data[0] == '.') {
-		if (data[1] != 'f') {
-			pInput->setRequestedUpdate(false);
-		}
-
 		switch (data[1]) {
 
 		case 'n':
@@ -885,7 +881,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 	switch (data[1]) {
 
 	case 'f':
-		game->sendFullUpdate(pInput, true);
+		game->sendFullUpdate(pInput);
 		goto sendupdates;
 	case 'g':
 		switch (data[2]) {

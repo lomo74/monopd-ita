@@ -98,7 +98,7 @@ class Game : public GameObject
 		void sendEstateGroupList(Player *player);
 		void sendPlayerList(Player *player);
 		void sendCardList(Player *pOut);
-		void sendFullUpdate(Player *player, bool userRequest = false);
+		void sendFullUpdate(Player *player);
 
 		int debts();
 		void newDebtToAll(Player *from, int amount);

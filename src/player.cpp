@@ -38,7 +38,6 @@ Player::Player(Socket *socket) : GameObject(-1, GameObject::GPlayer)
 	m_estate = 0;
 	m_destination = 0;
 	m_tokenLocation = 0;
-	m_requestedUpdate = false;
 	m_identified = false;
 }
 
@@ -71,7 +70,6 @@ void Player::reset(bool removeProperties)
 		removeProperty("directmove");
 		removeProperty("turnorder");
 	}
-	m_requestedUpdate = false;
 }
 
 void Player::identify(int id) {
