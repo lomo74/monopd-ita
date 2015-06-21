@@ -284,23 +284,6 @@ void MonopdServer::setGameDescription(Player *pInput, const std::string data)
 		pInput->ioError("Only the master can set the game description!");
 }
 
-void MonopdServer::identifyPlayer(Player *player, const std::string &name)
-{
-	player->identify(m_nextPlayerId++);
-	player->setProperty("game", -1, this);
-	player->setProperty("host", player->socket()->ipAddr(), this);
-	setPlayerName(player, name);
-
-	player->sendClientMsg();
-
-	syslog( LOG_INFO, "new player: id=[%d], fd=[%d], name=[%s], players=[%d]", player->id(), player->socket()->fd(), name.c_str(), (int)m_players.size() );
-	player = 0;
-	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (player = *it) ; ++it)
-		printf("  player %16s %16s game %d bankrupt %d socket fd %d\n", player->name().c_str(), player->getStringProperty("host").c_str(), (player->game() ? player->game()->id() : -1), player->getBoolProperty("bankrupt"), player->socket() ? (int)player->socket()->fd() : -1);
-
-	updateSystemdStatus();
-}
-
 void MonopdServer::reconnectPlayer(Player *pInput, const std::string &cookie)
 {
 	Player *player = findCookie(cookie);
@@ -818,10 +801,6 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 		case 'n':
 			// The 'n' name command is available even for non-players.
 			//  In fact, it's considered to be the protocol handshake.
-			if (!pInput->identified()) {
-				identifyPlayer(pInput, data2.substr(2, 16));
-				goto sendupdates;
-			}
 			setPlayerName(pInput, data2.substr(2, 16));
 			goto sendupdates;
 		case 'g':
@@ -1251,13 +1230,29 @@ void MonopdServer::sendXMLUpdate(Player *pOutput, bool fullUpdate, bool excludeS
 		pOutput->ioWrite("</monopd>\n");
 }
 
-void MonopdServer::setPlayerName(Player *player, const std::string &name)
-{
-		std::string useName = ( name.size() ? name : "anonymous" );
+void MonopdServer::setPlayerName(Player *player, const std::string &name) {
+	std::string useName = ( name.size() ? name : "anonymous" );
 
-		int i=1;
-		while (findPlayer(useName))
-			useName = ( name.size() ? name : "anonymous" ) + itoa( ++i );
+	int i=1;
+	while (findPlayer(useName)) {
+		useName = ( name.size() ? name : "anonymous" ) + itoa( ++i );
+	}
 
-		player->setProperty("name", useName, this);
+	player->setProperty("name", useName, this);
+	if (player->identified()) {
+		return;
+	}
+
+	player->setProperty("game", -1, this);
+	player->setProperty("host", player->socket()->ipAddr(), this);
+	player->identify(m_nextPlayerId++);
+	player->sendClientMsg();
+
+	syslog(LOG_INFO, "new player: id=[%d], fd=[%d], name=[%s], players=[%d]", player->id(), player->socket()->fd(), name.c_str(), (int)m_players.size());
+	player = 0;
+	for (std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (player = *it) ; ++it) {
+		printf("  player %16s %16s game %d bankrupt %d socket fd %d\n", player->name().c_str(), player->getStringProperty("host").c_str(), (player->game() ? player->game()->id() : -1), player->getBoolProperty("bankrupt"), player->socket() ? (int)player->socket()->fd() : -1);
+	}
+
+	updateSystemdStatus();
 }
