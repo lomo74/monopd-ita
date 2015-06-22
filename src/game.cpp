@@ -182,11 +182,15 @@ void Game::loadConfig()
 	if ( infile.bad() )
 		return;
 
-	while ( getline( infile, line, '\n') )
-	{
-		if ( !line.size() || line[0] == '#' ) {}
-		else if ( line[0] == '<' )
-		{
+	while (getline( infile, line, '\n')) {
+
+		if (!line.size() || line[0] == '#') {
+			continue;
+		}
+
+
+
+		if (line[0] == '<') {
 			value = line.substr( 1, line.size()-2 );
 			if ( value == "Board" )
 				configGroup = Board;
@@ -198,9 +202,11 @@ void Game::loadConfig()
 				configGroup = CardGroups;
 			else
 				configGroup = Other;
+
+			continue;
 		}
-		else if ( line[0] == '[' )
-		{
+
+		if (line[0] == '[') {
 			value = line.substr( 1, line.size()-2 );
 			if (configGroup == EstateGroups)
 				group = newGroup( value );
@@ -208,57 +214,62 @@ void Game::loadConfig()
 				eTmp = newEstate( value );
 			else if (configGroup == Cards && cardGroup)
 				card = cardGroup->newCard( nextCardId++, value );
-		}
-		else
-		{
-			pos = line.find( "=" );
-			if ( pos != (int)std::string::npos )
-			{
-				key = line.substr( 0, pos );
-				value = line.substr( pos+1 );
 
-				if (configGroup == Board)
-				{
-					if ( key == "go" )
-						goEstate = atoi( value.c_str() );
-					else if ( key == "bgcolor" )
-						m_bgColor = value;
-				}
-				else if (configGroup == EstateGroups)
-					parseConfigEntry( group, key, value );
-				else if (configGroup == Estates)
-				{
-					if ( key == "paytarget" )
-						payTargets[eTmp] = atoi( value.c_str() );
-					else
-						parseConfigEntry( eTmp, key, value );
-				}
-				else if (configGroup == CardGroups)
-				{
-					if ( key == "groupname" )
-					{
-						cardGroup = newCardGroup( value );
-						configGroup = Cards;
-					}
-				}
-				else if (configGroup == Cards)
-				{
-					if ( key == "groupname" )
-						cardGroup = newCardGroup( value );
-					else
-						parseConfigEntry( card, key, value );
-				}
-				else if ( key == "name" || key == "description")
-					setProperty( key, value );
-				else if ( key == "minplayers" || key == "maxplayers" )
-					setProperty( key, atoi( value.c_str() ) );
-				else if ( key == "houses" )
-					m_houses = atoi( value.c_str() );
-				else if ( key == "hotels" )
-					m_hotels = atoi( value.c_str() );
-				else if ( key == "startmoney" )
-					m_startMoney = atoi( value.c_str() );
+			continue;
+		}
+
+		pos = line.find( "=" );
+		if (pos == (int)std::string::npos) {
+			continue;
+		}
+
+		key = line.substr( 0, pos );
+		value = line.substr( pos+1 );
+
+		if (configGroup == Board) {
+			if ( key == "go" ) {
+				goEstate = atoi( value.c_str() );
+			} else if ( key == "bgcolor" ) {
+				m_bgColor = value;
 			}
+		}
+		else if (configGroup == EstateGroups) {
+			parseConfigEntry( group, key, value );
+		}
+		else if (configGroup == Estates) {
+			if ( key == "paytarget" ) {
+				payTargets[eTmp] = atoi( value.c_str() );
+			} else {
+				parseConfigEntry( eTmp, key, value );
+			}
+		}
+		else if (configGroup == CardGroups) {
+			if ( key == "groupname" ) {
+				cardGroup = newCardGroup( value );
+				configGroup = Cards;
+			}
+		}
+		else if (configGroup == Cards) {
+			if ( key == "groupname" ) {
+				cardGroup = newCardGroup( value );
+			} else {
+				parseConfigEntry( card, key, value );
+			}
+		}
+		else if ( key == "name" || key == "description") {
+			setProperty( key, value );
+		}
+		else if ( key == "minplayers" || key == "maxplayers" ) {
+			setProperty( key, atoi( value.c_str() ) );
+		}
+		else if ( key == "houses" ) {
+			m_houses = atoi( value.c_str() );
+		}
+		else if ( key == "hotels" ) {
+			m_hotels = atoi( value.c_str() );
+		}
+		else if ( key == "startmoney" ) {
+			m_startMoney = atoi( value.c_str() );
 		}
 	}
 	infile.close();
