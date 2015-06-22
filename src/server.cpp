@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <utf8.h>
 
 #include <string>
 
@@ -786,6 +787,11 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 	char *data = (char*)data2.c_str();
 	Player *pInput = findPlayer(socket);
 	Game *game = pInput->game();
+
+	if (!utf8::is_valid(data2.begin(), data2.end())) {
+		pInput->ioError("Input is not proper UTF-8");
+		return;
+	}
 
 	// The following commands are _always_ available.
 	if (data[0] == '.') {
