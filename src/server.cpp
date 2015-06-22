@@ -274,8 +274,17 @@ void MonopdServer::delGame(Game *game, bool verbose)
 	updateSystemdStatus();
 }
 
-void MonopdServer::setGameDescription(Player *pInput, const std::string data)
+void MonopdServer::setGameDescription(Player *pInput, std::string data)
 {
+	// truncate description to 64 characters
+	try {
+		std::string::iterator it = data.begin();
+		utf8::advance(it, 64, data.end());
+		data.erase(it, data.end());
+	}
+	catch (const utf8::not_enough_room &e) {
+	}
+
 	Game *game = pInput->game();
 	if (pInput == game->master())
 	{
@@ -800,7 +809,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 		case 'n':
 			// The 'n' name command is available even for non-players.
 			//  In fact, it's considered to be the protocol handshake.
-			setPlayerName(pInput, data2.substr(2, 16));
+			setPlayerName(pInput, data2.substr(2));
 			goto sendupdates;
 		case 'g':
 			switch (data[2]) {
@@ -853,7 +862,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 		switch (data[2]) {
 
 		case 'i':
-			pInput->setProperty("image", data2.substr(3, 32), this);
+			setPlayerImage(pInput, data2.substr(3));
 			goto sendupdates;
 		}
 		break;
@@ -894,7 +903,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 
 		// These commands are always available in a running game, no matter what.
 		case 'd':
-			setGameDescription(pInput, data2.substr(3, 64));
+			setGameDescription(pInput, data2.substr(3));
 			goto sendupdates;
 		case 'x':
 			exitGame(game, pInput);
@@ -1229,12 +1238,25 @@ void MonopdServer::sendXMLUpdate(Player *pOutput, bool fullUpdate, bool excludeS
 		pOutput->ioWrite("</monopd>\n");
 }
 
-void MonopdServer::setPlayerName(Player *player, const std::string &name) {
-	std::string useName = ( name.size() ? name : "anonymous" );
+void MonopdServer::setPlayerName(Player *player, std::string name) {
 
+	// truncate player name to 16 characters
+	if (name.size()) {
+		try {
+			std::string::iterator it = name.begin();
+			utf8::advance(it, 16, name.end());
+			name.erase(it, name.end());
+		}
+		catch (const utf8::not_enough_room &e) {
+		}
+	} else {
+		name = "anonymous";
+	}
+
+	std::string useName = name;
 	int i=1;
 	while (findPlayer(useName)) {
-		useName = ( name.size() ? name : "anonymous" ) + itoa( ++i );
+		useName = name + itoa(++i);
 	}
 
 	player->setProperty("name", useName, this);
@@ -1254,4 +1276,17 @@ void MonopdServer::setPlayerName(Player *player, const std::string &name) {
 	}
 
 	updateSystemdStatus();
+}
+
+void MonopdServer::setPlayerImage(Player *player, std::string image) {
+	// truncate image name to 32 characters
+	try {
+		std::string::iterator it = image.begin();
+		utf8::advance(it, 32, image.end());
+		image.erase(it, image.end());
+	}
+	catch (const utf8::not_enough_room &e) {
+	}
+
+	player->setProperty("image", image, this);
 }

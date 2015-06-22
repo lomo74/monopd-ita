@@ -70,7 +70,7 @@ private:
 	void newGame(Player *player, const std::string gameType);
 	void joinGame(Player *player, unsigned int gameId, const bool &specator = false);
 	void exitGame(Game *game, Player *player);
-	void setGameDescription(Player *pInput, const std::string data);
+	void setGameDescription(Player *pInput, std::string data);
 	void reconnectPlayer(Player *player, const std::string &cookie);
 
 	void registerMetaserver();
@@ -81,7 +81,8 @@ private:
 	void sendGameTemplateList(Player *player);
 	void sendXMLUpdates();
 	void sendXMLUpdate(Player *player, bool fullUpdate = false, bool excludeSelf = false);
-	void setPlayerName(Player *player, const std::string &name);
+	void setPlayerName(Player *player, std::string name);
+	void setPlayerImage(Player *player, std::string image);
 
 	std::vector<Event *> m_events;
 	std::vector<Game *> m_games;
