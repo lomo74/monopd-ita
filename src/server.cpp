@@ -679,8 +679,16 @@ void MonopdServer::loadGameTemplates()
 			fgets(str, sizeof(str), f);
 			while (!feof(f))
 			{
-				if (str[0]=='#') {}
-				else if (strstr(str, "="))
+				if (str[0]=='#') {
+					continue;
+				}
+
+				if (!utf8::is_valid(str, str+strlen(str))) {
+					syslog( LOG_WARNING, "cannot open game configuration, file is not proper UTF-8: file=[%s/%s]", MONOPD_DATADIR "/games", filename.c_str() );
+					goto abort;
+				}
+
+				if (strstr(str, "="))
 				{
 					buf = strtok(str, "=");
 					if (!strcmp(buf, "name"))
@@ -690,9 +698,10 @@ void MonopdServer::loadGameTemplates()
 				}
 				fgets(str, sizeof(str), f);
 			}
-			fclose(f);
 
 			newGameConfig(strtok(direntp->d_name, "."), (name.size() ? name : strtok(direntp->d_name, ".")), (description.size() ? description : "No description available"));
+abort:
+			fclose(f);
 			name = "";
 			description = "";
 		}

@@ -28,6 +28,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <utf8.h>
+
 #include "auction.h"
 #include "card.h"
 #include "cardgroup.h"
@@ -188,7 +190,9 @@ void Game::loadConfig()
 			continue;
 		}
 
-
+		if (!utf8::is_valid(line.begin(), line.end())) {
+			return;
+		}
 
 		if (line[0] == '<') {
 			value = line.substr( 1, line.size()-2 );
