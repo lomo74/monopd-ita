@@ -66,6 +66,9 @@ monopd has the following requirements:
 - libmuparser >= 2.0.0
   (http://muparser.beltoforion.de/)
 
+- UTF8-CPP library
+  (http://utfcpp.sourceforge.net/)
+
 - libsystemd-daemon (optional, for systemd notify and socket activation support)
 
 4. Installation
