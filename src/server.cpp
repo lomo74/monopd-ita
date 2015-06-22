@@ -680,7 +680,7 @@ void MonopdServer::loadGameTemplates()
 			while (!feof(f))
 			{
 				if (str[0]=='#') {
-					continue;
+					goto nextline;
 				}
 
 				if (!utf8::is_valid(str, str+strlen(str))) {
@@ -696,6 +696,7 @@ void MonopdServer::loadGameTemplates()
 					else if (!strcmp(buf, "description"))
 						description = strtok(NULL, "\n\0");
 				}
+nextline:
 				fgets(str, sizeof(str), f);
 			}
 
