@@ -851,7 +851,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 	}
 
 	if (data[0] != '.') {
-		if (data2.size() > 256) {
+		if (utf8::distance(data2.begin(), data2.end()) > 256) {
 			pInput->ioError("Chat messages are limited to 256 characters");
 			return;
 		}
