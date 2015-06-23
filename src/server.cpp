@@ -649,14 +649,10 @@ void MonopdServer::loadConfig()
 void MonopdServer::loadGameTemplates()
 {
 	DIR *dirp;
-	FILE *f;
-	char str[256], *buf;
 	struct dirent *direntp;
-	std::string name = "", description = "";
 
 	dirp = opendir(MONOPD_DATADIR "/games/");
-	if (!dirp)
-	{
+	if (!dirp) {
 		syslog( LOG_ERR, "cannot open game directory, dir=[%s]", MONOPD_DATADIR "/games/" );
 #if USE_SYSTEMD_DAEMON
 		sd_notifyf(1, "STATUS=Failed to start: cannot open game directory, dir=[%s]\nERRNO=%d", MONOPD_DATADIR "/games/", -1 );
@@ -664,48 +660,43 @@ void MonopdServer::loadGameTemplates()
 #endif /* USE_SYSTEMD_DAEMON */
 		exit(-1);
 	}
-	while ((direntp=readdir(dirp)) != NULL)
-	{
-		if (strstr(direntp->d_name, ".conf"))
-		{
-			std::string filename = std::string(MONOPD_DATADIR) + "/games/" + direntp->d_name;
-			f = fopen(filename.c_str(), "r");
-			if (!f)
-			{
-				syslog( LOG_WARNING, "cannot open game configuration: file=[%s/%s]", MONOPD_DATADIR "/games", filename.c_str() );
+	while ((direntp=readdir(dirp)) != NULL) {
+		char str[256], *buf;
+		std::string name, description;
+
+		if (!strstr(direntp->d_name, ".conf")) {
+			continue;
+		}
+
+		std::string filename = std::string(MONOPD_DATADIR) + "/games/" + direntp->d_name;
+		FILE *f = fopen(filename.c_str(), "r");
+		if (!f) {
+			syslog( LOG_WARNING, "cannot open game configuration: file=[%s/%s]", MONOPD_DATADIR "/games", filename.c_str() );
+			continue;
+		}
+
+		for (fgets(str, sizeof(str), f); !feof(f); fgets(str, sizeof(str), f)) {
+			if (str[0]=='#') {
 				continue;
 			}
 
-			fgets(str, sizeof(str), f);
-			while (!feof(f))
-			{
-				if (str[0]=='#') {
-					goto nextline;
-				}
-
-				if (!utf8::is_valid(str, str+strlen(str))) {
-					syslog( LOG_WARNING, "cannot open game configuration, file is not proper UTF-8: file=[%s/%s]", MONOPD_DATADIR "/games", filename.c_str() );
-					goto abort;
-				}
-
-				if (strstr(str, "="))
-				{
-					buf = strtok(str, "=");
-					if (!strcmp(buf, "name"))
-						name = strtok(NULL, "\n\0");
-					else if (!strcmp(buf, "description"))
-						description = strtok(NULL, "\n\0");
-				}
-nextline:
-				fgets(str, sizeof(str), f);
+			if (!utf8::is_valid(str, str+strlen(str))) {
+				syslog( LOG_WARNING, "cannot open game configuration, file is not proper UTF-8: file=[%s/%s]", MONOPD_DATADIR "/games", filename.c_str() );
+				goto abort;
 			}
 
-			newGameConfig(strtok(direntp->d_name, "."), (name.size() ? name : strtok(direntp->d_name, ".")), (description.size() ? description : "No description available"));
-abort:
-			fclose(f);
-			name = "";
-			description = "";
+			if (strstr(str, "="))
+			{
+				buf = strtok(str, "=");
+				if (!strcmp(buf, "name"))
+					name = strtok(NULL, "\n\0");
+				else if (!strcmp(buf, "description"))
+					description = strtok(NULL, "\n\0");
+			}
 		}
+		newGameConfig(strtok(direntp->d_name, "."), (name.size() ? name : strtok(direntp->d_name, ".")), (description.size() ? description : "No description available"));
+abort:
+		fclose(f);
 	}
 	closedir(dirp);
 }
