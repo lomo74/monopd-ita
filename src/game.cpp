@@ -191,6 +191,7 @@ void Game::loadConfig()
 		}
 
 		if (!utf8::is_valid(line.begin(), line.end())) {
+			infile.close();
 			return;
 		}
 
