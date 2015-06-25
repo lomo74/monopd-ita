@@ -93,7 +93,7 @@ class Game : public GameObject
 		void bankruptPlayer(Player *player);
 		void sendDisplayMsg(Display *display, Player *except = NULL);
 		void sendMsgEstateUpdate(Estate *);
-		void sendStatus(Player *player);
+		void sendStatus(Player *player = NULL);
 		void sendEstateList(Player *player);
 		void sendEstateGroupList(Player *player);
 		void sendPlayerList(Player *player);

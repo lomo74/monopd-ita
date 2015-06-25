@@ -533,7 +533,7 @@ void Game::start(Player *pInput)
 
 	// Add notification of game start.
 	m_status = Run;
-	ioWrite("<monopd><gameupdate gameid=\"%d\" status=\"%s\"/></monopd>\n", m_id, statusLabel().c_str());
+	sendStatus();
 
 	Display display;
 	display.resetText();
@@ -2072,9 +2072,7 @@ void Game::bankruptPlayer(Player *pBroke)
 		display.addButton(".gx", "New Game", true);
 		sendDisplayMsg(&display);
 
-		for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end(); ++it) {
-			sendStatus(*it);
-		}
+		sendStatus();
 	}
 	else
 	{
@@ -2157,7 +2155,11 @@ void Game::setAllClientsMoving(Estate *estate)
 
 void Game::sendStatus(Player *p)
 {
-	p->ioWrite("<monopd><gameupdate gameid=\"%d\" status=\"%s\"/></monopd>\n", m_id, statusLabel().c_str());
+	if (p) {
+		p->ioWrite("<monopd><gameupdate gameid=\"%d\" status=\"%s\"/></monopd>\n", m_id, statusLabel().c_str());
+	} else {
+		ioWrite("<monopd><gameupdate gameid=\"%d\" status=\"%s\"/></monopd>\n", m_id, statusLabel().c_str());
+	}
 }
 
 void Game::sendEstateList(Player *p)
