@@ -177,7 +177,7 @@ void MonopdServer::newGame(Player *player, const std::string gameType)
 
 	syslog( LOG_INFO, "new game: id=[%d], type=[%s], games=[%d]", game->id(), gameType.c_str(), (int)m_games.size() );
 
-	game->addPlayer(player, true);
+	game->addPlayer(player, false, true);
 
 	updateSystemdStatus();
 }
@@ -196,7 +196,7 @@ void MonopdServer::joinGame(Player *pInput, unsigned int gameId, const bool &spe
 		GameObject *config = game->findConfigOption( "allowspectators" );
 		if ( config && config->getBoolProperty( "value" ) && game->status() == Game::Run )
 		{
-			game->addPlayer( pInput, false, true );
+			game->addPlayer(pInput, true);
 			game->ioInfo("%s joins as spectator.", pInput->name().c_str());
 		}
 		else

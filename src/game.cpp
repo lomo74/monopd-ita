@@ -1380,7 +1380,7 @@ Card *Game::findCard(unsigned int id)
 	return 0;
 }
 
-Player *Game::addPlayer(Player *p, const bool &isMaster, const bool &isSpectator)
+Player *Game::addPlayer(Player *p, const bool &isSpectator, const bool &isFirst)
 {
 	m_players.push_back(p);
 	setProperty( "players", m_players.size() );
@@ -1398,10 +1398,9 @@ Player *Game::addPlayer(Player *p, const bool &isMaster, const bool &isSpectator
 	p->setBoolProperty("hasturn", 0, this);
 	p->setBoolProperty("spectator", isSpectator, this);
 
-	if (isMaster)
-	{
+	if (isFirst) {
 		m_master = p;
-		setProperty( "master", p->id() );
+		setProperty("master", p->id());
 	}
 
 	// Properties with player as scope

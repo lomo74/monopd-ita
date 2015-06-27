@@ -80,7 +80,7 @@ class Game : public GameObject
 		void unsetChildProperties();
 
 		int players();
-		Player *addPlayer(Player *, const bool &isMaster = false, const bool &isSpectator = false);
+		Player *addPlayer(Player *, const bool &isSpectator = false, const bool &isFirst = false);
 		Player *findPlayer(int playerId);
 		Player *kickPlayer(Player *player, int playerId);
 		void upgradePlayer(Player *player, int playerId);
