@@ -1195,26 +1195,6 @@ void MonopdServer::sendXMLUpdate(Player *pOutput, bool fullUpdate, bool excludeS
 {
 	bool updateEmpty = true;
 
-	// Send updates *about* all players ..
-	Player *pUpdate = 0;
-	for(std::vector<Player *>::iterator uit = m_players.begin(); uit != m_players.end() && (pUpdate = *uit) ; ++uit)
-	{
-		// .. but only when changed (and in property scope)
-		if (!excludeSelf || pUpdate != pOutput)
-		{
-			std::string updateXML = pUpdate->oldXMLUpdate(pOutput, fullUpdate);
-			if (updateXML.size())
-			{
-				if (updateEmpty)
-				{
-					pOutput->ioWrite("<monopd>");
-					updateEmpty = false;
-				}
-				pOutput->ioWrite("%s", updateXML.c_str());
-			}
-		}
-	}
-
 	// Send updates *about* all games ..
 	Game *gUpdate = 0;
 	for(std::vector<Game *>::iterator uit = m_games.begin(); uit != m_games.end() && (gUpdate = *uit) ; ++uit)
@@ -1235,6 +1215,26 @@ void MonopdServer::sendXMLUpdate(Player *pOutput, bool fullUpdate, bool excludeS
 	// Let game handle updates *about* all of its objects ..
 	if (Game *game = pOutput->game())
 		updateEmpty = game->sendChildXMLUpdate(pOutput, updateEmpty);
+
+	// Send updates *about* all players ..
+	Player *pUpdate = 0;
+	for(std::vector<Player *>::iterator uit = m_players.begin(); uit != m_players.end() && (pUpdate = *uit) ; ++uit)
+	{
+		// .. but only when changed (and in property scope)
+		if (!excludeSelf || pUpdate != pOutput)
+		{
+			std::string updateXML = pUpdate->oldXMLUpdate(pOutput, fullUpdate);
+			if (updateXML.size())
+			{
+				if (updateEmpty)
+				{
+					pOutput->ioWrite("<monopd>");
+					updateEmpty = false;
+				}
+				pOutput->ioWrite("%s", updateXML.c_str());
+			}
+		}
+	}
 
 	if (!updateEmpty)
 		pOutput->ioWrite("</monopd>\n");
