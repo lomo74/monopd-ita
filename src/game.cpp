@@ -504,6 +504,7 @@ void Game::start(Player *pInput)
 
 	// Update status.
 	m_status = Init;
+	sendStatus();
 
 	// Update whether players can join/watch.
 	GameObject *config = findConfigOption( "allowspectators" );
@@ -537,7 +538,6 @@ void Game::start(Player *pInput)
 	// Add notification of game start.
 	m_status = Run;
 	setProperty("status", statusLabel());
-	sendStatus();
 
 	Display display;
 	display.resetText();
@@ -1417,6 +1417,7 @@ Player *Game::addPlayer(Player *p, const bool &isSpectator, const bool &isFirst)
 		if (m_status == Run) {
 			// Temporarily set status at init for joining player
 			m_status = Init;
+			sendStatus(p);
 			sendFullUpdate(p);
 			m_status = Run;
 			sendStatus(p);
@@ -2073,8 +2074,6 @@ void Game::bankruptPlayer(Player *pBroke)
 		display.setText("The game has ended! %s wins with a fortune of %d!", m_pWinner->getStringProperty("name").c_str(), m_pWinner->assets());
 		display.addButton(".gx", "New Game", true);
 		sendDisplayMsg(&display);
-
-		sendStatus();
 	}
 	else
 	{
@@ -2219,8 +2218,6 @@ void Game::sendCardList(Player *pOut)
 
 void Game::sendFullUpdate(Player *p)
 {
-	sendStatus(p);
-
 	if (m_status == Config) {
 		sendConfiguration(p);
 		return;

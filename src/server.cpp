@@ -325,6 +325,7 @@ void MonopdServer::reconnectPlayer(Player *pInput, const std::string &cookie)
 	player->sendClientMsg();
 
 	game->setStatus(Game::Init);
+	game->sendStatus(player);
 	game->sendFullUpdate(player);
 	game->setStatus(Game::Run);
 	game->sendStatus(player);
