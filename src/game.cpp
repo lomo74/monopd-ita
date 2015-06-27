@@ -533,6 +533,7 @@ void Game::start(Player *pInput)
 
 	// Add notification of game start.
 	m_status = Run;
+	setProperty("status", statusLabel());
 	sendStatus();
 
 	Display display;
@@ -2064,6 +2065,7 @@ void Game::bankruptPlayer(Player *pBroke)
 		abortAuction();
 
 		m_status = End;
+		setProperty("status", statusLabel());
 		syslog(LOG_INFO, "game %d ended: %s wins with a fortune of %d.", m_id, m_pWinner->name().c_str(), m_pWinner->assets());
 
 		Display display;
