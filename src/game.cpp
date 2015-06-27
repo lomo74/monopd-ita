@@ -1419,13 +1419,11 @@ Player *Game::addPlayer(Player *p, const bool &isSpectator, const bool &isFirst)
 			m_status = Init;
 			sendFullUpdate(p);
 			m_status = Run;
+			sendStatus(p);
 		} else {
 			sendFullUpdate(p);
 		}
 	}
-
-	if (p->getBoolProperty("spectator"))
-		sendStatus(p);
 
 	return p;
 }
