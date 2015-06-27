@@ -340,7 +340,8 @@ be shown as description for a display widget.
 
  <gameupdate gameid="int" gametype="string" name="string"
    description="string" status="string" players="int" canbejoined="bool"
-   minplayers="int" maxplayers="int" master="int" turn="int"/>
+   canbewatched="bool" minplayers="int" maxplayers="int" master="int"
+   turn="int"/>
 
 Gives clients information about games on the server. 
 

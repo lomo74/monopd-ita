@@ -509,11 +509,11 @@ void Game::start(Player *pInput)
 	setProperty("status", "run");
 
 	// Update whether players can join/watch.
-	GameObject *config = findConfigOption( "allowspectators" );
-	if ( config && config->getBoolProperty( "value" ) )
-		setBoolProperty( "canbejoined", true );
-	else
-		setBoolProperty( "canbejoined", false );
+	setBoolProperty("canbejoined", false);
+	GameObject *config = findConfigOption("allowspectators");
+	if (config && config->getBoolProperty("value")) {
+		setBoolProperty("canbewatched", true);
+	}
 
 	// Shuffle players
 	random_shuffle(m_players.begin(), m_players.end());

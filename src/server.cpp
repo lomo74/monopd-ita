@@ -165,6 +165,7 @@ void MonopdServer::newGame(Player *player, const std::string gameType)
 	game->setProperty("maxplayers", 1, this);
 	game->setProperty("players", 0, this);
 	game->setBoolProperty("canbejoined", true, this);
+	game->setBoolProperty("canbewatched", false, this);
 
 	game->loadGameType(gameType);
 
