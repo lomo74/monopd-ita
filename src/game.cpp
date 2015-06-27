@@ -1532,6 +1532,16 @@ void Game::upgradePlayer(Player *pInput, int playerId)
 
 	// Reset player and remove spectator property.
 	player->reset(false);
+
+	int turnorder = 0;
+	for (std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end(); ++it) {
+		int to = (*it)->getIntProperty("turnorder");
+		if (to > turnorder) {
+			turnorder = to;
+		}
+	}
+	player->setProperty("turnorder", ++turnorder);
+
 	player->setEstate(m_goEstate);
 	player->addMoney(m_startMoney);
 	player->setBoolProperty("spectator", 0, this);
