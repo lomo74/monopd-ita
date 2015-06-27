@@ -161,7 +161,10 @@ void Game::loadGameType(const std::string &gameType)
 		m_gameType = gameType;
 		loadConfig();
 
-		unsetChildProperties(); // so that the first player joining won't get estateupdates until init
+		// Reset estates.. so that the first player joining won't get estateupdates until init
+		for (std::vector<Estate *>::iterator it = m_estates.begin(); it != m_estates.end() && (*it) ; ++it) {
+			(*it)->unsetPropertiesChanged();
+		}
 	}
 }
 
