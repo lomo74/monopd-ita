@@ -156,6 +156,7 @@ void MonopdServer::newGame(Player *player, const std::string gameType)
 	game->setProperty("name", (gameType.size() ? gameType : "atlantic"), this);
 	game->setProperty("gametype", gameType, this);
 	game->setProperty("status", "config", this);
+	game->setProperty("turn", 0, this);
 
 	// Hardcoded reasonable defaults, which also ensure the entire server is the scope
 	game->setProperty("master", -1, this); // addPlayer will set the correct playerid

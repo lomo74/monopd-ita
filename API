@@ -340,14 +340,15 @@ be shown as description for a display widget.
 
  <gameupdate gameid="int" gametype="string" name="string"
    description="string" status="string" players="int" canbejoined="bool"
-   minplayers="int" maxplayers="int" master="int"/>
+   minplayers="int" maxplayers="int" master="int" turn="int"/>
 
 Gives clients information about games on the server. 
 
 The description field is optional (and set with .gd). If gameid is -1, this
 is not an actual game which can be joined but a template for a new game.
 Master is -1 for no master (should not happen) or a player id indicating
-this player is the master for the game.
+this player is the master for the game. Turn is the number of turns that
+players have done so far.
 
 Status can be:
 

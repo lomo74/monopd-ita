@@ -534,6 +534,9 @@ void Game::start(Player *pInput)
 		pTmp->addMoney(m_startMoney);
 	}
 
+	// First turn
+	setProperty("turn", 1);
+
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
 		sendFullUpdate(pTmp);
 
@@ -1579,8 +1582,10 @@ void Game::updateTurn()
 			break;
 		}
 	}
-	if (useNext && pFirst)
+	if (useNext && pFirst) {
 		m_pTurn = pFirst;
+		setProperty("turn", getIntProperty("turn") +1);
+	}
 
 	// Set turn.
 	Display display;
