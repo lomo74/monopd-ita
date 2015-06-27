@@ -2078,6 +2078,7 @@ void Game::bankruptPlayer(Player *pBroke)
 		m_status = End;
 		setProperty("status", "end");
 		syslog(LOG_INFO, "game %d ended: %s wins with a fortune of %d.", m_id, m_pWinner->name().c_str(), m_pWinner->assets());
+		setBoolProperty("canbewatched", false);
 
 		Display display;
 		display.resetButtons();  /* Reset any button, game might end if a player left while we were asked to buy an estate for example */
