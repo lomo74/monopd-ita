@@ -1570,7 +1570,7 @@ void Game::updateTurn()
 	bool useNext = false;
 	for(std::vector<Player *>::iterator it = m_players.begin() ; it != m_players.end() && (player = *it) ; ++it)
 	{
-		if (!pFirst && !player->getBoolProperty("bankrupt"))
+		if (!pFirst && !player->getBoolProperty("bankrupt") && !player->getBoolProperty("spectator"))
 			pFirst = player;
 
 		if (player == pOldTurn)
