@@ -503,8 +503,10 @@ void Game::start(Player *pInput)
 	}
 
 	// Update status.
-	m_status = Init;
-	sendStatus();
+	sendStatus(Init);
+	// Add notification of game start.
+	m_status = Run;
+	setProperty("status", "run");
 
 	// Update whether players can join/watch.
 	GameObject *config = findConfigOption( "allowspectators" );
@@ -534,10 +536,6 @@ void Game::start(Player *pInput)
 
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
 		sendFullUpdate(pTmp);
-
-	// Add notification of game start.
-	m_status = Run;
-	setProperty("status", statusLabel());
 
 	Display display;
 	display.resetText();
@@ -1415,12 +1413,9 @@ Player *Game::addPlayer(Player *p, const bool &isSpectator, const bool &isFirst)
 
 	if (!isFirst) {
 		if (m_status == Run) {
-			// Temporarily set status at init for joining player
-			m_status = Init;
-			sendStatus(p);
+			sendStatus(Init, p);
 			sendFullUpdate(p);
-			m_status = Run;
-			sendStatus(p);
+			sendStatus(Run, p);
 		} else {
 			sendFullUpdate(p);
 		}
@@ -2066,7 +2061,7 @@ void Game::bankruptPlayer(Player *pBroke)
 		abortAuction();
 
 		m_status = End;
-		setProperty("status", statusLabel());
+		setProperty("status", "end");
 		syslog(LOG_INFO, "game %d ended: %s wins with a fortune of %d.", m_id, m_pWinner->name().c_str(), m_pWinner->assets());
 
 		Display display;
@@ -2154,12 +2149,29 @@ void Game::setAllClientsMoving(Estate *estate)
 		pTmp->setTokenLocation(estate);
 }
 
-void Game::sendStatus(Player *p)
+void Game::sendStatus(Status status, Player *p)
 {
+	const char *s = "unknown";
+
+	switch(status) {
+	case Config:
+		s = "config";
+		break;
+	case Init:
+		s = "init";
+		break;
+	case Run:
+		s = "run";
+		break;
+	case End:
+		s = "end";
+		break;
+	}
+
 	if (p) {
-		p->ioWrite("<monopd><gameupdate gameid=\"%d\" status=\"%s\"/></monopd>\n", m_id, statusLabel().c_str());
+		p->ioWrite("<monopd><gameupdate gameid=\"%d\" status=\"%s\"/></monopd>\n", m_id, s);
 	} else {
-		ioWrite("<monopd><gameupdate gameid=\"%d\" status=\"%s\"/></monopd>\n", m_id, statusLabel().c_str());
+		ioWrite("<monopd><gameupdate gameid=\"%d\" status=\"%s\"/></monopd>\n", m_id, s);
 	}
 }
 
@@ -2237,23 +2249,6 @@ void Game::sendConfiguration(Player *p)
 	for(std::vector<GameObject *>::iterator it = m_configOptions.begin(); it != m_configOptions.end() && (*it) ; ++it)
 		p->ioWrite( (*it)->oldXMLUpdate(p, true) );
 	p->ioWrite("</monopd>\n");
-}
-
-const std::string Game::statusLabel()
-{
-	switch(m_status)
-	{
-	case Config:
-		return "config";
-	case Init:
-		return "init";
-	case Run:
-		return "run";
-	case End:
-		return "end";
-	default:
-		return "default";
-	}
 }
 
 bool Game::sendChildXMLUpdate(Player *pOutput, bool updateEmpty)

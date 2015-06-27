@@ -155,7 +155,7 @@ void MonopdServer::newGame(Player *player, const std::string gameType)
 
 	game->setProperty("name", (gameType.size() ? gameType : "atlantic"), this);
 	game->setProperty("gametype", gameType, this);
-	game->setProperty("status", game->statusLabel(), this);
+	game->setProperty("status", "config", this);
 
 	// Hardcoded reasonable defaults, which also ensure the entire server is the scope
 	game->setProperty("master", -1, this); // addPlayer will set the correct playerid
@@ -324,11 +324,9 @@ void MonopdServer::reconnectPlayer(Player *pInput, const std::string &cookie)
 	player->setSocket(pInput->socket());
 	player->sendClientMsg();
 
-	game->setStatus(Game::Init);
-	game->sendStatus(player);
+	game->sendStatus(Game::Init, player);
 	game->sendFullUpdate(player);
-	game->setStatus(Game::Run);
-	game->sendStatus(player);
+	game->sendStatus(Game::Run, player);
 	player->sendDisplayHistory();
 
 	game->ioInfo("%s reconnected.", player->name().c_str());

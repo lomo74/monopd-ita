@@ -61,13 +61,11 @@ class Game : public GameObject
 		void setAllClientsMoving(Estate *estate);
 
 		// Member management
-		void setStatus(Status status) { m_status = status; }
 		void setDescription(const std::string data);
 		void setHouses(int _h) { m_houses = _h; }
 		void setHotels(int _h) { m_hotels = _h; }
 
 		Status status() { return m_status; }
-		const std::string statusLabel();
 		Player *master() { return m_master; }
 		Estate *goEstate() { return m_goEstate; }
 		const std::string gameType() { return m_gameType; }
@@ -93,7 +91,7 @@ class Game : public GameObject
 		void bankruptPlayer(Player *player);
 		void sendDisplayMsg(Display *display, Player *except = NULL);
 		void sendMsgEstateUpdate(Estate *);
-		void sendStatus(Player *player = NULL);
+		void sendStatus(Status status, Player *player = NULL);
 		void sendEstateList(Player *player);
 		void sendEstateGroupList(Player *player);
 		void sendPlayerList(Player *player);
