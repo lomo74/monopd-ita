@@ -74,7 +74,7 @@ Game::Game(int id)
 	addBoolConfigOption( "norentinjail", "Players in Jail get no rent", false, true );
 	addBoolConfigOption( "allowestatesales", "Allow estates to be sold back to Bank", false, true );
 	addBoolConfigOption( "automatetax", "Automate tax decisions", false, true );
-	addBoolConfigOption( "allowspectators", "Allow spectators", false, true );
+	addBoolConfigOption( "allowspectators", "Allow spectators", true, true );
 }
 
 Game::~Game()
