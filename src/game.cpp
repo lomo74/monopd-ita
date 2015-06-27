@@ -1413,16 +1413,16 @@ Player *Game::addPlayer(Player *p, const bool &isSpectator, const bool &isFirst)
 	p->setBoolProperty("hasdebt", false);
 	p->setBoolProperty("canusecard", false);
 
-
-	// Temporarily set status at init for joining player
-	if (m_status == Run)
-	{
-		m_status = Init;
-		sendFullUpdate(p);
-		m_status = Run;
+	if (!isFirst) {
+		if (m_status == Run) {
+			// Temporarily set status at init for joining player
+			m_status = Init;
+			sendFullUpdate(p);
+			m_status = Run;
+		} else {
+			sendFullUpdate(p);
+		}
 	}
-	else
-		sendFullUpdate(p);
 
 	if (p->getBoolProperty("spectator"))
 		sendStatus(p);
