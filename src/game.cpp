@@ -529,7 +529,7 @@ void Game::start(Player *pInput)
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
 	{
 		pTmp->reset(false);
-		pTmp->setProperty("turnorder", ++turnorder);
+		pTmp->setProperty("turnorder", ++turnorder, this);
 		pTmp->setEstate(m_goEstate);
 		pTmp->addMoney(m_startMoney);
 	}
@@ -1540,7 +1540,7 @@ void Game::upgradePlayer(Player *pInput, int playerId)
 			turnorder = to;
 		}
 	}
-	player->setProperty("turnorder", ++turnorder);
+	player->setProperty("turnorder", ++turnorder, this);
 
 	player->setEstate(m_goEstate);
 	player->addMoney(m_startMoney);
