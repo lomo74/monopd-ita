@@ -1385,9 +1385,6 @@ Player *Game::addPlayer(Player *p, const bool &isSpectator, const bool &isFirst)
 {
 	m_players.push_back(p);
 
-	if (players() == getBoolProperty("maxplayers"))
-		setBoolProperty("canbejoined", false);
-
 	p->setGame(this);
 	addToScope(p);
 
@@ -1397,7 +1394,11 @@ Player *Game::addPlayer(Player *p, const bool &isSpectator, const bool &isFirst)
 	p->setBoolProperty("jailed", false, this);
 	p->setBoolProperty("hasturn", 0, this);
 	p->setBoolProperty("spectator", isSpectator, this);
+
 	setProperty("players", players());
+	if (players() == getBoolProperty("maxplayers")) {
+		setBoolProperty("canbejoined", false);
+	}
 
 	if (isFirst) {
 		m_master = p;
@@ -1514,6 +1515,13 @@ void Game::upgradePlayer(Player *pInput, int playerId)
 	if ( m_status != Run )
 	{
 		pInput->ioError("You can only upgrade spectators during a game in progress.");
+		return;
+	}
+
+	int maxPlayers = getIntProperty("maxplayers");
+	if (players() >= maxPlayers)
+	{
+		pInput->ioError("This game already has the maximum of %d players.", maxPlayers);
 		return;
 	}
 
