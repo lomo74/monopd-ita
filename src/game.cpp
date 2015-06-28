@@ -496,7 +496,7 @@ void Game::start(Player *pInput)
 		return;
 	}
 	int minPlayers = getIntProperty("minplayers");
-	if ((int)m_players.size() < minPlayers)
+	if (players() < minPlayers)
 	{
 		pInput->ioError("This game requires at least %d players to be started.", minPlayers);
 		return;
@@ -1384,9 +1384,8 @@ Card *Game::findCard(unsigned int id)
 Player *Game::addPlayer(Player *p, const bool &isSpectator, const bool &isFirst)
 {
 	m_players.push_back(p);
-	setProperty( "players", m_players.size() );
 
-	if ( m_players.size() == getBoolProperty("maxplayers") )
+	if (players() == getBoolProperty("maxplayers"))
 		setBoolProperty("canbejoined", false);
 
 	p->setGame(this);
@@ -1398,6 +1397,7 @@ Player *Game::addPlayer(Player *p, const bool &isSpectator, const bool &isFirst)
 	p->setBoolProperty("jailed", false, this);
 	p->setBoolProperty("hasturn", 0, this);
 	p->setBoolProperty("spectator", isSpectator, this);
+	setProperty("players", players());
 
 	if (isFirst) {
 		m_master = p;
@@ -1455,11 +1455,11 @@ void Game::removePlayer(Player *p)
 		}
 
 	// Do everything after player is removed from list, player doesn't need the resulting messages
-	setProperty( "players", m_players.size() );
+	setProperty("players", players());
 
 	// If in Config, canbejoined might become true again
 	if (m_status == Config) {
-		if ( m_players.size() < getBoolProperty("maxplayers") )
+		if (players() < getBoolProperty("maxplayers"))
 			setBoolProperty("canbejoined", true);
 	}
 	else if (m_status != End) {
@@ -2125,9 +2125,19 @@ void Game::rollDice()
 	dice[1] = 1 + (int) (6.0 * rand()/(RAND_MAX + 1.0 ));
 }
 
-int Game::players()
+int Game::players(bool includeSpectators)
 {
-	return (int)m_players.size();
+	if (includeSpectators == true) {
+		return (int)m_players.size();
+	}
+
+	int count = 0;
+	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end(); ++it) {
+		if (!(*it)->getBoolProperty("spectator")) {
+			count++;
+		}
+	}
+	return count;
 }
 
 int Game::debts()

@@ -226,7 +226,7 @@ void MonopdServer::exitGame(Game *game, Player *pInput)
 {
 	game->removePlayer(pInput);
 	game->ioInfo("%s left the game.", pInput->name().c_str());
-	if (game->players() == 0) {
+	if (game->players(true) == 0) {
 		delGame(game);
 	}
 
@@ -245,7 +245,7 @@ Game *MonopdServer::findGame(int gameId)
 
 void MonopdServer::delGame(Game *game, bool verbose)
 {
-	if (game->players()) {
+	if (game->players(true)) {
 		return;
 	}
 
@@ -341,7 +341,7 @@ void MonopdServer::delPlayer(Player *player)
 	Game *game = player->game();
 	if (game) {
 		game->removePlayer(player);
-		if (game->players() == 0) {
+		if (game->players(true) == 0) {
 			delGame(game);
 		}
 	}

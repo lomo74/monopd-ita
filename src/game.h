@@ -77,7 +77,7 @@ class Game : public GameObject
 		bool sendChildXMLUpdate(Player *pOutput, bool emptyUpdate);
 		void unsetChildProperties();
 
-		int players();
+		int players(bool includeSpectators = false);
 		Player *addPlayer(Player *, const bool &isSpectator = false, const bool &isFirst = false);
 		Player *findPlayer(int playerId);
 		Player *kickPlayer(Player *player, int playerId);
