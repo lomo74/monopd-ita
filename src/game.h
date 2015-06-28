@@ -140,7 +140,6 @@ class Game : public GameObject
 		void transferCard(Card *card, Player *player, const bool verbose = false);
 		void transferObject(const enum GameObject::Type, unsigned int id, Player *player, const bool verbose = false);
 		void removePlayer(Player *);
-		int lowestFreeId();
 		int totalAssets();
 		void rollDice();
 		int dice[2];

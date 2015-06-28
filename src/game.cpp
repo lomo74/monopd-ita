@@ -2108,18 +2108,6 @@ void Game::bankruptPlayer(Player *pBroke)
 	}
 }
 
-int Game::lowestFreeId()
-{
-	int lowest = 0;
-
-	// Find lowest free id in std::vector.
-	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (*it) ; ++it)
-		if ( (*it)->id() >= lowest)
-			lowest = (*it)->id() + 1;
-
-	return lowest;
-}
-
 int Game::totalAssets()
 {
 	int assets = 0;
