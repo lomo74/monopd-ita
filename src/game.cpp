@@ -1548,7 +1548,22 @@ void Game::upgradePlayer(Player *pInput, int playerId)
 			turnorder = to;
 		}
 	}
-	player->setProperty("turnorder", ++turnorder, this);
+	player->setProperty("turnorder", turnorder+1, this);
+
+	// Find player and erase from std::vector
+	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end(); ++it) {
+		if (*it == player) {
+			m_players.erase(it);
+			break;
+		}
+	}
+	// Reinsert player to std::vector
+	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end(); ++it) {
+		if ((*it)->getIntProperty("turnorder") == turnorder) {
+			m_players.insert(it+1, player);
+			break;
+		}
+	}
 
 	player->setEstate(m_goEstate);
 	player->addMoney(m_startMoney);
