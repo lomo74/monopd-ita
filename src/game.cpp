@@ -1568,6 +1568,7 @@ void Game::upgradePlayer(Player *pInput, int playerId)
 	player->setEstate(m_goEstate);
 	player->addMoney(m_startMoney);
 	player->setBoolProperty("spectator", 0, this);
+	setProperty("players", players());
 
 	ioInfo( "%s upgrades %s to a participating player.", pInput->name().c_str(), player->name().c_str() );
 }
