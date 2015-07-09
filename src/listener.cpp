@@ -247,12 +247,11 @@ void Listener::checkActivity()
 						setsockopt(socketFd, IPPROTO_TCP, TCP_CORK, &flags, sizeof(int));
 #endif /* TCP_CORK */
 
+						ip_str[0] = '\0';
 						if (addrinfo->ai_family == AF_INET) {
 							inet_ntop(addrinfo->ai_family, &(((struct sockaddr_in *)addrinfo->ai_addr)->sin_addr), ip_str, INET6_ADDRSTRLEN);
 						} else if(addrinfo->ai_family == AF_INET6) {
 							inet_ntop(addrinfo->ai_family, &(((struct sockaddr_in6 *)addrinfo->ai_addr)->sin6_addr), ip_str, INET6_ADDRSTRLEN);
-						} else {
-							ip_str[0] = '\0';
 						}
 
 						err = connect(socketFd, addrinfo->ai_addr, addrinfo->ai_addrlen);
@@ -351,12 +350,11 @@ Socket *Listener::connectSocket(struct addrinfo *addrinfo) {
 		setsockopt(socketFd, IPPROTO_TCP, TCP_CORK, &flags, sizeof(int));
 #endif /* TCP_CORK */
 
+		ip_str[0] = '\0';
 		if (addrinfo->ai_family == AF_INET) {
 			inet_ntop(addrinfo->ai_family, &(((struct sockaddr_in *)addrinfo->ai_addr)->sin_addr), ip_str, INET6_ADDRSTRLEN);
 		} else if(addrinfo->ai_family == AF_INET6) {
 			inet_ntop(addrinfo->ai_family, &(((struct sockaddr_in6 *)addrinfo->ai_addr)->sin6_addr), ip_str, INET6_ADDRSTRLEN);
-		} else {
-			ip_str[0] = '\0';
 		}
 
 		err = connect(socketFd, addrinfo->ai_addr, addrinfo->ai_addrlen);
