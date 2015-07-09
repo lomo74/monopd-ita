@@ -1,3 +1,46 @@
+0.10.0
+------
+
+- new metaserver, reworked the way monopd register to metaserver
+- sockets are now not blocking for writing as well, reworked socket code to
+  handle non blocking socket
+- metaserver registration process is not blocking as well, except for DNS
+  lookup but we cache the result and we forbid to resolve the metaserver host
+  if a game is in progress
+- don't wait client handshake before sending game updates anymore, it allows
+  clients to lurk for new games without identifying themselves, useful so
+  metaserver don't need to identify for example
+- removed deprecated server to client messages: <updategamelist/>,
+  <playerupdate/> master attribute, <commandlist/>, legacy <configupdate/>
+  protocol
+- removed deprecated client to server commands: .Ta$1 and .gp
+- reworked <display/> messages so reconnecting players get display history
+- added roll button (.r) to <display/> messages
+- using TCP_CORK/TCP_NODELAY in a smart way to reduce game latency without
+  affecting too much TCP throughput
+- reworked messages order to prevent chicken and eggs problems in clients,
+  like sending <cardupdate/> messages after client knows in which game
+  it is to prevent message drop
+- using libmuparser instead of libmath++
+- added turnorder property to playerupdate message, allows clients to sort
+  player list by player turn order
+- reworked games and players handling, better detection when players are
+  voluntarily lefting a game
+- fixed many bugs when players are leaving while an action is in progress,
+  most of them ended up with a frozed game
+- reworked main loop so we don't spin on checking event timeout anymore
+- now using UTF8-CPP library, fixed all string length checks/truncate
+  and we are now checking if input is valid UTF8
+- gameupdate status is now a global property, it allows client to display
+  games which are in progress, adding a little bit activity in the game
+  lounge
+- improved spectator support, specator support is production ready, allow
+  spectators by default
+- added gameupdate turn property, this way clients can join a game
+  as spectator in order to participate if the game was just started
+- added gameupdate canbewatched property, true if player can spectate
+  the game
+
 0.9.8
 -----
 

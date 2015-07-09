@@ -2,8 +2,7 @@ Contents
 ========
 
 	1. Introduction
-	2. Requesting the server list
-	3. Registering a server
+	2. Requesting updates
 
 1. Introduction
 ---------------
@@ -13,41 +12,39 @@ as a dedicated game server and clients can request a list of available servers
 on-line. This document describes the implementation of this technique and
 how to enable it in monopd.
 
-2. Requesting the server list
------------------------------
+2. Requesting updates
+---------------------
  
-http://monopd.unixcode.org/ returns a XML page like this:
- 
-<metaserver>
-  <server ipaddr="1.2.3.4" host="monopd.unixcode.org" port="1234" version="0.9.8" users="1"/>
-</metaserver>
- 
-Parse it and your client is good to go (a value of -1 for users indicates
-the server did not register with a user count). Future additions might
-include attributes like description, games (integer of available games) and
-perhaps even game lists and descriptions for faster connects through
-treeviews. _Future_ editions.
+Metasever is running on meta.atlanticd.net, port 1240.
 
-3. Registering a server
+Metaserver introduce itself like this:
+
+<meta_atlantic><metaserver version="string"/></meta_atlantic>
+
+The only command useful for clients is the "FOLLOW" command, once
+sent metaserver is continuously sending updates about servers
+and games.
+
 --------------------
- 
-To register a server, send the following GET request (or POST if you prefer)
-to monopd.unixcode.org:
- 
-http://monopd.unixcode.org/register.php?host=monopd.mydomain.net&port=1234&version=0.2.1-CVS
 
-This keeps a server in the database for three minutes. So you'll have to
-register continuously. Fortunately monopd can do this for you, but it does
-_not_ register by default. It will only register automatically when you
-enable it in the configuration.
+<server id="int" host="string" port="int" version="string" users="int">
+  <game id="int" gametype="string" name="string" description="string"
+    minplayer="int" maxplayer="int" players="int" canbejoined="bool"
+    canbewatched="bool" status="string" turn="int"/>
+</server>
 
-To enable registration, move the installed monopd.conf-dist to monopd.conf
-(or edit your existing monopd.conf) and uncomment the metaserveridentity entry.
-You can also control some other metaserver and monopd settings here.
+This is pretty self explanatory, it mostly follow the way monopd is currently
+sending game updates to clients,
 
-The hostname you enter as identity will be the one to appear in the
-database, so you can use nice aliases instead of your boring reverse lookup.
+--------------------
 
-Metaserver will ignore registrations if it cannot connect to the given host
-and port. This prevents masqueraded and firewalled hosts from appearing in
-Metaserver.
+<server id="int"><deletegame id="int"/></server>
+
+Delete a game object.
+
+-------------------
+
+<deleteserver id="int"/>
+
+Delete a server object, every object related to this server should be cleared
+as well.

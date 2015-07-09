@@ -1,7 +1,7 @@
 ===============================================================================
 monopd API
 
-Revision: 0.9.8
+Revision: 0.10.0
 
 Erik Bourget <ebourg@po-box.mcgill.ca>
 Rob Kaper <cap@capsi.com>
@@ -71,7 +71,7 @@ ii. server introduction
 
 The server identifies itself with an introductory XML message:
 
-<monopd><server host="" version="0.9.8"/>
+<monopd><server host="string" version="string"/>
 
 The client must then complete the handshake by using the "set name" command:
 
