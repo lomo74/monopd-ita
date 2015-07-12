@@ -1027,12 +1027,8 @@ void Game::acceptTrade(Player *pInput, char *data)
 
 	trade->setPlayerAccept(pInput, true);
 
-	if (trade->allAccept())
-	{
-		// Complete trade
+	if (trade->allAccept()) {
 		completeTrade(trade);
-		delTrade(trade);
-		m_pTurn->endTurn();
 	}
 }
 
@@ -1102,6 +1098,8 @@ void Game::completeTrade(Trade *trade)
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (player = *it) ; ++it)
 		if (trade->hasPlayer(player))
 			solveDebts(player);
+
+	delTrade(trade);
 }
 
 void Game::abortAuction()
