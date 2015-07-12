@@ -281,12 +281,15 @@ void Player::endTurn(bool userRequest)
 	if (m_game->status() == Game::End)
 		return;
 
-	if (!getBoolProperty("hasturn"))
+	if (!getBoolProperty("hasturn")) {
+		if (userRequest)
+			ioError("You cannot end your turn, this is not your turn.");
 		return;
+	}
 
 	if (m_game->pausedForDialog()) {
 		if (userRequest)
-			ioError("You must answer the dialog first.");
+			ioError("You cannot end your turn, you must answer the dialog first.");
 		return;
 	}
 
@@ -308,19 +311,24 @@ void Player::endTurn(bool userRequest)
 		return;
 	}
 
-	if (getBoolProperty("can_buyestate"))
-	{
-		if (m_game->getBoolConfigOption("auctionsenabled"))
-		{
-			if (userRequest)
-				ioError("You cannot end your turn, you must either buy or auction the property you are on.");
+	if (getBoolProperty("can_buyestate")) {
+		if (!userRequest) {
 			return;
 		}
-		else if (!userRequest)
+
+		if (m_game->getBoolConfigOption("auctionsenabled")) {
+			ioError("You cannot end your turn, you must either buy or auction the property you are on.");
 			return;
+		}
+
+		setBoolProperty("can_buyestate", false);
+		setBoolProperty("canauction", false);
+		Display display;
+		display.resetButtons(); /* Remove buy estate buttons: Buy, Auction, End Turn */
+		sendDisplayMsg(&display);
 	}
-	else if (getBoolProperty("canrollagain"))
-	{
+
+	if (getBoolProperty("canrollagain")) {
 		Display display;
 		display.setText("%s may roll again.", getStringProperty("name").c_str());
 		m_game->sendDisplayMsg(&display, this);
@@ -331,23 +339,17 @@ void Player::endTurn(bool userRequest)
 		setBoolProperty("canrollagain", false);
 		return;
 	}
-	else if (getBoolProperty("can_roll"))
-	{
+
+	if (getBoolProperty("can_roll")) {
 		if (userRequest)
 			ioError("You cannot end your turn, you must roll first!");
 		return;
 	}
-	else if (getBoolProperty("jailed"))
-	{
+
+	if (getBoolProperty("jailed")) {
 		if (userRequest)
 			ioError("You cannot end your turn while jailed.");
 		return;
-	}
-
-	if (userRequest) {
-		Display display;
-		display.resetButtons(); /* Remove buy estate buttons: Buy, Auction, End Turn */
-		sendDisplayMsg(&display);
 	}
 
 	// Turn goes to next player
