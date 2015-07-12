@@ -2089,6 +2089,8 @@ void Game::bankruptPlayer(Player *pBroke)
 		display.setText("The game has ended! %s wins with a fortune of %d!", pWinner->getStringProperty("name").c_str(), pWinner->assets());
 		display.addButton(".gx", "New Game", true);
 		sendDisplayMsg(&display);
+
+		m_pTurn->setTurn(false);
 		return;
 	}
 
