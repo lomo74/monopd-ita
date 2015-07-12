@@ -1203,46 +1203,54 @@ Estate *Game::findEstate(int id)
 
 Estate *Game::findNextEstate(EstateGroup *group, Estate *startEstate)
 {
-	bool useNext = true;
-	if (startEstate)
-		useNext = false;
-
-	Estate *eTmp = 0, *eFirst = 0;
-	for (std::vector<Estate *>::iterator eIt = m_estates.begin() ; eIt != m_estates.end() && (eTmp = *eIt) ; eIt++)
-	{
-		if (startEstate && startEstate == eTmp)
-			useNext = true;
-		if (eTmp->group() == group)
-		{
-			if (useNext==true)
-				return eTmp;
-			else if (!eFirst)
-				eFirst = eTmp;
+	std::vector<Estate *>::iterator it = m_estates.begin();
+	if (startEstate) {
+		for (; it != m_estates.end(); it++) {
+			if (startEstate == *it) {
+				break;
+			}
 		}
 	}
-	return eFirst;
+	for (; it != m_estates.end(); it++) {
+		if ((*it)->group() == group) {
+			return *it;
+		}
+	}
+	// reloop
+	if (startEstate) {
+		for (it = m_estates.begin(); it != m_estates.end(); it++) {
+			if ((*it)->group() == group) {
+				return *it;
+			}
+		}
+	}
+	return NULL;
 }
 
 Estate *Game::findNextJailEstate(Estate *startEstate)
 {
-	bool useNext = true;
-	if (startEstate)
-		useNext = false;
-
-	Estate *eTmp = 0, *eFirst = 0;
-	for (std::vector<Estate *>::iterator eIt = m_estates.begin() ; eIt != m_estates.end() && (eTmp = *eIt) ; eIt++)
-	{
-		if (startEstate && startEstate == eTmp)
-			useNext = true;
-		if (eTmp->getBoolProperty("jail"))
-		{
-			if (useNext==true)
-				return eTmp;
-			else if (!eFirst)
-				eFirst = eTmp;
+	std::vector<Estate *>::iterator it = m_estates.begin();
+	if (startEstate) {
+		for (; it != m_estates.end(); it++) {
+			if (startEstate == *it) {
+				break;
+			}
 		}
 	}
-	return eFirst;
+	for (; it != m_estates.end(); it++) {
+		if ((*it)->getBoolProperty("jail")) {
+			return *it;
+		}
+	}
+	// reloop
+	if (startEstate) {
+		for (it = m_estates.begin(); it != m_estates.end(); it++) {
+			if ((*it)->getBoolProperty("jail")) {
+				return *it;
+			}
+		}
+	}
+	return NULL;
 }
 
 void Game::transferEstate(Estate *estate, Player *player, const bool verbose)
