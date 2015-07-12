@@ -738,6 +738,11 @@ void Game::delDebt(Debt *debt)
 			m_debts.erase(it);
 			break;
 		}
+
+	if (debt == m_auctionDebt) {
+		m_auctionDebt = 0;
+	}
+
 	Player *pFrom = debt->from();
 	if ( !findDebt(pFrom) )
 		pFrom->setBoolProperty("hasdebt", false);
@@ -773,7 +778,6 @@ void Game::solveDebts(Player *pInput, const bool &verbose)
 		display.resetButtons(); /* Remove declare bankruptcy button */
 		pInput->sendDisplayMsg(&display);
 
-		completeAuction();
 		m_pTurn->endTurn();
 	}
 }
@@ -795,10 +799,8 @@ bool Game::solveDebt( Debt *debt )
 	Display display;
 	display.setText("%s pays off a %d debt to %s.", pFrom->getStringProperty("name").c_str(), debt->amount(), (pCreditor ? pCreditor->getStringProperty("name").c_str() : "Bank"));
 	sendDisplayMsg(&display);
-	if (debt == m_auctionDebt) {
-		m_auctionDebt = 0;
-	}
 	delDebt(debt);
+	completeAuction();
 	return true;
 }
 
@@ -2030,7 +2032,7 @@ void Game::bankruptPlayer(Player *pBroke)
 		++it;
 	}
 
-	// highest bidder might be the player who just left
+	// highest bidder declared bankruptcy (or left)
 	if (m_auction && m_auction->highBidder() == pBroke) {
 		abortAuction();
 	}
