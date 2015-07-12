@@ -2102,8 +2102,12 @@ void Game::bankruptPlayer(Player *pBroke)
 			// and possibly necessary when this function is called for a
 			// disconnected user.
 
-			if (pBroke == m_pTurn)
+			if (pBroke == m_pTurn) {
 				updateTurn();
+			} else {
+				// necessary when an auction bidder cannot pay
+				m_pTurn->endTurn();
+			}
 		}
 	}
 }
