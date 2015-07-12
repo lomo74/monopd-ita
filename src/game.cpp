@@ -616,8 +616,8 @@ void Game::setTokenLocation(Player *pInput, unsigned int estateId)
 		return;
 
 	// Land player!
-	if (landPlayer(m_pTurn, false))
-		m_pTurn->endTurn();
+	landPlayer(m_pTurn, false);
+	m_pTurn->endTurn();
 }
 
 void Game::tokenMovementTimeout()
@@ -1612,7 +1612,7 @@ void Game::updateTurn()
 	m_pTurn->setTurn(true);
 }
 
-bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &rentMath)
+void Game::landPlayer(Player *pTurn, const bool directMove, const std::string &rentMath)
 {
 	Estate *destination = pTurn->destination();
 
@@ -1665,7 +1665,6 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 	// sent earlier.
 
 	// What properties does the estate we are landing on have?
-	bool endTurn = true;
 	Player *pOwner = 0;
 	Estate *es = pTurn->estate();
 
@@ -1696,7 +1695,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 			ioError("This gameboard does not have a jail estate.");
 
 		updateTurn();
-		return true;
+		return;
 	}
 
 	// Any estate can have a pot of gold. This is handled before all other
@@ -1728,7 +1727,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 				sendDisplayMsg(&display);
 
 				newDebt(pTurn, 0, ePayTarget, estateMoney);
-				return false;
+				return;
 			}
 			else if (ePayTarget && getBoolConfigOption("collectfines"))
 				ePayTarget->addMoney(estateMoney);
@@ -1770,7 +1769,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 
 				// TODO: port this into a blocking bool in Display which we can check, will be more generic
 				m_pausedForDialog = true;
-				return false;
+				return;
 			}
 		}
 		else
@@ -1788,7 +1787,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 			sendDisplayMsg(&display);
 
 			newDebt(pTurn, 0, ePayTarget, payAmount);
-			return false;
+			return;
 		}
 		else if (ePayTarget && getBoolConfigOption("collectfines"))
 			ePayTarget->addMoney(payAmount);
@@ -1804,7 +1803,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 		if (getBoolConfigOption("alwaysshuffle"))
 			cardGroup->shuffleCards();
 
-		endTurn = giveCard(pTurn, cardGroup->nextCard());
+		giveCard(pTurn, cardGroup->nextCard());
 	}
 
 	// Calculate rent for owned estates or offer them for sale.
@@ -1837,7 +1836,7 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 					sendDisplayMsg(&display);
 
 					newDebt(pTurn, pOwner, 0, payAmount);
-					return false;
+					return;
 				}
 				Display display;
 				display.setText("%s pays %d rent to %s.", pTurn->getStringProperty("name").c_str(), payAmount, pOwner->getStringProperty("name").c_str());
@@ -1860,17 +1859,17 @@ bool Game::landPlayer(Player *pTurn, const bool directMove, const std::string &r
 			display.addButton(".ea", "Auction", (getBoolConfigOption("auctionsenabled") && totalAssets()));
 			display.addButton(".E", "End Turn", !getBoolConfigOption("auctionsenabled"));
 			pTurn->sendDisplayMsg(&display);
-			return false;
+			return;
 		}
 	}
-	return endTurn;
 }
-bool Game::giveCard(Player *pTurn, Card *card)
+
+void Game::giveCard(Player *pTurn, Card *card)
 {
 	if (!card)
 	{
 		ioError(pTurn->name() + " should get a card, but there don't seem to be any available!");
-		return true;
+		return;
 	}
 
 	Display display;
@@ -1905,7 +1904,6 @@ bool Game::giveCard(Player *pTurn, Card *card)
 				sendDisplayMsg(&display);
 
 				newDebt(pTurn, 0, ePayTarget, payAmount);
-				return false;
 			}
 			else if (ePayTarget && getBoolConfigOption("collectfines"))
 				ePayTarget->addMoney(payAmount);
@@ -1983,7 +1981,6 @@ bool Game::giveCard(Player *pTurn, Card *card)
 				sendDisplayMsg(&display);
 
 				newDebt(pTurn, 0, ePayTarget, payAmount);
-				return false;
 			}
 			else if (ePayTarget && getBoolConfigOption("collectfines"))
 				ePayTarget->addMoney(payAmount);
@@ -2005,9 +2002,8 @@ bool Game::giveCard(Player *pTurn, Card *card)
 			else
 				ioError("Could not find next estate on gameboard.");
 		}
-		return landPlayer(pTurn, true, card->rentMath());
+		landPlayer(pTurn, true, card->rentMath());
 	}
-	return true;
 }
 
 void Game::declareBankrupt(Player *pInput)

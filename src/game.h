@@ -85,8 +85,8 @@ class Game : public GameObject
 		unsigned int playerAssets(Player *player);
 
 		void updateTurn();
-		bool landPlayer(Player *pTurn, const bool directMove, const std::string &rentmath = "");
-		bool giveCard(Player *player, Card *card);
+		void landPlayer(Player *pTurn, const bool directMove, const std::string &rentmath = "");
+		void giveCard(Player *player, Card *card);
 		void declareBankrupt(Player *player);
 		void bankruptPlayer(Player *player);
 		void sendDisplayMsg(Display *display, Player *except = NULL);
