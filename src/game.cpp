@@ -560,54 +560,48 @@ void Game::setTokenLocation(Player *pInput, unsigned int estateId)
 	if ( !estateLoc || !pInput->tokenLocation() || !m_pTurn->destination() || (pInput->tokenLocation() == estateLoc) )
 		return;
 
-	bool useNext = false;
-	unsigned int money = 0;
-
 //	printf("Game::setTokenLocation, P:%d PTL:%d EID:%d\n", pInput->id(), pInput->tokenLocation()->id(), estateId);
 
-	Estate *estate = 0;
-	for (std::vector<Estate *>::iterator it = m_estates.begin() ;;)
-	{
-		if (it == m_estates.end())
-		{
+	std::vector<Estate *>::iterator it;
+	// find current player estate
+	for (it = m_estates.begin(); it != m_estates.end(); it++) {
+		if (*it == pInput->tokenLocation()) {
+//			printf("Game::setTokenLocation, useNext:%d==PTL\n", (*it)->id());
+			it++;
+			break;
+		}
+	}
+
+	unsigned int money = 0;
+	while (1) {
+		if (it == m_estates.end()) {
 //			printf("Game::setTokenLocation, reloop\n");
 			it = m_estates.begin();
-			continue;
 		}
-		if (!(estate = *it))
+		Estate *estate = *it;
+
+		if (estate->getIntProperty("passmoney")) {
+//			printf("Game::setTokenLocation, pass:%d\n", estate->id());
+			Display display;
+			display.setText("%s passes %s and gets %d.", m_pTurn->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("passmoney"));
+			pInput->sendDisplayMsg(&display);
+			money += estate->getIntProperty("passmoney");
+			pInput->ioWrite("<monopd><playerupdate playerid=\"%d\" money=\"%d\"/></monopd>\n", m_pTurn->id(), m_pTurn->getIntProperty("money") + money);
+		}
+
+		if (estate == m_pTurn->destination()) {
+//			printf("Game::setTokenLocation, setPTL:0\n");
+			pInput->setTokenLocation(0); // Player is done moving
 			break;
-
-		if (useNext)
-		{
-			if (estate->getIntProperty("passmoney"))
-			{
-//				printf("Game::setTokenLocation, pass:%d\n", estate->id());
-				Display display;
-				display.setText("%s passes %s and gets %d.", m_pTurn->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("passmoney"));
-				pInput->sendDisplayMsg(&display);
-				money += estate->getIntProperty("passmoney");
-				pInput->ioWrite("<monopd><playerupdate playerid=\"%d\" money=\"%d\"/></monopd>\n", m_pTurn->id(), m_pTurn->getIntProperty("money") + money);
-			}
-			if (estate == m_pTurn->destination())
-			{
-//				printf("Game::setTokenLocation, setPTL:0\n");
-				pInput->setTokenLocation(0); // Player is done moving
-				break;
-			}
-			if (estate == estateLoc)
-			{
-//				printf("Game::setTokenLocation, setPTL:%d\n", estateId);
-				pInput->setTokenLocation(estate); // Player is not done moving
-				break;
-			}
-		}
-		else if (estate == pInput->tokenLocation())
-		{
-//			printf("Game::setTokenLocation, useNext:%d==PTL\n", estate->id());
-			useNext = true;
 		}
 
-		++it;
+		if (estate == estateLoc) {
+//			printf("Game::setTokenLocation, setPTL:%d\n", estateId);
+			pInput->setTokenLocation(estate); // Player is not done moving
+			break;
+		}
+
+		it++;
 	}
 
 	// Find out if there are still clients busy with movement.
