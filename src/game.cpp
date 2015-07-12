@@ -1424,6 +1424,8 @@ Player *Game::findPlayer(int playerId)
 void Game::removePlayer(Player *p)
 {
 	if (p == m_pTurn) {
+		// cancel any tax dialog
+		m_pausedForDialog = false;
 		// player left game during its turn, cancel any token movement
 		setAllClientsMoving(0);
 		// and update turn -before- removing player from players vector
