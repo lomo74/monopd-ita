@@ -1424,8 +1424,10 @@ Player *Game::findPlayer(int playerId)
 
 void Game::removePlayer(Player *p)
 {
-	if (p->getBoolProperty("hasturn")) {
-		tokenMovementTimeout();
+	if (p == m_pTurn) {
+		// player left game during its turn, cancel any token movement
+		setAllClientsMoving(0);
+		// and update turn -before- removing player from players vector
 		updateTurn();
 	}
 
@@ -2107,7 +2109,7 @@ void Game::bankruptPlayer(Player *pBroke)
 			if (pBroke == m_pTurn) {
 				updateTurn();
 			} else {
-				// necessary when an auction bidder cannot pay
+				// necessary when an auction bidder cannot pay and then declared bankruptcy
 				m_pTurn->endTurn();
 			}
 		}
