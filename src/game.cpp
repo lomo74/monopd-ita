@@ -1091,7 +1091,7 @@ void Game::completeTrade(Trade *trade)
 			delete object; // was temporarily created to serve as trade object
 			if (!pFrom->payMoney(money))
 			{
-				display2.setText("%s owes %d to %s. Game paused, %s is not solvent. Player needs to raise %d in cash first.", pFrom->getStringProperty("name").c_str(), money, pTo->getStringProperty("name").c_str(), pFrom->getStringProperty("name").c_str(), (money - pFrom->getIntProperty("money")));
+				display2.setText("Game paused, %s owes %d to %s but is not solvent. Player needs to raise %d in cash first.", pFrom->getStringProperty("name").c_str(), money, pTo->getStringProperty("name").c_str(), (money - pFrom->getIntProperty("money")));
 				sendDisplayMsg(&display2);
 
 				newDebt(pFrom, pTo, 0, money);
