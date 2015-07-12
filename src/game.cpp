@@ -566,7 +566,7 @@ void Game::setTokenLocation(Player *pInput, unsigned int estateId)
 	// find current player estate
 	for (it = m_estates.begin(); it != m_estates.end(); it++) {
 		if (*it == pInput->tokenLocation()) {
-//			printf("Game::setTokenLocation, useNext:%d==PTL\n", (*it)->id());
+//			printf("Game::setTokenLocation, %d==PTL\n", (*it)->id());
 			it++;
 			break;
 		}
@@ -1611,43 +1611,40 @@ void Game::updateTurn()
 void Game::landPlayer(Player *pTurn, const bool directMove, const std::string &rentMath)
 {
 	Estate *destination = pTurn->destination();
+	if (destination) {
+		std::vector<Estate *>::iterator it;
 
-	if (destination)
-	{
-		bool useNext = false;
-		unsigned int money = 0;
-		Estate *estate = 0;
-		for (std::vector<Estate *>::iterator it = m_estates.begin() ;;)
-		{
-			if (it == m_estates.end())
-			{
-				it = m_estates.begin();
-				continue;
-			}
-
-			if (!(estate = *it))
+		// find current player estate
+		for (it = m_estates.begin(); it != m_estates.end(); it++) {
+			if (*it == pTurn->estate()) {
+				it++;
 				break;
-
-			if (useNext)
-			{
-				if (estate->getIntProperty("passmoney"))
-				{
-					money += estate->getIntProperty("passmoney");
-					// Write incremental message for direct moves, token
-					// confirmation or timeout didn't do it yet.
-					if (directMove) {
-						Display display;
-						display.setText("%s passes %s and gets %d.", pTurn->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("passmoney"));
-						sendDisplayMsg(&display);
-					}
-				}
-				if (estate == destination)
-					break;
 			}
-			else if (estate == pTurn->estate())
-				useNext = true;
+		}
 
-			++it;
+		unsigned int money = 0;
+		while (1) {
+			if (it == m_estates.end()) {
+				it = m_estates.begin();
+			}
+			Estate *estate = *it;
+
+			if (estate->getIntProperty("passmoney")) {
+				money += estate->getIntProperty("passmoney");
+				// Write incremental message for direct moves, token
+				// confirmation or timeout didn't do it yet.
+				if (directMove) {
+					Display display;
+					display.setText("%s passes %s and gets %d.", pTurn->getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("passmoney"));
+					sendDisplayMsg(&display);
+				}
+			}
+
+			if (estate == destination) {
+				break;
+			}
+
+			it++;
 		}
 		pTurn->setEstate(destination);
 		pTurn->setDestination(0);
