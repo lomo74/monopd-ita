@@ -291,6 +291,12 @@ void Player::endTurn(bool userRequest)
     	return;
     }
 
+	if (m_game->pausedForDialog()) {
+		if (userRequest)
+			ioError("You must answer the dialog first.");
+		return;
+	}
+
 	if (getBoolProperty("can_buyestate"))
 	{
 		if (m_game->getBoolConfigOption("auctionsenabled"))
@@ -324,13 +330,6 @@ void Player::endTurn(bool userRequest)
 	{
 		if (userRequest)
 			ioError("You cannot end your turn while jailed.");
-		return;
-	}
-
-	else if (m_game->pausedForDialog())
-	{
-		if (userRequest)
-			ioError("You must answer the dialog first.");
 		return;
 	}
 
