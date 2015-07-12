@@ -105,7 +105,6 @@ class Game : public GameObject
 		Debt *findDebtByCreditor(Player *player);
 		void delDebt(Debt *);
 		void solveDebts(Player *player, const bool &verbose = false);
-		bool solveDebt(Debt *debt);
 		void enforceDebt(Player *pBroke, Debt *debt = 0);
 		void newAuction(Player *pInput);
 		Auction *auction();
@@ -162,6 +161,8 @@ private:
 	 * implementations.
 	 */
 	GameObject *newConfigOption(const std::string &name, const std::string &description, bool editable);
+
+	bool solveDebt(Debt *debt);
 
 	Status m_status;
 	unsigned int m_nextCardGroupId, m_nextEstateId, m_nextEstateGroupId, m_nextTradeId, m_nextAuctionId;

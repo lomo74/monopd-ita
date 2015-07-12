@@ -662,6 +662,7 @@ unsigned int Game::auctionTimeout()
 		}
 
 		completeAuction();
+		m_pTurn->endTurn();
 		return 0;
 	}
 
@@ -751,7 +752,6 @@ void Game::solveDebts(Player *pInput, const bool &verbose)
 	{
 		if (verbose)
 			ioError("You don't have any debts to pay off!");
-		pInput->endTurn();
 		return;
 	}
 
@@ -774,9 +774,8 @@ void Game::solveDebts(Player *pInput, const bool &verbose)
 		pInput->sendDisplayMsg(&display);
 
 		completeAuction();
+		m_pTurn->endTurn();
 	}
-
-	pInput->endTurn();
 }
 
 bool Game::solveDebt( Debt *debt )
@@ -1134,8 +1133,6 @@ void Game::completeAuction()
 
 	delete m_auction;
 	m_auction = NULL;
-
-	m_pTurn->endTurn();
 }
 
 void Game::sendDisplayMsg(Display *display, Player *except) {
