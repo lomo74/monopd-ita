@@ -284,13 +284,6 @@ void Player::endTurn(bool userRequest)
 	if (!getBoolProperty("hasturn"))
 		return;
 
-	if (m_game->findDebt(this))
-    {
-    	if (userRequest)
-    		ioError("You have a debt, cannot end turn.");
-    	return;
-    }
-
 	if (m_game->pausedForDialog()) {
 		if (userRequest)
 			ioError("You must answer the dialog first.");
@@ -306,6 +299,12 @@ void Player::endTurn(bool userRequest)
 	if (m_game->clientsMoving()) {
 		if (userRequest)
 			ioError("You cannot end your turn, other players are still moving.");
+		return;
+	}
+
+	if (m_game->debts()) {
+		if (userRequest)
+			ioError("You cannot end your turn, there are debts to be settled.");
 		return;
 	}
 
