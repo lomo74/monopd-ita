@@ -167,7 +167,7 @@ private:
 	Status m_status;
 	unsigned int m_nextCardGroupId, m_nextEstateId, m_nextEstateGroupId, m_nextTradeId, m_nextAuctionId;
 
-	Player *m_master, *m_pTurn, *m_pWinner;
+	Player *m_master, *m_pTurn;
 	Estate *m_goEstate;
 	int m_houses, m_hotels, m_startMoney;
 	bool m_isValid, m_pausedForDialog;

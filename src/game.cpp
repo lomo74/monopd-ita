@@ -43,8 +43,7 @@
 #include "display.h"
 
 Game::Game(int id)
- :	GameObject(id, GGame),
- 	m_pWinner( 0 )
+ :	GameObject(id, GGame)
 {
 	m_status = Config;
 
@@ -2061,59 +2060,53 @@ void Game::bankruptPlayer(Player *pBroke)
 
 	// Player might still have assets, when he goes bankrupt without debts
 	// (disconnection timeout), so we'll enforce giving assets to the Bank.
-	if (pBroke->assets())
-		enforceDebt(pBroke);
+	enforceDebt(pBroke);
 
 	// Count active (non-bankrupt) players
 	int activePlayers = 0;
 	Player *pTmp = 0;
+	Player *pWinner = 0;
 	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp =  *it) ; ++it)
 		if (pTmp && !pTmp->getBoolProperty("bankrupt") && !pTmp->getBoolProperty("spectator"))
 		{
 			activePlayers++;
-			m_pWinner = pTmp;
+			pWinner = pTmp;
 		}
 
-	if (activePlayers == 1)
-	{
+	if (activePlayers == 1) {
 		// a user who disconnect might end the game while an auction was running
 		abortAuction();
 
 		m_status = End;
 		setProperty("status", "end");
-		syslog(LOG_INFO, "game %d ended: %s wins with a fortune of %d.", m_id, m_pWinner->name().c_str(), m_pWinner->assets());
+		syslog(LOG_INFO, "game %d ended: %s wins with a fortune of %d.", m_id, pWinner->name().c_str(), pWinner->assets());
 		setBoolProperty("canbewatched", false);
 
 		Display display;
 		display.resetButtons();  /* Reset any button, game might end if a player left while we were asked to buy an estate for example */
-		display.setText("The game has ended! %s wins with a fortune of %d!", m_pWinner->getStringProperty("name").c_str(), m_pWinner->assets());
+		display.setText("The game has ended! %s wins with a fortune of %d!", pWinner->getStringProperty("name").c_str(), pWinner->assets());
 		display.addButton(".gx", "New Game", true);
 		sendDisplayMsg(&display);
+		return;
 	}
-	else
-	{
-		m_pWinner = 0;
 
-		if (activePlayers && !m_debts.size())
-		{
-			if (debtsWereSolved) {
-				Display display;
-				display.setText("All debts are settled, game continues.");
-				sendDisplayMsg(&display);
-			}
-
-			// Update turn. Always when this function is called as command
-			// and possibly necessary when this function is called for a
-			// disconnected user.
-
-			if (pBroke == m_pTurn) {
-				updateTurn();
-			} else {
-				// necessary when an auction bidder cannot pay and then declared bankruptcy
-				m_pTurn->endTurn();
-			}
-		}
+	if (m_debts.size()) {
+		return;
 	}
+
+	if (debtsWereSolved) {
+		Display display;
+		display.setText("All debts are settled, game continues.");
+		sendDisplayMsg(&display);
+	}
+
+	if (pBroke == m_pTurn) {
+		updateTurn();
+		return;
+	}
+
+	// necessary when an auction bidder cannot pay and then declared bankruptcy
+	m_pTurn->endTurn();
 }
 
 int Game::totalAssets()
