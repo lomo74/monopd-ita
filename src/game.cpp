@@ -1108,12 +1108,12 @@ void Game::abortAuction()
 
 	printf("Game::abortAuction()\n");
 
-	ioWrite("<monopd><auctionupdate auctionid=\"%d\" status=\"%d\"/></monopd>\n", m_auction->id(), Auction::Sold);
+	if (m_auction->status() != Auction::Sold) {
+		ioWrite("<monopd><auctionupdate auctionid=\"%d\" status=\"%d\"/></monopd>\n", m_auction->id(), Auction::Sold);
+	}
 
 	delete m_auction;
 	m_auction = NULL;
-
-	m_pTurn->endTurn();
 }
 
 void Game::completeAuction()
