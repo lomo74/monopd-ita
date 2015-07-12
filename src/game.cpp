@@ -761,7 +761,7 @@ void Game::solveDebts(Player *pInput, const bool &verbose)
 	{
 		if (verbose)
 			ioError("You don't have any debts to pay off!");
-		if (!clientsMoving() && !m_auction)
+		if (!clientsMoving())
 			pInput->endTurn();
 		return;
 	}
@@ -787,7 +787,7 @@ void Game::solveDebts(Player *pInput, const bool &verbose)
 		completeAuction();
 	}
 
-	if (!clientsMoving() && !m_auction)
+	if (!clientsMoving())
 		pInput->endTurn();
 }
 
@@ -1044,7 +1044,7 @@ void Game::acceptTrade(Player *pInput, char *data)
 		// Complete trade
 		completeTrade(trade);
 		delTrade(trade);
-		if (!clientsMoving() && !m_auction)
+		if (!clientsMoving())
 			m_pTurn->endTurn();
 	}
 }
