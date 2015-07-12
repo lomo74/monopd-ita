@@ -1583,29 +1583,30 @@ void Game::updateTurn()
 	if (m_status == Game::End)
 		return;
 
-	Player *pOldTurn = m_pTurn;
 	// Disable turn, roll and buy.
-	pOldTurn->setTurn(false);
+	m_pTurn->setTurn(false);
 
-	Player *player = 0, *pFirst = 0;
-	bool useNext = false;
-	for(std::vector<Player *>::iterator it = m_players.begin() ; it != m_players.end() && (player = *it) ; ++it)
-	{
-		if (!pFirst && !player->getBoolProperty("bankrupt") && !player->getBoolProperty("spectator"))
-			pFirst = player;
-
-		if (player == pOldTurn)
-			useNext = true;
-		else if (useNext && !player->getBoolProperty("bankrupt") && !player->getBoolProperty("spectator"))
-		{
-			m_pTurn = player;
-			useNext = false;
+	std::vector<Player *>::iterator it;
+	// find current player
+	for(it = m_players.begin(); it != m_players.end(); it++) {
+		if (*it == m_pTurn) {
+			it++;
 			break;
 		}
 	}
-	if (useNext && pFirst) {
-		m_pTurn = pFirst;
-		setProperty("turn", getIntProperty("turn") +1);
+
+	// find next player
+	while (1) {
+		if (it == m_players.end()) {
+			it = m_players.begin();
+			setProperty("turn", getIntProperty("turn") +1);
+		}
+		Player *player = *it;
+		if (!player->getBoolProperty("bankrupt") && !player->getBoolProperty("spectator")) {
+			m_pTurn = player;
+			break;
+		}
+		it++;
 	}
 
 	// Set turn.
