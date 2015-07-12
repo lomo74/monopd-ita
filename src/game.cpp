@@ -1428,9 +1428,7 @@ Player *Game::findPlayer(int playerId)
 void Game::removePlayer(Player *p)
 {
 	if (p->getBoolProperty("hasturn")) {
-		if (clientsMoving()) {
-			tokenMovementTimeout();
-		}
+		tokenMovementTimeout();
 		updateTurn();
 	}
 
