@@ -303,6 +303,12 @@ void Player::endTurn(bool userRequest)
 		return;
 	}
 
+	if (m_game->clientsMoving()) {
+		if (userRequest)
+			ioError("You cannot end your turn, other players are still moving.");
+		return;
+	}
+
 	if (getBoolProperty("can_buyestate"))
 	{
 		if (m_game->getBoolConfigOption("auctionsenabled"))

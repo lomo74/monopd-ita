@@ -1016,7 +1016,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 	}
 
 	if (game->clientsMoving()) {
-		pInput->ioNoSuchCmd("other clients are still moving");
+		pInput->ioNoSuchCmd("other players are still moving");
 		// The rest of the commands are only available when no clients are moving
 		return;
 	}

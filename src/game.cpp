@@ -616,17 +616,7 @@ void Game::setTokenLocation(Player *pInput, unsigned int estateId)
 		return;
 
 	// Land player!
-	bool endTurn = landPlayer(m_pTurn, false);
-
-	if (clientsMoving())
-	{
-		// Don't do a thing.. just wait until they are done.
-	}
-	else if (m_pTurn->getBoolProperty("can_buyestate"))
-	{
-		// Don't do a thing..
-	}
-	else if (endTurn)
+	if (landPlayer(m_pTurn, false))
 		m_pTurn->endTurn();
 }
 
@@ -761,8 +751,7 @@ void Game::solveDebts(Player *pInput, const bool &verbose)
 	{
 		if (verbose)
 			ioError("You don't have any debts to pay off!");
-		if (!clientsMoving())
-			pInput->endTurn();
+		pInput->endTurn();
 		return;
 	}
 
@@ -787,8 +776,7 @@ void Game::solveDebts(Player *pInput, const bool &verbose)
 		completeAuction();
 	}
 
-	if (!clientsMoving())
-		pInput->endTurn();
+	pInput->endTurn();
 }
 
 bool Game::solveDebt( Debt *debt )
@@ -1044,8 +1032,7 @@ void Game::acceptTrade(Player *pInput, char *data)
 		// Complete trade
 		completeTrade(trade);
 		delTrade(trade);
-		if (!clientsMoving())
-			m_pTurn->endTurn();
+		m_pTurn->endTurn();
 	}
 }
 
