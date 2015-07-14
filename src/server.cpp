@@ -475,7 +475,7 @@ int MonopdServer::timeleftEvent()
 		}
 
 		timersub(event->launchTime(), &timenow, &timeres);
-		// add 1ms to adjust for precision lost in tv_usec/10000
+		// add 1ms to adjust for precision lost in tv_usec/1000
 		timems = (timeres.tv_sec*1000 + timeres.tv_usec/1000) +1;
 		if (timeleft > timems) {
 			timeleft = timems;
