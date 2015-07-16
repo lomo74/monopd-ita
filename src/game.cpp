@@ -552,7 +552,7 @@ void Game::start(Player *pInput)
 
 void Game::setTokenLocation(Player *pInput, unsigned int estateId)
 {
-	if (!clientsMoving() || !pInput || !m_pTurn)
+	if (!clientsMoving())
 		return;
 
 	Estate *estateLoc = findEstate(estateId);
