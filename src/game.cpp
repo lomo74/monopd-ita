@@ -1428,6 +1428,7 @@ Player *Game::findPlayer(int playerId)
 
 void Game::removePlayer(Player *p)
 {
+	// note: m_pTurn is NULL when a game is finished
 	if (p == m_pTurn) {
 		// cancel any tax dialog
 		m_pausedForDialog = false;
@@ -1583,9 +1584,6 @@ unsigned int Game::playerAssets(Player *player)
 
 void Game::updateTurn()
 {
-	if (m_status == Game::End)
-		return;
-
 	// Disable turn, roll and buy.
 	m_pTurn->setTurn(false);
 
