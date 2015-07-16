@@ -615,18 +615,21 @@ void Game::setTokenLocation(Player *pInput, unsigned int estateId)
 
 void Game::tokenMovementTimeout()
 {
+	// game might be ended if a player left while moving, thus m_pTurn can be NULL here
+	if (!m_pTurn) {
+		return;
+	}
+
+	if (!m_pTurn->destination()) {
+		return;
+	}
+
 	// Mark all clients as non moving.
-	Player *pTmp = 0;
-	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
-		if (pTmp->tokenLocation())
-		{
-			if (m_pTurn && m_pTurn->destination())
-			{
-				m_pTurn->setProperty("location", m_pTurn->destination()->id(), this);
-				m_pTurn->setBoolProperty("directmove", true, this);
-				setTokenLocation(pTmp, m_pTurn->destination()->id());
-			}
+	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end(); ++it) {
+		if ((*it)->tokenLocation()) {
+			setTokenLocation(*it, m_pTurn->destination()->id());
 		}
+	}
 }
 
 unsigned int Game::auctionTimeout()
@@ -2078,6 +2081,8 @@ void Game::bankruptPlayer(Player *pBroke)
 	if (activePlayers == 1) {
 		// a user who disconnect might end the game while an auction was running
 		abortAuction();
+		// game might be ended if a player left while a player was moving
+		setAllClientsMoving(0);
 
 		m_status = End;
 		setProperty("status", "end");
@@ -2154,19 +2159,21 @@ int Game::debts()
 unsigned int Game::clientsMoving()
 {
 	unsigned int moving = 0;
-	Player *pTmp = 0;
-	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
-		if (pTmp->tokenLocation())
+	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end(); ++it) {
+		if ((*it)->tokenLocation()) {
 			moving++;
+		}
+	}
 	return moving;
 }
 
 void Game::setAllClientsMoving(Estate *estate)
 {
-	Player *pTmp = 0;
-	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end() && (pTmp = *it) ; ++it)
-	if (pTmp->socket())
-		pTmp->setTokenLocation(estate);
+	for(std::vector<Player *>::iterator it = m_players.begin(); it != m_players.end(); ++it) {
+		if ((*it)->socket()) {
+			(*it)->setTokenLocation(estate);
+		}
+	}
 }
 
 void Game::sendStatus(Status status, Player *p)
