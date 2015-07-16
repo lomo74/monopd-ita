@@ -2091,6 +2091,7 @@ void Game::bankruptPlayer(Player *pBroke)
 		sendDisplayMsg(&display);
 
 		m_pTurn->setTurn(false);
+		m_pTurn = NULL;
 		return;
 	}
 
