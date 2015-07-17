@@ -610,7 +610,8 @@ void Game::setTokenLocation(Player *pInput, unsigned int estateId)
 
 	// Land player!
 	landPlayer(m_pTurn, false);
-	m_pTurn->endTurn();
+	// game might be ended if a player is bankrupt after landing (eg. could not pay rent), thus m_pTurn can be NULL here
+	if (m_pTurn) m_pTurn->endTurn();
 }
 
 void Game::tokenMovementTimeout()
