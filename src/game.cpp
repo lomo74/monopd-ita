@@ -635,6 +635,7 @@ void Game::tokenMovementTimeout()
 
 unsigned int Game::auctionTimeout()
 {
+	// game might be ended while an auction was in progress (eg. a player left), thus m_auction can be NULL here
 	if (!m_auction)
 		return 0;
 
