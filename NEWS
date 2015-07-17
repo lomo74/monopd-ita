@@ -1,3 +1,9 @@
+0.10.1
+------
+
+- reworked a little bit game logic to cleanup some bugs on player
+  disconnection event
+
 0.10.0
 ------
 
