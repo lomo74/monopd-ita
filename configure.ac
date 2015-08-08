@@ -42,8 +42,8 @@ AS_IF([test "x$USE_SYSTEMD_DAEMON" != "xno"], [
 ])
 
 if test "x$GCC" = "xyes"; then  \
-     CFLAGS+=" -D_FORTIFY_SOURCE=2  -g -O2 -fPIE -fstack-protector-strong -Wformat -Werror=format-security -Wall -Wextra";  \
-     CXXFLAGS+=" -D_FORTIFY_SOURCE=2  -g -O2 -fPIE -fstack-protector-strong -Wformat -Werror=format-security -Wall -Wextra";  \
+     CFLAGS+=" -Wall -Wextra";  \
+     CXXFLAGS+=" -Wall -Wextra";  \
 fi
 
 AC_OUTPUT([
