@@ -14,6 +14,8 @@
 // along with this program; see the file COPYING. If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include "config.h"
+
 #include "gameconfig.h"
 
 GameConfig::GameConfig(const std::string &id, const std::string &name, const std::string &description)

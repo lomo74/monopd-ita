@@ -15,6 +15,8 @@
 // along with this program; see the file COPYING. If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include "config.h"
+
 #include <dirent.h>
 #include <netdb.h>
 #include <stdio.h>
@@ -32,7 +34,6 @@
 
 #include <string>
 
-#include "config.h"
 #include "socket.h"
 #include "auction.h"
 #include "event.h"

@@ -15,6 +15,8 @@
 // along with this program; see the file COPYING. If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include "config.h"
+
 #define __USE_XOPEN
 #include <stdarg.h>
 #include <stdio.h>

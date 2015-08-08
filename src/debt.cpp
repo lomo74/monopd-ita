@@ -14,6 +14,8 @@
 // along with this program; see the file COPYING. If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include "config.h"
+
 #include "debt.h"
 
 Debt::Debt(Player *from, Player *toPlayer, Estate *toEstate, unsigned int amount)
