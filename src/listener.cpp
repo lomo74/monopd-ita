@@ -59,10 +59,13 @@ Listener::Listener(MonopdServer *server, const int port)
 	} else
 #endif /* USE_SYSTEMD_DAEMON */
 
-	if ( addListenPort(port) == -1 )
-	{
+	if (addListenPort(port)) {
 		syslog(LOG_ERR, "could not bind port %d, exiting", port);
-		exit(1);
+#if USE_SYSTEMD_DAEMON
+		sd_notifyf(1, "STATUS=Failed to start: could not bind port %d\nERRNO=%d", port, -2);
+		usleep(100000);
+#endif /* USE_SYSTEMD_DAEMON */
+		exit(-2);
 	}
 	else
 		syslog(LOG_NOTICE, "listener: port=[%d]", port);
