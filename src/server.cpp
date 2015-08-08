@@ -626,12 +626,12 @@ void MonopdServer::loadConfig()
 
 	char str[1024], *buf;
 
-	fgets(str, sizeof(str), f);
-	while(!feof(f))
-	{
-		if (str[0]=='#') {}
-		else if (strstr(str, "="))
-		{
+	for (fgets(str, sizeof(str), f); !feof(f); fgets(str, sizeof(str), f)) {
+		if (str[0] == '#') {
+			continue;
+		}
+
+		if (strstr(str, "=")) {
 			buf = strtok(str, "=");
 			if (!strcmp(buf, "port"))
 				m_port = atoi(strtok(NULL, "\n\0"));
@@ -644,7 +644,6 @@ void MonopdServer::loadConfig()
 				m_useMetaserver = true;
 			}
 		}
-		fgets(str, sizeof(str), f);
 	}
 	fclose(f);
 }
@@ -679,7 +678,7 @@ void MonopdServer::loadGameTemplates()
 		}
 
 		for (fgets(str, sizeof(str), f); !feof(f); fgets(str, sizeof(str), f)) {
-			if (str[0]=='#') {
+			if (str[0] == '#') {
 				continue;
 			}
 
@@ -688,8 +687,7 @@ void MonopdServer::loadGameTemplates()
 				goto abort;
 			}
 
-			if (strstr(str, "="))
-			{
+			if (strstr(str, "=")) {
 				buf = strtok(str, "=");
 				if (!strcmp(buf, "name"))
 					name = strtok(NULL, "\n\0");
