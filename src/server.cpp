@@ -624,9 +624,9 @@ void MonopdServer::loadConfig()
 		return;
 	}
 
-	char str[1024], *buf;
+	char str[1024], *buf, *ret;
 
-	for (fgets(str, sizeof(str), f); !feof(f); fgets(str, sizeof(str), f)) {
+	for (ret = fgets(str, sizeof(str), f); ret && !feof(f); ret = fgets(str, sizeof(str), f)) {
 		if (str[0] == '#') {
 			continue;
 		}
@@ -663,7 +663,7 @@ void MonopdServer::loadGameTemplates()
 		exit(-1);
 	}
 	while ((direntp=readdir(dirp)) != NULL) {
-		char str[256], *buf;
+		char str[256], *buf, *ret;
 		std::string name, description;
 
 		if (!strstr(direntp->d_name, ".conf")) {
@@ -677,7 +677,7 @@ void MonopdServer::loadGameTemplates()
 			continue;
 		}
 
-		for (fgets(str, sizeof(str), f); !feof(f); fgets(str, sizeof(str), f)) {
+		for (ret = fgets(str, sizeof(str), f); ret && !feof(f); ret = fgets(str, sizeof(str), f)) {
 			if (str[0] == '#') {
 				continue;
 			}
