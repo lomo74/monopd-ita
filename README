@@ -25,38 +25,17 @@ between various desktop environments and operating systems.
 
 The following clients are currently available:
 
-Atlantik
---------
-
-Environment:  KDE
-Author:       Rob Kaper <cap@capsi.com>
-Homepage;     http://unixcode.org/atlantik/
-Download:     http://unixcode.org/atlantik/download.html
-CVS:          KDE CVS, module kdegames
-Requirements: Qt, kdelibs, kdebase, libkdegames
-
 gtkAtlantic
 -----------
 
-Environment:  GTK+
-Author:       Rochet Sylvain <gradator@ifrance.com>
-Homepage:     http://gtkatlantic.sourceforge.net/
-Download:     http://gtkatlantic.sourceforge.net/downloads.html
-Requirements: libgtk1.2, libxml2, libpng
-
-gtkMonop
---------
-
-Environment:  GNOME/GTK+
-Author:       Erik Bourget <ebourg@po-box.mcgill.ca>
-Homepage:     http://gtkmonop.sourceforge.net/
-Download:     http://gtkmonop.sourceforge.net/
-CVS:          http://sourceforge.net/, project gtkmonop
-Requirements: libgtk1.2, libxml2
+Environment:  GTK3
+Author:       Sylvain Rochet <gradator@gradator.net>
+Homepage:     http://gtkatlantic.gradator.net
+Download:     http://gtkatlantic.gradator.net/downloads.html
+Requirements: libgtk3, libxml2, libpng
 
 More clients are welcome! To get your client included in this list send
-e-mail to monopd-devel@lists.capsi.com with a short description of your
-client.
+e-mail to gradator@gradator.net with a short description of your client.
 
 3. Requirements
 ===============
@@ -87,10 +66,10 @@ first.
 5. Release notes
 ================
 
-The best way to stay completely up-to-date with monopd is to use GNU arch.
+The best way to stay completely up-to-date with monopd is to use Git.
 For more instructions, visit the project website:
 
-http://unixcode.org/monopd/download.html
+http://gtkatlantic.gradator.net/
 
 6. Contact
 ==========

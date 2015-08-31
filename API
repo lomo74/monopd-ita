@@ -103,9 +103,8 @@ any problems or ask for clarification when in doubt.
 iv. generally active servers
 ---------------------------
 
-A list of available monopd servers is available on
-http://monopd.unixcode.org/ and can be used by clients to connect to
-dedicated servers on the Internet.
+A list of available monopd servers is available on the metaserver and can be
+used by clients to connect to dedicated servers on the Internet.
 
 Please read the file README.metaserver from the monopd distribution for
 more information.
@@ -411,4 +410,4 @@ WARNING: Do not use yet!
 
 This is part of the new object wire protocol POSSIBLY to be used after
 monopd 1.0. At present, the code sending such messages is commented out in
-CVS.
+Git.
