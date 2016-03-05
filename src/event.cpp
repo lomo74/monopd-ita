@@ -32,7 +32,11 @@ Event::Event(int id, EventType type, Game *game) : GameObject(id, GameObject::Un
 }
 
 void Event::setLaunchTime(int ms) {
-	struct timeval timenow, timeout = { .tv_sec = ms/1000, .tv_usec = (ms%1000)*1000 };
+	struct timeval timenow, timeout;
+
+	/* ISO C++ does not allow C99 designated initializers */
+	timeout.tv_sec = ms/1000;
+	timeout.tv_usec = (ms%1000)*1000;
 
 	gettimeofday(&timenow, NULL);
 	timeradd(&timenow, &timeout, &m_launchTime);
