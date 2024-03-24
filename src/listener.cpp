@@ -295,8 +295,13 @@ Socket *Listener::acceptSocket(int fd)
 
 	int len = sizeof(clientaddr);
 	int socketFd = accept(fd, (struct sockaddr *) &clientaddr, (socklen_t *) &len);
-	if (socketFd == -1)
+	if (socketFd == -1) {
+		if (errno == EINVAL) {
+			syslog(LOG_INFO, "accept() failed: %s, probably because systemd socket activation [Socket] configuration use Accept=yes, that must be set to no", strerror(errno));
+			exit(-2);
+		}
 		return 0;
+	}
 
 	Socket *socket = new Socket(socketFd);
 	if(clientaddr.ss_family == AF_INET) {
