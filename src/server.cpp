@@ -620,7 +620,7 @@ void MonopdServer::loadConfig()
 	FILE *f = fopen(MONOPD_CONFIGDIR "/monopd.conf", "r");
 	if (!f)
 	{
-		syslog( LOG_WARNING, "cannot open configuration: file=[%s]", MONOPD_CONFIGDIR "/monopd.conf" );
+		syslog( LOG_WARNING, "cannot open configuration: file=[" MONOPD_CONFIGDIR "/monopd.conf], error=[%s], using default values", strerror(errno));
 		return;
 	}
 
@@ -655,9 +655,9 @@ void MonopdServer::loadGameTemplates()
 
 	dirp = opendir(MONOPD_DATADIR "/games/");
 	if (!dirp) {
-		syslog( LOG_ERR, "cannot open game directory, dir=[%s]", MONOPD_DATADIR "/games/" );
+		syslog( LOG_ERR, "cannot open game directory, dir=[" MONOPD_DATADIR "/games/], error=[%s]", strerror(errno) );
 #if USE_SYSTEMD_DAEMON
-		sd_notifyf(1, "STATUS=Failed to start: cannot open game directory, dir=[%s]\nERRNO=%d", MONOPD_DATADIR "/games/", -1 );
+		sd_notifyf(1, "STATUS=Failed to start: cannot open game directory, dir=[" MONOPD_DATADIR "/games/], error=[%s]\nERRNO=%d", strerror(errno), errno);
 		usleep(100000);
 #endif /* USE_SYSTEMD_DAEMON */
 		exit(-1);
@@ -673,7 +673,7 @@ void MonopdServer::loadGameTemplates()
 		std::string filename = std::string(MONOPD_DATADIR) + "/games/" + direntp->d_name;
 		FILE *f = fopen(filename.c_str(), "r");
 		if (!f) {
-			syslog( LOG_WARNING, "cannot open game configuration: file=[%s/%s]", MONOPD_DATADIR "/games", filename.c_str() );
+			syslog( LOG_WARNING, "cannot open game configuration: file=[%s], error=[%s]", filename.c_str(), strerror(errno) );
 			continue;
 		}
 
@@ -683,7 +683,7 @@ void MonopdServer::loadGameTemplates()
 			}
 
 			if (!utf8::is_valid(str, str+strlen(str))) {
-				syslog( LOG_WARNING, "cannot open game configuration, file is not proper UTF-8: file=[%s/%s]", MONOPD_DATADIR "/games", filename.c_str() );
+				syslog( LOG_WARNING, "cannot open game configuration, file is not proper UTF-8: file=[%s]", filename.c_str() );
 				goto abort;
 			}
 

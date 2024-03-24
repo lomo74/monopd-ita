@@ -47,6 +47,8 @@
 
 Listener::Listener(MonopdServer *server, const int port)
 {
+	int err;
+
 	m_server = server;
 
 	signal(SIGPIPE, SIG_IGN);
@@ -55,16 +57,20 @@ Listener::Listener(MonopdServer *server, const int port)
 	int socket_count = sd_listen_fds(0);
 	if (socket_count > 0) {
 		for (int fd = SD_LISTEN_FDS_START; socket_count--; fd++) {
-			addListenFd(fd);
+			if ((err = addListenFd(fd))) {
+				sd_notifyf(1, "STATUS=Failed to start: could not add listening socket: %s\nERRNO=%d", strerror(err), err);
+				usleep(100000);
+				exit(-2);
+			}
 		}
 		syslog(LOG_NOTICE, "listener: systemd");
 	} else
 #endif /* USE_SYSTEMD_DAEMON */
 
-	if (addListenPort(port)) {
-		syslog(LOG_ERR, "could not bind port %d, exiting", port);
+	if ((err = addListenPort(port))) {
+		syslog(LOG_ERR, "could not bind port %d: %s, exiting", port, strerror(err));
 #if USE_SYSTEMD_DAEMON
-		sd_notifyf(1, "STATUS=Failed to start: could not bind port %d\nERRNO=%d", port, -2);
+		sd_notifyf(1, "STATUS=Failed to start: could not bind port %d: %s\nERRNO=%d", port, strerror(err), err);
 		usleep(100000);
 #endif /* USE_SYSTEMD_DAEMON */
 		exit(-2);
@@ -82,6 +88,7 @@ Listener::~Listener()
 int Listener::addListenPort(const int port)
 {
 	ListenPort *listenPort;
+	int err;
 
 	listenPort = new ListenPort(AF_INET6, "::", port);
 	if ( listenPort->error() ) {
@@ -91,16 +98,23 @@ int Listener::addListenPort(const int port)
 	}
 
 	listenPort = new ListenPort(AF_INET, "0.0.0.0", port);
-	if ( listenPort->error() ) {
+	if ( (err = listenPort->error()) ) {
 		delete listenPort;
-		return -1;
+		return err;
 	}
 	m_listenPorts.push_back(listenPort);
 	return 0;
 }
 
 int Listener::addListenFd(const int fd) {
-	ListenPort *listenPort = new ListenPort(fd);
+	ListenPort *listenPort;
+	int err;
+
+	listenPort = new ListenPort(fd);
+	if ( (err = listenPort->error()) ) {
+		delete listenPort;
+		return err;
+	}
 	m_listenPorts.push_back(listenPort);
 	return 0;
 }
