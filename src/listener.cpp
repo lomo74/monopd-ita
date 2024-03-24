@@ -84,14 +84,14 @@ int Listener::addListenPort(const int port)
 	ListenPort *listenPort;
 
 	listenPort = new ListenPort(AF_INET6, "::", port);
-	if ( !listenPort->isBound() ) {
+	if ( listenPort->error() ) {
 		delete listenPort;
 	} else {
 		m_listenPorts.push_back(listenPort);
 	}
 
 	listenPort = new ListenPort(AF_INET, "0.0.0.0", port);
-	if ( !listenPort->isBound() ) {
+	if ( listenPort->error() ) {
 		delete listenPort;
 		return -1;
 	}
@@ -128,7 +128,7 @@ void Listener::checkActivity()
 	ListenPort *listenPort = 0;
 	for(std::vector<ListenPort *>::iterator it = m_listenPorts.begin() ; it != m_listenPorts.end() && (listenPort = *it) ; ++it)
 	{
-		if ( listenPort->isBound() )
+		if ( !listenPort->error() )
 		{
 			FD_SET(listenPort->fd(), &m_readfdset);
 			if (listenPort->fd() > highestFd)

@@ -29,12 +29,12 @@ public:
 	const std::string ipAddr() { return m_ipAddr; }
 	int port() { return m_port; }
 	int fd() { return m_fd; }
-	bool isBound() const;
+	int error() { return m_error; };
 
 private:
 	std::string m_ipAddr;
 	int m_fd, m_port;
-	bool m_isBound;
+	int m_error = 0;
 };
 
 #endif // NETWORK_LISTENPORT_H

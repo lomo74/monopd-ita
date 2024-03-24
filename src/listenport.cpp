@@ -37,12 +37,13 @@
 
 ListenPort::ListenPort(sa_family_t family, const std::string ip, const int port)
 {
+	int reuse;
+
 	m_ipAddr = ip;
 	m_port = port;
-	m_isBound = false;
 	m_fd = socket(family, SOCK_STREAM, 0);
 	if(m_fd < 0) {
-		return;
+		goto fail_socket;
 	}
 
 	struct sockaddr_storage servaddr;
@@ -64,60 +65,63 @@ ListenPort::ListenPort(sa_family_t family, const std::string ip, const int port)
 		int v6only = 1;
 		setsockopt(m_fd, IPPROTO_IPV6, IPV6_V6ONLY, &v6only, sizeof(v6only));
 	} else {
-		close(m_fd);
-		return;
+		goto fail_bind;
 	}
 
 	// release the socket after program crash, avoid TIME_WAIT
-	int reuse = 1;
+	reuse = 1;
 	if(setsockopt(m_fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1)
 	{
-		close(m_fd);
-		return;
+		goto fail_bind;
 	}
 
 	if( (bind(m_fd, (struct sockaddr *) &servaddr, addrlen)) == -1)
 	{
-		close(m_fd);
-		return;
+		goto fail_bind;
 	}
-	m_isBound = true;
 
 	if(listen(m_fd, LISTENQ) == -1)
 	{
-		close(m_fd);
-		return;
+		goto fail_bind;
 	}
 
 	// get current socket flags
 	int flags;
-	if ((flags=fcntl(m_fd, F_GETFL)) == -1)
-		return;
+	if ((flags=fcntl(m_fd, F_GETFL)) == -1) {
+		goto fail_bind;
+	}
 
 	// set socket to non-blocking
 	flags |= O_NDELAY;
-	if (fcntl(m_fd, F_SETFL, flags) == -1)
-		return;
+	if (fcntl(m_fd, F_SETFL, flags) == -1) {
+		goto fail_bind;
+	}
+
+	return;
+
+fail_bind:
+	close(m_fd);
+fail_socket:
+	m_error = errno ? errno : 255;
 }
 
 ListenPort::ListenPort(int fd) {
 	m_ipAddr = "";
 	m_port = 0;
-	m_isBound = true;
 	m_fd = fd;
 
 	// get current socket flags
 	int flags;
 	if ((flags=fcntl(m_fd, F_GETFL)) == -1)
-		return;
+		goto fail;
 
 	// set socket to non-blocking
 	flags |= O_NDELAY;
 	if (fcntl(m_fd, F_SETFL, flags) == -1)
-		return;
-}
+		goto fail;
 
-bool ListenPort::isBound() const
-{
-	return m_isBound;
+	return;
+
+fail:
+	m_error = errno ? errno : 255;
 }
