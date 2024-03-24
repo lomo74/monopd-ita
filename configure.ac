@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([monopd], [0.10.2])
+AC_INIT([monopd], [0.10.3])
 AC_CONFIG_SRCDIR([configure.ac])
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([config.h])

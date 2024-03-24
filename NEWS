@@ -1,3 +1,16 @@
+0.10.3
+------
+
+- documentation cleanup
+- use libtoolize instead of libtool
+- update to modern autoconf style
+- exit if systemd socket configuration is not properly configured  (Accept=yes
+  instead of Accept=no (default))
+- use std::shuffle instead of the deprecated std::random_shuffle
+- rework listener error handling to export errno value
+- add strerror() in various error messages, properly set systemd ERRNO value
+  for sd_notify calls
+
 0.10.2
 ------
 
