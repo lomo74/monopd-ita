@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <string>
+#include <random>
 
 #include "gameobject.h"
 #include "display.h"
@@ -40,6 +41,8 @@ class Game : public GameObject
 		virtual ~Game();
 
 		enum Status { Config, Init, Run, End };
+
+		std::default_random_engine m_randomEngine;
 
 		void ioWrite(const char *data, ...);
 		void ioWrite(const std::string data);

@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <syslog.h>
 #include <string.h>
+#include <time.h>
 #include <algorithm> // libstdc++ from the gcc 2.95 has no #include <algo> yet :(
 
 #include <map>
@@ -45,7 +46,7 @@
 #include "display.h"
 
 Game::Game(int id)
- :	GameObject(id, GGame)
+ :	GameObject(id, GGame), m_randomEngine(time(NULL))
 {
 	m_status = Config;
 
@@ -517,7 +518,7 @@ void Game::start(Player *pInput)
 	}
 
 	// Shuffle players
-	random_shuffle(m_players.begin(), m_players.end());
+	std::shuffle(m_players.begin(), m_players.end(), m_randomEngine);
 
 	// Shuffle card decks.
 	CardGroup *cardGroup = 0;

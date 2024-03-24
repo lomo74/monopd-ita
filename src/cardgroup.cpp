@@ -80,5 +80,5 @@ void CardGroup::popCard()
 
 void CardGroup::shuffleCards()
 {
-	random_shuffle(m_cards.begin(), m_cards.end());
+	std::shuffle(m_cards.begin(), m_cards.end(), m_game->m_randomEngine);
 }
