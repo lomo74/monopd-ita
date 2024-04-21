@@ -158,9 +158,9 @@ void Player::ioError(const std::string data)
 void Player::ioNoSuchCmd(const std::string data)
 {
 	if (data.size())
-		ioError("Command is unavailable at current game status: " + data);
+		ioError("Il comando non è disponibile allo stato attuale del gioco: " + data);
 	else
-		ioError("No such command.");
+		ioError("Comando inesistente.");
 }
 
 void Player::sendDisplay(Display *display)
@@ -222,19 +222,19 @@ void Player::rollDice()
 {
 	if (getBoolProperty("jailed"))
 	{
-		ioError("You cannot roll while jailed.");
+		ioError("Non puoi tirare i dadi mentre sei in prigione.");
 		return;
 	}
 	if (getBoolProperty("can_buyestate"))
 	{
-		ioError("You must buy or auction the current estate.");
+		ioError("Devi comprare o mettere all'asta la proprietà corrente.");
 		return;
 	}
 
 	m_game->rollDice();
 
 	Display display;
-	display.setText("%s rolls %d and %d.", getStringProperty("name").c_str(), m_game->dice[0], m_game->dice[1]);
+	display.setText("%s lancia %d e %d.", getStringProperty("name").c_str(), m_game->dice[0], m_game->dice[1]);
 	display.resetText();
 	display.resetEstate();
 	m_game->sendDisplayMsg(&display, this);
@@ -256,13 +256,13 @@ void Player::rollDice()
 		else
 		{
 			Display display;
-			display.setText("%s throws three doubles and is thrown into jail.", getStringProperty("name").c_str());
+			display.setText("%s fa tre doppi e finisce in prigione.", getStringProperty("name").c_str());
 			m_game->sendDisplayMsg(&display);
 
 			if (Estate *eJail = m_game->findNextJailEstate(m_estate))
 				toJail(eJail);
 			else
-				m_game->ioError("This gameboard does not have a jail estate.");
+				m_game->ioError("Questo tavolo da gioco non ha una prigione.");
 
 			m_game->updateTurn();
 			return;
@@ -282,31 +282,31 @@ void Player::endTurn(bool userRequest)
 {
 	if (!getBoolProperty("hasturn")) {
 		if (userRequest)
-			ioError("You cannot end your turn, this is not your turn.");
+			ioError("Non puoi passare il turno, non è il tuo turno.");
 		return;
 	}
 
 	if (m_game->pausedForDialog()) {
 		if (userRequest)
-			ioError("You cannot end your turn, you must answer the dialog first.");
+			ioError("Non puoi passare il turno, devi prima rispondere.");
 		return;
 	}
 
 	if (m_game->auction()) {
 		if (userRequest)
-			ioError("You cannot end your turn, an auction is in progress.");
+			ioError("Non puoi passare il turno, c'è un'asta in corso.");
 		return;
 	}
 
 	if (m_game->clientsMoving()) {
 		if (userRequest)
-			ioError("You cannot end your turn, other players are still moving.");
+			ioError("Non puoi passare il turno, altri giocatori stanno ancora muovendo.");
 		return;
 	}
 
 	if (m_game->debts()) {
 		if (userRequest)
-			ioError("You cannot end your turn, there are debts to be settled.");
+			ioError("Non puoi passare il turno, ci sono debiti da saldare.");
 		return;
 	}
 
@@ -316,7 +316,7 @@ void Player::endTurn(bool userRequest)
 		}
 
 		if (m_game->getBoolConfigOption("auctionsenabled")) {
-			ioError("You cannot end your turn, you must either buy or auction the property you are on.");
+			ioError("Non puoi passare il turno, devi comprare o mettere all'asta la proprietà su cui ti trovi.");
 			return;
 		}
 
@@ -329,9 +329,9 @@ void Player::endTurn(bool userRequest)
 
 	if (getBoolProperty("canrollagain")) {
 		Display display;
-		display.setText("%s may roll again.", getStringProperty("name").c_str());
+		display.setText("%s può tirare di nuovo.", getStringProperty("name").c_str());
 		m_game->sendDisplayMsg(&display, this);
-		display.addButton(".r", "Roll", true);
+		display.addButton(".r", "Tira i dadi", true);
 		sendDisplayMsg(&display);
 
 		setBoolProperty("can_roll", true);
@@ -341,13 +341,13 @@ void Player::endTurn(bool userRequest)
 
 	if (getBoolProperty("can_roll")) {
 		if (userRequest)
-			ioError("You cannot end your turn, you must roll first!");
+			ioError("Non puoi passare il turno, devi prima tirare i dadi!");
 		return;
 	}
 
 	if (getBoolProperty("jailed")) {
 		if (userRequest)
-			ioError("You cannot end your turn while jailed.");
+			ioError("Non puoi passare il turno mentre sei in prigione.");
 		return;
 	}
 
@@ -360,7 +360,7 @@ void Player::payJail()
 	int payAmount = m_estate->getIntProperty("payamount");
 	if (!payMoney(payAmount))
 	{
-		ioError("Leaving jail costs %d, you only have %d.", payAmount, getIntProperty("money"));
+		ioError("Uscire di prigione costa %d, tu possiedi solo %d.", payAmount, getIntProperty("money"));
 		return;
 	}
 	else if (m_game->getBoolConfigOption("collectfines"))
@@ -376,10 +376,10 @@ void Player::payJail()
 	setProperty("jailcount", 0);
 
 	Display display;
-	display.setText("%s paid %d and has left jail, can roll now.", getStringProperty("name").c_str(), payAmount);
+	display.setText("%s ha pagato %d ed è uscito di prigione, può ora tirare.", getStringProperty("name").c_str(), payAmount);
 	m_game->sendDisplayMsg(&display, this);
 	display.resetButtons(); /* Remove jail buttons: Pay, Use card, Roll */
-	display.addButton(".r", "Roll", true);
+	display.addButton(".r", "Tira i dadi", true);
 	sendDisplayMsg(&display);
 }
 
@@ -393,7 +393,7 @@ void Player::rollJail()
 		setBoolProperty("jailed", false);
 
 		Display display;
-		display.setText("Doubles, leaving jail!");
+		display.setText("Raddoppi, esci di prigione!");
 		m_game->sendDisplayMsg(&display, this);
 		display.resetButtons(); /* Remove jail buttons: Pay, Use card, Roll */
 		sendDisplayMsg(&display);
@@ -407,7 +407,7 @@ void Player::rollJail()
 	if(jailCount < 3)
 	{
 		Display display;
-		display.setText("No doubles, staying in jail.");
+		display.setText("Non raddoppi, resti in prigione.");
 		m_game->sendDisplayMsg(&display, this);
 		display.resetButtons(); /* Remove jail buttons: Pay, Use card, Roll */
 		sendDisplayMsg(&display);
@@ -424,7 +424,7 @@ void Player::rollJail()
 	setProperty("jailcount", 0);
 
 	Display display;
-	display.setText("No doubles, %s must pay %d now and leave jail.", getStringProperty("name").c_str(), payAmount);
+	display.setText("Nessun raddoppio, %s deve ora pagare %d e uscire di prigione.", getStringProperty("name").c_str(), payAmount);
 	m_game->sendDisplayMsg(&display, this);
 	display.resetButtons(); /* Remove jail buttons: Pay, Use card, Roll */
 	sendDisplayMsg(&display);
@@ -433,7 +433,7 @@ void Player::rollJail()
 	if (!payMoney(payAmount))
 	{
 		Display display;
-		display.setText("Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", getStringProperty("name").c_str(), payAmount, (payAmount - getIntProperty("money")));
+		display.setText("Gioco in pausa, %s deve %d ma è insolvente. Il giocatore deve prima recuperare %d in contanti.", getStringProperty("name").c_str(), payAmount, (payAmount - getIntProperty("money")));
 		m_game->sendDisplayMsg(&display);
 
 		setBoolProperty("canrollagain", true); // player can roll once debt is resolved
@@ -445,7 +445,7 @@ void Player::rollJail()
 		ePayTarget->addMoney(payAmount);
 
 	Display display2;
-	display2.addButton(".r", "Roll", true);
+	display2.addButton(".r", "Tira i dadi", true);
 	sendDisplayMsg(&display2);
 
 	setBoolProperty("can_roll", true);
@@ -456,7 +456,7 @@ void Player::useJailCard()
 	Card *card = findOutOfJailCard();
 	if (!card)
 	{
-		ioError("You don't have any 'out of jail' cards.");
+		ioError("Non possiedi alcuna carta 'esci di prigione'.");
 		return;
 	}
 	m_game->transferCard(card, 0);
@@ -467,10 +467,10 @@ void Player::useJailCard()
 	setProperty("jailcount", 0);
 
 	Display display;
-	display.setText("%s used card and has left jail, can roll now.", getStringProperty("name").c_str());
+	display.setText("%s ha usato la carta ed è uscito di prigione, può ora tirare.", getStringProperty("name").c_str());
 	m_game->sendDisplayMsg(&display, this);
 	display.resetButtons(); /* Remove jail buttons: Pay, Use card, Roll */
-	display.addButton(".r", "Roll", true);
+	display.addButton(".r", "Tira i dadi", true);
 	sendDisplayMsg(&display);
 }
 
@@ -478,20 +478,20 @@ void Player::buyEstate()
 {
 	if (!getBoolProperty("can_buyestate"))
 	{
-		ioError("You cannot buy anything at the moment.");
+		ioError("Non puoi comprare nulla al momento.");
 		return;
 	}
 
 	if (!payMoney(m_estate->price()))
 	{
-		ioError("You do not have enough money to buy this property, %s costs %d.", m_estate->name().c_str(), m_estate->price());
+		ioError("Non possiedi abbastanza denaro per comprare questa proprietà, %s costa %d.", m_estate->name().c_str(), m_estate->price());
 		return;
 	}
 
 	m_game->transferEstate(m_estate, this);
 
 	Display display;
-	display.setText("Purchased by %s for %d.", getStringProperty("name").c_str(), m_estate->price());
+	display.setText("Comprata da %s per %d.", getStringProperty("name").c_str(), m_estate->price());
 	m_game->sendDisplayMsg(&display, this);
 	display.resetButtons(); /* Remove buy estate buttons: Buy, Auction, End Turn */
 	sendDisplayMsg(&display);
@@ -505,26 +505,26 @@ void Player::sellEstate(int estateId)
 {
 	if (!m_game->getBoolConfigOption("allowestatesales"))
 	{
-		ioError("Selling estates has been disabled in the configuration.");
+		ioError("La vendita di proprietà è stata disabilitata nella configurazione.");
 		return;
 	}
 
 	Estate *estate = m_game->findEstate(estateId);
 	if (!estate)
 	{
-		ioError("No such estateId: %d.", estateId);
+		ioError("estateId inesistente: %d.", estateId);
 		return;
 	}
 
 	if (this != estate->owner())
 	{
-		ioError("You don't own '" + estate->name() + "'.");
+		ioError("Non possiedi '" + estate->name() + "'.");
 		return;
 	}
 
 	if (estate->getBoolProperty("mortgaged") || estate->groupHasBuildings())
 	{
-		ioError("You can't sell this estate, there are houses on its group, or is mortgaged.");
+		ioError("Non puoi vendere questa proprietà, ci sono case sul suo gruppo, o è ipotecata.");
 		return;
 	}
 
@@ -535,7 +535,7 @@ void Player::sellEstate(int estateId)
 	m_game->transferEstate(estate, 0);
 
 	Display display;
-	display.setText("%s sold %s for %d.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), sellPrice);
+	display.setText("%s venduta %s per %d.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), sellPrice);
 	m_game->sendDisplayMsg(&display);
 
 	if (getBoolProperty("hasdebt"))
@@ -547,13 +547,13 @@ void Player::mortgageEstate(int estateId)
 	Estate *estate = m_game->findEstate(estateId);
 	if (!estate)
 	{
-		ioError("No such estateId: %d.", estateId);
+		ioError("estateId inesistente: %d.", estateId);
 		return;
 	}
 
 	if (this != estate->owner())
 	{
-		ioError("You don't own '" + estate->name() + "'.");
+		ioError("Non possiedi '" + estate->name() + "'.");
 		return;
 	}
 
@@ -561,14 +561,14 @@ void Player::mortgageEstate(int estateId)
 	{
 		if (!payMoney(estate->getIntProperty("unmortgageprice")))
 		{
-			ioError("'Unmortgaging %s' costs %d, you only have %d.", estate->name().c_str(), estate->getIntProperty("unmortgageprice"), getIntProperty("money"));
+			ioError("'Riscattare %s' costa %d, tu possiedi solo %d.", estate->name().c_str(), estate->getIntProperty("unmortgageprice"), getIntProperty("money"));
 			return;
 		}
 		estate->setBoolProperty("mortgaged", false);
 		m_game->sendMsgEstateUpdate(estate);
 
 		Display display;
-		display.setText("%s unmortgaged %s for %d.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("unmortgageprice"));
+		display.setText("%s riscattata %s per %d.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("unmortgageprice"));
 		m_game->sendDisplayMsg(&display);
 	}
 	else
@@ -577,7 +577,7 @@ void Player::mortgageEstate(int estateId)
 
 		if (estate->groupHasBuildings())
 		{
-			ioError("You can't mortgage '" + estate->name() + "',  there are still houses in the same group.");
+			ioError("Non puoi ipotecare '" + estate->name() + "', ci sono ancora case nell stesso gruppo.");
 			return;
 		}
 
@@ -587,7 +587,7 @@ void Player::mortgageEstate(int estateId)
 		addMoney((estate->getIntProperty("mortgageprice")));
 
 		Display display;
-		display.setText("%s mortgaged %s for %d.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("mortgageprice"));
+		display.setText("%s ipotecata %s per %d.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str(), estate->getIntProperty("mortgageprice"));
 		m_game->sendDisplayMsg(&display);
 
 		if (getBoolProperty("hasdebt"))
@@ -609,7 +609,7 @@ void Player::payTax(const bool percentage)
 		payAmount = m_estate->getIntProperty("tax");
 
 	Display display;
-	display.setText("%s chooses to pay the %s tax, which amounts to %d.", getStringProperty("name").c_str(), (percentage ? "assets based" : "static"), payAmount);
+	display.setText("%s sceglie di pagare la tassa %s, che ammonta a %d.", getStringProperty("name").c_str(), (percentage ? "in base alle proprietà" : "fissa"), payAmount);
 	m_game->sendDisplayMsg(&display, this);
 	display.resetButtons(); /* Remove pay tax buttons: Pay 200, Pay 10 Percent */
 	sendDisplayMsg(&display);
@@ -618,7 +618,7 @@ void Player::payTax(const bool percentage)
 	if (!payMoney(payAmount))
 	{
 		Display display;
-		display.setText("Game paused, %s owes %d but is not solvent. Player needs to raise %d in cash first.", getStringProperty("name").c_str(), payAmount, (payAmount - getIntProperty("money")));
+		display.setText("Gioco in pausa, %s deve %d ma è insolvente. Il giocatore deve prima recuparare %d in contanti.", getStringProperty("name").c_str(), payAmount, (payAmount - getIntProperty("money")));
 		m_game->sendDisplayMsg(&display);
 
 		m_game->newDebt(this, 0, ePayTarget, payAmount);
@@ -636,38 +636,38 @@ void Player::buyHouse(int estateId)
 	Estate *estate = m_game->findEstate(estateId);
 	if (!estate)
 	{
-		ioError("No such estateId: %d.", estateId);
+		ioError("estateId inesistente: %d.", estateId);
 		return;
 	}
 
 	if (this != estate->owner())
 	{
-		ioError("You don't own '" + estate->name() + "'.");
+		ioError("Non possiedi '" + estate->name() + "'.");
 		return;
 	}
 	else if (!estate->housePrice())
 	{
-		ioError("You can't build houses on '" + estate->name() + "'.");
+		ioError("Non puoi costruire case su '" + estate->name() + "'.");
 		return;
 	}
 	else if (!estate->estateGroupIsMonopoly())
 	{
-		ioError("You don't own all estate in the group of '" + estate->name() + "'.");
+		ioError("Non possiedi tutte le proprietà nel gruppo di '" + estate->name() + "'.");
 		return;
 	}
 	else if (estate->groupHasMortgages())
 	{
-		ioError("One or more estates in the group of '" + estate->name() + "' are mortgaged, so you cannot build houses there.");
+		ioError("Una o più proprietà nel gruppo di '" + estate->name() + "' sono ipotecate, quindi non puoi costruire case lì.");
 		return;
 	}
 	else if (estate->getIntProperty("houses")==5)
 	{
-		ioError("You already have a hotel on '" + estate->name() + "'.");
+		ioError("Hai già un albergo su '" + estate->name() + "'.");
 		return;
 	}
 	else if (estate->getIntProperty("houses") >= estate->maxHouses())
 	{
-		ioError("The even build rule prevents you from building more house on '" + estate->name() + "'.");
+		ioError("La regola di edificazione uniforme ti impedisce di costruire altre case su '" + estate->name() + "'.");
 		return;
 	}
 
@@ -679,13 +679,13 @@ void Player::buyHouse(int estateId)
 		{
 			if (!m_game->houses())
 			{
-				ioError("Sorry, there are no more houses available!");
+				ioError("Spiacente, non ci sono più case disponibili!");
 				return;
 			}
 		}
 		else if (!m_game->hotels())
 		{
-			ioError("Sorry, there are no more hotels available!");
+			ioError("Spiacente, non ci sono più alberghi disponibili!");
 			return;
 		}
 	}
@@ -693,7 +693,7 @@ void Player::buyHouse(int estateId)
 	int cost = estate->housePrice();
 	if (!payMoney(cost))
 	{
-		ioError("A house for %s costs %d, you only have %d.", estate->name().c_str(), cost, getIntProperty("money"));
+		ioError("Una casa per %s costa %d, tu possiedi solo %d.", estate->name().c_str(), cost, getIntProperty("money"));
 		return;
 	}
 
@@ -708,7 +708,7 @@ void Player::buyHouse(int estateId)
 		}
 
 		Display display;
-		display.setText("%s buys a hotel for %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
+		display.setText("%s compra un albergo per %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
 		m_game->sendDisplayMsg(&display);
 	}
 	else
@@ -717,7 +717,7 @@ void Player::buyHouse(int estateId)
 			m_game->setHouses(m_game->houses() - 1);
 
 		Display display;
-		display.setText("%s buys a house for %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
+		display.setText("%s compra una casa per %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
 		m_game->sendDisplayMsg(&display);
 	}
 
@@ -729,30 +729,30 @@ void Player::sellHouse(int estateId)
 	Estate *estate = m_game->findEstate(estateId);
 	if (!estate)
 	{
-		ioError("No such estateId: %d.", estateId);
+		ioError("estateId inesistente: %d.", estateId);
 		return;
 	}
 
 	if (this != estate->owner())
 	{
-		ioError("You don't own '" + estate->name() + "'.");
+		ioError("Non possiedi '" + estate->name() + "'.");
 		return;
 	}
 	else if (estate->getIntProperty("houses")==0)
 	{
-		ioError("There are no buildings on '" + estate->name() + "' to sell.");
+		ioError("Non ci sono costruzioni su '" + estate->name() + "' da vendere.");
 		return;
 	}
 	else if (estate->getIntProperty("houses") <= estate->minHouses())
 	{
-		ioError("You must level out the number of houses across your monopoly before you sell more on '" + estate->name() + "'.");
+		ioError("Devi livellare il numero di case nel tuo monopolio prima di poterne vendere altre su '" + estate->name() + "'.");
 		return;
 	}
 
 	bool unlimitedHouses = m_game->getBoolConfigOption("unlimitedhouses");
 	if ( !unlimitedHouses && (estate->getIntProperty("houses") == 5) && (m_game->houses() < 4) )
 	{
-		ioError("Hotel cannot be sold, Bank only has %d houses left.", m_game->houses());
+		ioError("L'albergo non può essere venduto, la Banca ha a disposizione solo %d case.", m_game->houses());
 		return;
 	}
 
@@ -768,7 +768,7 @@ void Player::sellHouse(int estateId)
 		}
 
 		Display display;
-		display.setText("%s sells a hotel from %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
+		display.setText("%s vende un albergo da %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
 		m_game->sendDisplayMsg(&display);
 	}
 	else
@@ -777,7 +777,7 @@ void Player::sellHouse(int estateId)
 			m_game->setHouses(m_game->houses() + 1);
 
 		Display display;
-		display.setText("%s sells a house from %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
+		display.setText("%s vende una casa da %s.", getStringProperty("name").c_str(), estate->getStringProperty("name").c_str());
 		m_game->sendDisplayMsg(&display);
 	}
 
@@ -801,14 +801,14 @@ void Player::updateTradeObject(char *data)
 	// data looks like "1:10:1", tradeid, objectid, playerid
 	if (!strstr(data, ":"))
 	{
-		ioError("Invalid input, no separator after tradeId");
+		ioError("Input non valido, nessun separatore dopo tradeId");
 		return;
 	}
 	int tradeId = atoi(strsep(&data, ":"));
 
 	if (!strstr(data, ":"))
 	{
-		ioError("Invalid input, no separator after objectId");
+		ioError("Input non valido, nessun separatore dopo objectId");
 		return;
 	}
 	int objectId = atoi(strsep(&data, ":"));
@@ -817,13 +817,13 @@ void Player::updateTradeObject(char *data)
 	Trade *trade = m_game->findTrade(tradeId);
 	if (!trade)
 	{
-		ioError("No such tradeId: %d.", tradeId);
+		ioError("tradeId inesistente: %d.", tradeId);
 		return;
 
 	}
 	if (!trade->hasPlayer(this))
 	{
-		ioError("You are not part of trade %d.", tradeId);
+		ioError("Non fai parte della trattativa %d.", tradeId);
 		return;
 	}
 
@@ -834,12 +834,12 @@ void Player::updateTradeObject(char *data)
 		Estate *estate = m_game->findEstate(objectId);
 		if (!estate)
 		{
-			ioError("No estate with estateId %d.", objectId);
+			ioError("Nessuna proprietà con estateId %d.", objectId);
 			return;
 		}
 		if (estate->groupHasBuildings())
 		{
-			ioError("You can't trade " + estate->name() + ",  there are houses in the same group.");
+			ioError("Non puoi trattare " + estate->name() + ", ci sono case nel medesimo gruppo.");
 			return;
 		}
 		object = estate;
@@ -852,7 +852,7 @@ void Player::updateTradeObject(char *data)
 		Card *card = m_game->findCard(objectId);
 		if (!card || !card->owner())
 		{
-			ioError("No one owns a card with cardId %d.", objectId);
+			ioError("Nessuno possiede una carta con cardId %d.", objectId);
 			return;
 		}
 		object = card;
@@ -863,11 +863,11 @@ void Player::updateTradeObject(char *data)
 	Player *playerTo = m_game->findPlayer(playerId);
 	if (playerTo) {
 		if (playerTo->getBoolProperty("bankrupt")) {
-			ioError("You cannot trade with bankrupt players.");
+			ioError("Non puoi trattare con giocatori in bancarotta.");
 			return;
 		}
 		if (playerTo->getBoolProperty("spectator")) {
-			ioError("You cannot trade with spectators.");
+			ioError("Non puoi trattare con gli spettatori.");
 			return;
 		}
 	}
@@ -880,21 +880,21 @@ void Player::updateTradeMoney(char *data)
 	// data looks like "1:1:1:100", tradeid, playerfrom, playerto, money
 	if (!strstr(data, ":"))
 	{
-		ioError("Invalid input for .Tm, no separator after tradeId");
+		ioError("Input non valido per .Tm, nessun separatore dopo tradeId");
 		return;
 	}
 	int tradeId = atoi(strsep(&data, ":"));
 
 	if (!strstr(data, ":"))
 	{
-		ioError("Invalid input for .Tm, no separator after playerFromId");
+		ioError("Input non valido per .Tm, nessun separatore dopo playerFromId");
 		return;
 	}
 	int playerFromId = atoi(strsep(&data, ":"));
 
 	if (!strstr(data, ":"))
 	{
-		ioError("Invalid input for .Tm, no separator after playerToId");
+		ioError("Input non valido per .Tm, nessun separatore dopo playerToId");
 		return;
 	}
 
@@ -904,49 +904,49 @@ void Player::updateTradeMoney(char *data)
 	Trade *trade = m_game->findTrade(tradeId);
 	if (!trade)
 	{
-		ioError("No such tradeId: %d.", tradeId);
+		ioError("tradeId inesistente: %d.", tradeId);
 		return;
 	}
 
 	if (!trade->hasPlayer(this))
 	{
-		ioError("You are not part of trade %d.", tradeId);
+		ioError("Non fai parte della trattativa %d.", tradeId);
 		return;
 	}
 
 	Player *pFrom = m_game->findPlayer(playerFromId);
 	if (!pFrom)
 	{
-		ioError("No such playerFromId: %d.", playerFromId);
+		ioError("playerFromId inesistente: %d.", playerFromId);
 		return;
 	}
 	if (pFrom->getBoolProperty("bankrupt")) {
-		ioError("You cannot trade with bankrupt players.");
+		ioError("Non puoi trattare con giocatori in bancarotta.");
 		return;
 	}
 	if (pFrom->getBoolProperty("spectator")) {
-		ioError("You cannot trade with spectators.");
+		ioError("Non puoi trattare con gli spettatori.");
 		return;
 	}
 	Player *pTo = m_game->findPlayer(playerToId);
 	if (!pTo)
 	{
-		ioError("No such playerToId: %d.", playerToId);
+		ioError("playerToId inesistente: %d.", playerToId);
 		return;
 	}
 	if (pTo->getBoolProperty("bankrupt")) {
-		ioError("You cannot trade with bankrupt players.");
+		ioError("Non puoi trattare con giocatori in bancarotta.");
 		return;
 	}
 	if (pTo->getBoolProperty("spectator")) {
-		ioError("You cannot trade with spectators.");
+		ioError("Non puoi trattare con gli spettatori.");
 		return;
 	}
 
 	// TODO: should also count money player owes in other trade components
 	if(pFrom->getIntProperty("money") < money)
 	{
-		ioError("%s doesn't have %d to offer.", pFrom->name().c_str(), money);
+		ioError("%s non ha da offrire %d.", pFrom->name().c_str(), money);
 		return;
 	}
 
@@ -1033,23 +1033,23 @@ void Player::setTurn(const bool &turn)
 		if (getBoolProperty("jailed"))
 		{
 			Display display1;
-			display1.setText("%s is in jail, turn %d.", name().c_str(), getIntProperty("jailcount"));
+			display1.setText("%s è in prigione, turno %d.", name().c_str(), getIntProperty("jailcount"));
 			display1.setEstate(m_estate);
 			m_game->sendDisplayMsg(&display1, this);
 
 			Display display2;
-			display2.setText("You are in jail, turn %d.", getIntProperty("jailcount"));
+			display2.setText("Sei in prigione, turno %d.", getIntProperty("jailcount"));
 			display2.setEstate(m_estate);
-			display2.addButton(".jp", "Pay", true);
-			display2.addButton(".jc", "Use card", findOutOfJailCard());
-			display2.addButton(".jr", "Roll", true);
+			display2.addButton(".jp", "Paga", true);
+			display2.addButton(".jc", "Usa la carta", findOutOfJailCard());
+			display2.addButton(".jr", "Tira i dadi", true);
 			sendDisplayMsg(&display2);
 
 			setBoolProperty("canusecard", findOutOfJailCard());
 		}
 		else {
 			Display display;
-			display.addButton(".r", "Roll", true);
+			display.addButton(".r", "Tira i dadi", true);
 			sendDisplayMsg(&display);
 
 			setBoolProperty("can_roll", true);

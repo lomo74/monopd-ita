@@ -190,7 +190,7 @@ void MonopdServer::joinGame(Player *pInput, unsigned int gameId, const bool &spe
 	Game *game = findGame(gameId);
 	if (!game)
 	{
-		pInput->ioError("There is no game with id %d.", gameId);
+		pInput->ioError("Non esiste un gioco con id %d.", gameId);
 		return;
 	}
 
@@ -200,23 +200,23 @@ void MonopdServer::joinGame(Player *pInput, unsigned int gameId, const bool &spe
 		if ( config && config->getBoolProperty( "value" ) && game->status() == Game::Run )
 		{
 			game->addPlayer(pInput, true);
-			game->ioInfo("%s joins as spectator.", pInput->name().c_str());
+			game->ioInfo("%s partecipa come spettatore.", pInput->name().c_str());
 		}
 		else
-			pInput->ioError("Game %d doesn't allow spectators.", gameId);
+			pInput->ioError("Il gioco %d non ammette spettatori.", gameId);
 		return;
 	}
 
 	int maxPlayers = game->getIntProperty("maxplayers");
 	if (game->players() >= maxPlayers)
 	{
-		pInput->ioError("This game already has the maximum of %d players.", maxPlayers);
+		pInput->ioError("Questo gioco ha già il numero massimo di giocatori pari a %d.", maxPlayers);
 		return;
 	}
 
 	if (game->status() != Game::Config)
 	{
-		pInput->ioError("You cannot join game %d, it is already in progress.", game->id());
+		pInput->ioError("Non puoi partecipare al gioco %d, lo svolgimento è già iniziato.", game->id());
 		return;
 	}
 
@@ -226,7 +226,7 @@ void MonopdServer::joinGame(Player *pInput, unsigned int gameId, const bool &spe
 void MonopdServer::exitGame(Game *game, Player *pInput)
 {
 	game->removePlayer(pInput);
-	game->ioInfo("%s left the game.", pInput->name().c_str());
+	game->ioInfo("%s ha abbandonato il gioco.", pInput->name().c_str());
 	if (game->players(true) == 0) {
 		delGame(game);
 	}
@@ -295,7 +295,7 @@ void MonopdServer::setGameDescription(Player *pInput, std::string data)
 		game->setProperty("description", data);
 	}
 	else
-		pInput->ioError("Only the master can set the game description!");
+		pInput->ioError("Solo il master può impostare la descrizione del gioco!");
 }
 
 void MonopdServer::reconnectPlayer(Player *pInput, const std::string &cookie)
@@ -303,27 +303,27 @@ void MonopdServer::reconnectPlayer(Player *pInput, const std::string &cookie)
 	Player *player = findCookie(cookie);
 	if (!player)
 	{
-		pInput->ioError("Invalid cookie.");
+		pInput->ioError("Cookie non valido.");
 		return;
 	}
 
 	Game *game = player->game();
 	if (!game) {
-		pInput->ioError("Invalid cookie.");
+		pInput->ioError("Cookie non valido.");
 		return;
 	}
 
 	if (game->status() != Game::Run) {
-		pInput->ioError("Game is not running.");
+		pInput->ioError("Il gioco non è in svolgimento.");
 		return;
 	}
 
 	if (player->socket()) {
-		pInput->ioError("Cannot reconnect, target player already has a socket.");
+		pInput->ioError("Riconnessione non possibile, il giocatore di destinazioone ha già un socket.");
 		return;
 	}
 
-	pInput->ioInfo("Reconnecting.");
+	pInput->ioInfo("Riconnessione.");
 	player->setSocket(pInput->socket());
 	player->sendClientMsg();
 
@@ -332,7 +332,7 @@ void MonopdServer::reconnectPlayer(Player *pInput, const std::string &cookie)
 	game->sendStatus(Game::Run, player);
 	player->sendDisplayHistory();
 
-	game->ioInfo("%s reconnected.", player->name().c_str());
+	game->ioInfo("%s riconnesso.", player->name().c_str());
 	pInput->setSocket(0);
 	delPlayer(pInput);
 }
@@ -443,7 +443,7 @@ void MonopdServer::closedSocket(Socket *socket)
 
 	// Only remove from game when game not running, or when it's merely a spectator.
 	if (game->status() != Game::Run || pInput->getBoolProperty("spectator") || pInput->getBoolProperty("bankrupt")) {
-		game->ioInfo("Connection with %s lost.", pInput->name().c_str());
+		game->ioInfo("Connessione con %s persa.", pInput->name().c_str());
 		printf("exit from game %d: %d\n", game->id(), pInput->id());
 		delPlayer(pInput);
 		sendXMLUpdates();
@@ -453,7 +453,7 @@ void MonopdServer::closedSocket(Socket *socket)
 	printf("may reconnect\n");
 	pInput->setSocket(NULL);
 	unsigned int timeout = 180000;
-	game->ioInfo("Connection with %s lost. Player has %ds to reconnect until bankruptcy.", pInput->name().c_str(), timeout/1000);
+	game->ioInfo("Connessione con %s persa. Il giocatore aveva %ds per riconnettersi prima della bancarotta.", pInput->name().c_str(), timeout/1000);
 	Event *event = newEvent( Event::PlayerTimeout, game );
 	event->setLaunchTime(timeout);
 	event->setObject( dynamic_cast<GameObject *> (pInput) );
@@ -543,7 +543,7 @@ void MonopdServer::processEvents()
 
 				Game *game = player->game();
 				if (game->status() == Game::Run) {
-					game->ioInfo("%s did not reconnect in time and is now bankrupt.", player->name().c_str());
+					game->ioInfo("%s non si è riconnesso in tempo e ora è in bancarotta.", player->name().c_str());
 				}
 
 				// delPlayer() might call delGame() if player is the last player in game, which remove
@@ -800,7 +800,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 	Game *game = pInput->game();
 
 	if (!utf8::is_valid(data2.begin(), data2.end())) {
-		pInput->ioError("Input is not proper UTF-8");
+		pInput->ioError("L'input non è UTF-8 valido");
 		return;
 	}
 
@@ -829,7 +829,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 			goto sendupdates;
 		case 'R':
 			if (game) {
-				pInput->ioNoSuchCmd("you are already within a game");
+				pInput->ioNoSuchCmd("sei già dentro un gioco");
 				return;
 			}
 			reconnectPlayer(pInput, data2.substr(2));
@@ -838,14 +838,14 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 	}
 
 	if (!pInput->identified()) {
-		pInput->ioNoSuchCmd("you are not identified");
+		pInput->ioNoSuchCmd("non sei identificato");
 		// The rest of the commands are only available if player is identified.
 		return;
 	}
 
 	if (data[0] != '.') {
 		if (utf8::distance(data2.begin(), data2.end()) > 256) {
-			pInput->ioError("Chat messages are limited to 256 characters");
+			pInput->ioError("I messaggi di chat sono limitati a 256 caratteri");
 			return;
 		}
 
@@ -890,7 +890,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 			break;
 		}
 
-		pInput->ioNoSuchCmd("you are not within a game");
+		pInput->ioNoSuchCmd("non sei dentro un gioco");
 		// The rest of the commands are only available within a game.
 		return;
 	}
@@ -932,7 +932,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 	}
 
 	if (game->status() == Game::End) {
-		pInput->ioNoSuchCmd("this game has ended");
+		pInput->ioNoSuchCmd("questo gioco è concluso");
 		// The rest of the commands are only available when the game has not ended.
 		return;
 	}
@@ -951,13 +951,13 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 	}
 
 	if (pInput->getBoolProperty("spectator") || pInput->getBoolProperty("bankrupt")) {
-		pInput->ioNoSuchCmd("you are only a spectator");
+		pInput->ioNoSuchCmd("sei solo uno spettatore");
 		// The rest of the commands are only available for participating players
 		return;
 	}
 
 	if (game->status() != Game::Run) {
-		pInput->ioNoSuchCmd("game is not running");
+		pInput->ioNoSuchCmd("il gioco non è in svolgimento");
 		// The rest of the commands are only available if game is running
 		return;
 	}
@@ -1015,7 +1015,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 	}
 
 	if (game->clientsMoving()) {
-		pInput->ioNoSuchCmd("other players are still moving");
+		pInput->ioNoSuchCmd("altri giocatori stanno ancora muovendo");
 		// The rest of the commands are only available when no clients are moving
 		return;
 	}
@@ -1038,7 +1038,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 		}
 
 		// The rest of the commands are not available during a tax dialog
-		pInput->ioNoSuchCmd("a tax dialog is in progress");
+		pInput->ioNoSuchCmd("una dialog delle tasse è in esecuzione");
 		return;
 	}
 
@@ -1056,7 +1056,7 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 			}
 		}
 
-		pInput->ioNoSuchCmd("there are debts to be settled");
+		pInput->ioNoSuchCmd("ci sono debiti da saldare");
 		// The rest of the commands are only available when there
 		// are no debts to be settled.
 		return;
@@ -1082,14 +1082,14 @@ void MonopdServer::processInput(Socket *socket, const std::string data2)
 			break;
 		}
 
-		pInput->ioNoSuchCmd("an auction is in progress.");
+		pInput->ioNoSuchCmd("un'asta è in corso.");
 		// The rest of the commands are only available when there
 		// is no auction in progress
 		return;
 	}
 
 	if (!pInput->getBoolProperty("hasturn")) {
-		pInput->ioNoSuchCmd("this is not your turn");
+		pInput->ioNoSuchCmd("non è il tuo turno");
 		// The rest of the commands are only available when it's the player's turn
 		return;
 	}
@@ -1252,7 +1252,7 @@ void MonopdServer::setPlayerName(Player *player, std::string name) {
 		catch (const utf8::not_enough_room &e) {
 		}
 	} else {
-		name = "anonymous";
+		name = "anonimo";
 	}
 
 	std::string useName = name;
